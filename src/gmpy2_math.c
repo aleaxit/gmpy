@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_context_sin,
-"context.sin(x) -> number\n\n"
+"context.sin(x) -> mpfr | mpc\n\n"
 "Return sine of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_sin,
@@ -35,7 +35,7 @@ PyDoc_STRVAR(GMPy_doc_function_sin,
 GMPY_MPFR_MPC_UNIOP_EXWT(Sin, sin)
 
 PyDoc_STRVAR(GMPy_doc_context_cos,
-"context.cos(x) -> number\n\n"
+"context.cos(x) -> mpfr | mpc\n\n"
 "Return cosine of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_cos,
@@ -45,7 +45,7 @@ PyDoc_STRVAR(GMPy_doc_function_cos,
 GMPY_MPFR_MPC_UNIOP_EXWT(Cos, cos)
 
 PyDoc_STRVAR(GMPy_doc_context_tan,
-"context.tan(x) -> number\n\n"
+"context.tan(x) -> mpfr | mpc\n\n"
 "Return tangent of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_tan,
@@ -55,7 +55,7 @@ PyDoc_STRVAR(GMPy_doc_function_tan,
 GMPY_MPFR_MPC_UNIOP_EXWT(Tan, tan)
 
 PyDoc_STRVAR(GMPy_doc_context_atan,
-"context.atan(x) -> number\n\n"
+"context.atan(x) -> mpfr | mpc\n\n"
 "Return inverse tangent of x; result in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_atan,
@@ -75,7 +75,7 @@ PyDoc_STRVAR(GMPy_doc_function_sinh,
 GMPY_MPFR_MPC_UNIOP_EXWT(Sinh, sinh)
 
 PyDoc_STRVAR(GMPy_doc_context_cosh,
-"context.cosh(x) -> number\n\n"
+"context.cosh(x) -> mpfr | mpc\n\n"
 "Return hyperbolic cosine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_cosh,
@@ -85,7 +85,7 @@ PyDoc_STRVAR(GMPy_doc_function_cosh,
 GMPY_MPFR_MPC_UNIOP_EXWT(Cosh, cosh)
 
 PyDoc_STRVAR(GMPy_doc_context_tanh,
-"context.tanh(x) -> number\n\n"
+"context.tanh(x) -> mpfr | mpc\n\n"
 "Return hyperbolic tangent of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_tanh,
@@ -95,7 +95,7 @@ PyDoc_STRVAR(GMPy_doc_function_tanh,
 GMPY_MPFR_MPC_UNIOP_EXWT(Tanh, tanh)
 
 PyDoc_STRVAR(GMPy_doc_context_asinh,
-"context.asinh(x) -> number\n\n"
+"context.asinh(x) -> mpfr | mpc\n\n"
 "Return inverse hyperbolic sine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_asinh,
@@ -105,7 +105,7 @@ PyDoc_STRVAR(GMPy_doc_function_asinh,
 GMPY_MPFR_MPC_UNIOP_EXWT(Asinh, asinh)
 
 PyDoc_STRVAR(GMPy_doc_context_acosh,
-"context.acosh(x) -> number\n\n"
+"context.acosh(x) -> mpfr | mpc\n\n"
 "Return inverse hyperbolic cosine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_acosh,
@@ -125,7 +125,7 @@ GMPY_MPFR_MPC_UNIOP_EXWT(Acosh, acosh)
  */
 
 PyDoc_STRVAR(GMPy_doc_context_sec,
-"context.sec(x) -> number\n\n"
+"context.sec(x) -> mpfr\n\n"
 "Return secant of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_sec,
@@ -135,7 +135,7 @@ PyDoc_STRVAR(GMPy_doc_function_sec,
 GMPY_MPFR_UNIOP_EXWT(Sec, sec)
 
 PyDoc_STRVAR(GMPy_doc_context_csc,
-"context.csc(x) -> number\n\n"
+"context.csc(x) -> mpfr\n\n"
 "Return cosecant of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_csc,
@@ -145,7 +145,7 @@ PyDoc_STRVAR(GMPy_doc_function_csc,
 GMPY_MPFR_UNIOP_EXWT(Csc, csc)
 
 PyDoc_STRVAR(GMPy_doc_context_cot,
-"context.cot(x) -> number\n\n"
+"context.cot(x) -> mpfr\n\n"
 "Return cotangent of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_cot,
@@ -155,7 +155,7 @@ PyDoc_STRVAR(GMPy_doc_function_cot,
 GMPY_MPFR_UNIOP_EXWT(Cot, cot)
 
 PyDoc_STRVAR(GMPy_doc_context_sech,
-"context.sech(x) -> number\n\n"
+"context.sech(x) -> mpfr\n\n"
 "Return hyperbolic secant of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_sech,
@@ -165,7 +165,7 @@ PyDoc_STRVAR(GMPy_doc_function_sech,
 GMPY_MPFR_UNIOP_EXWT(Sech, sech)
 
 PyDoc_STRVAR(GMPy_doc_context_csch,
-"context.csch(x) -> number\n\n"
+"context.csch(x) -> mpfr\n\n"
 "Return hyperbolic cosecant of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_csch,
@@ -175,7 +175,7 @@ PyDoc_STRVAR(GMPy_doc_function_csch,
 GMPY_MPFR_UNIOP_EXWT(Csch, csch)
 
 PyDoc_STRVAR(GMPy_doc_context_coth,
-"context.coth(x) -> number\n\n"
+"context.coth(x) -> mpfr\n\n"
 "Return hyperbolic cotangent of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_coth,
@@ -185,7 +185,7 @@ PyDoc_STRVAR(GMPy_doc_function_coth,
 GMPY_MPFR_UNIOP_EXWT(Coth, coth)
 
 PyDoc_STRVAR(GMPy_doc_context_rec_sqrt,
-"context.rec_sqrt(x) -> number\n\n"
+"context.rec_sqrt(x) -> mpfr\n\n"
 "Return the reciprocal of the square root of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_rec_sqrt,
@@ -195,7 +195,7 @@ PyDoc_STRVAR(GMPy_doc_function_rec_sqrt,
 GMPY_MPFR_UNIOP_EXWT(RecSqrt, rec_sqrt)
 
 PyDoc_STRVAR(GMPy_doc_context_rint,
-"context.rint(x) -> number\n\n"
+"context.rint(x) -> mpfr\n\n"
 "Return x rounded to the nearest integer using the context rounding\n"
 "mode.");
 
@@ -207,7 +207,7 @@ PyDoc_STRVAR(GMPy_doc_function_rint,
 GMPY_MPFR_UNIOP_EXWT(Rint, rint)
 
 PyDoc_STRVAR(GMPy_doc_context_rint_ceil,
-"context.rint_ceil(x) -> number\n\n"
+"context.rint_ceil(x) -> mpfr\n\n"
 "Return x rounded to the nearest integer by first rounding to the\n"
 "next higher or equal integer and then, if needed, using the context\n"
 "rounding mode.");
@@ -221,7 +221,7 @@ PyDoc_STRVAR(GMPy_doc_function_rint_ceil,
 GMPY_MPFR_UNIOP_EXWT(RintCeil, rint_ceil)
 
 PyDoc_STRVAR(GMPy_doc_context_rint_floor,
-"context.rint_floor(x) -> number\n\n"
+"context.rint_floor(x) -> mpfr\n\n"
 "Return x rounded to the nearest integer by first rounding to the\n"
 "next lower or equal integer and then, if needed, using the context\n"
 "rounding mode.");
@@ -235,7 +235,7 @@ PyDoc_STRVAR(GMPy_doc_function_rint_floor,
 GMPY_MPFR_UNIOP_EXWT(RintFloor, rint_floor)
 
 PyDoc_STRVAR(GMPy_doc_context_rint_round,
-"context.rint_round(x) -> number\n\n"
+"context.rint_round(x) -> mpfr\n\n"
 "Return x rounded to the nearest integer by first rounding to the\n"
 "nearest integer (ties away from 0) and then, if needed, using\n"
 "the context rounding mode.");
@@ -249,7 +249,7 @@ PyDoc_STRVAR(GMPy_doc_function_rint_round,
 GMPY_MPFR_UNIOP_EXWT(RintRound, rint_round)
 
 PyDoc_STRVAR(GMPy_doc_context_rint_trunc,
-"context.rint_trunc(x) -> number\n\n"
+"context.rint_trunc(x) -> mpfr\n\n"
 "Return x rounded to the nearest integer by first rounding towards\n"
 "zero and then, if needed, using the context rounding mode.");
 
@@ -261,7 +261,7 @@ PyDoc_STRVAR(GMPy_doc_function_rint_trunc,
 GMPY_MPFR_UNIOP_EXWT(RintTrunc, rint_trunc)
 
 PyDoc_STRVAR(GMPy_doc_context_frac,
-"context.frac(x) -> number\n\n"
+"context.frac(x) -> mpfr\n\n"
 "Return fractional part of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_frac,
@@ -271,7 +271,7 @@ PyDoc_STRVAR(GMPy_doc_function_frac,
 GMPY_MPFR_UNIOP_EXWT(Frac, frac)
 
 PyDoc_STRVAR(GMPy_doc_context_cbrt,
-"context.cbrt(x) -> number\n\n"
+"context.cbrt(x) -> mpfr\n\n"
 "Return the cube root of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_cbrt,
@@ -281,7 +281,7 @@ PyDoc_STRVAR(GMPy_doc_function_cbrt,
 GMPY_MPFR_UNIOP_EXWT(Cbrt, cbrt)
 
 PyDoc_STRVAR(GMPy_doc_context_log2,
-"context.log2(x) -> number\n\n"
+"context.log2(x) -> mpfr\n\n"
 "Return base-2 logarithm of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_log2,
@@ -291,7 +291,7 @@ PyDoc_STRVAR(GMPy_doc_function_log2,
 GMPY_MPFR_UNIOP_EXWT(Log2, log2)
 
 PyDoc_STRVAR(GMPy_doc_context_exp2,
-"context.exp2(x) -> number\n\n"
+"context.exp2(x) -> mpfr\n\n"
 "Return 2**x.");
 
 PyDoc_STRVAR(GMPy_doc_function_exp2,
@@ -301,7 +301,7 @@ PyDoc_STRVAR(GMPy_doc_function_exp2,
 GMPY_MPFR_UNIOP_EXWT(Exp2, exp2)
 
 PyDoc_STRVAR(GMPy_doc_context_exp10,
-"context.exp10(x) -> number\n\n"
+"context.exp10(x) -> mpfr\n\n"
 "Return 10**x.");
 
 PyDoc_STRVAR(GMPy_doc_function_exp10,
@@ -311,7 +311,7 @@ PyDoc_STRVAR(GMPy_doc_function_exp10,
 GMPY_MPFR_UNIOP_EXWT(Exp10, exp10)
 
 PyDoc_STRVAR(GMPy_doc_context_log1p,
-"context.log1p(x) -> number\n\n"
+"context.log1p(x) -> mpfr\n\n"
 "Return natural logarithm of (1+x).");
 
 PyDoc_STRVAR(GMPy_doc_function_log1p,
@@ -321,7 +321,7 @@ PyDoc_STRVAR(GMPy_doc_function_log1p,
 GMPY_MPFR_UNIOP_EXWT(Log1p, log1p)
 
 PyDoc_STRVAR(GMPy_doc_context_expm1,
-"context.expm1(x) -> number\n\n"
+"context.expm1(x) -> mpfr\n\n"
 "Return exp(x) - 1.");
 
 PyDoc_STRVAR(GMPy_doc_function_expm1,
@@ -331,7 +331,7 @@ PyDoc_STRVAR(GMPy_doc_function_expm1,
 GMPY_MPFR_UNIOP_EXWT(Expm1, expm1)
 
 PyDoc_STRVAR(GMPy_doc_context_eint,
-"context.eint(x) -> number\n\n"
+"context.eint(x) -> mpfr\n\n"
 "Return exponential integral of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_eint,
@@ -341,7 +341,7 @@ PyDoc_STRVAR(GMPy_doc_function_eint,
 GMPY_MPFR_UNIOP_EXWT(Eint, eint)
 
 PyDoc_STRVAR(GMPy_doc_context_li2,
-"context.li2(x) -> number\n\n"
+"context.li2(x) -> mpfr\n\n"
 "Return real part of dilogarithm of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_li2,
@@ -351,7 +351,7 @@ PyDoc_STRVAR(GMPy_doc_function_li2,
 GMPY_MPFR_UNIOP_EXWT(Li2, li2)
 
 PyDoc_STRVAR(GMPy_doc_context_gamma,
-"context.gamma(x) -> number\n\n"
+"context.gamma(x) -> mpfr\n\n"
 "Return gamma of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_gamma,
@@ -361,7 +361,7 @@ PyDoc_STRVAR(GMPy_doc_function_gamma,
 GMPY_MPFR_UNIOP_EXWT(Gamma, gamma)
 
 PyDoc_STRVAR(GMPy_doc_context_lngamma,
-"context.lngamma(x) -> number\n\n"
+"context.lngamma(x) -> mpfr\n\n"
 "Return natural logarithm of gamma(x).");
 
 PyDoc_STRVAR(GMPy_doc_function_lngamma,
@@ -371,7 +371,7 @@ PyDoc_STRVAR(GMPy_doc_function_lngamma,
 GMPY_MPFR_UNIOP_EXWT(Lngamma, lngamma)
 
 PyDoc_STRVAR(GMPy_doc_context_digamma,
-"context.digamma(x) -> number\n\n"
+"context.digamma(x) -> mpfr\n\n"
 "Return digamma of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_digamma,
@@ -381,7 +381,7 @@ PyDoc_STRVAR(GMPy_doc_function_digamma,
 GMPY_MPFR_UNIOP_EXWT(Digamma, digamma)
 
 PyDoc_STRVAR(GMPy_doc_context_zeta,
-"context.zeta(x) -> number\n\n"
+"context.zeta(x) -> mpfr\n\n"
 "Return Riemann zeta of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_zeta,
@@ -391,7 +391,7 @@ PyDoc_STRVAR(GMPy_doc_function_zeta,
 GMPY_MPFR_UNIOP_EXWT(Zeta, zeta)
 
 PyDoc_STRVAR(GMPy_doc_context_erf,
-"context.erf(x) -> number\n\n"
+"context.erf(x) -> mpfr\n\n"
 "Return error function of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_erf,
@@ -401,7 +401,7 @@ PyDoc_STRVAR(GMPy_doc_function_erf,
 GMPY_MPFR_UNIOP_EXWT(Erf, erf)
 
 PyDoc_STRVAR(GMPy_doc_context_erfc,
-"context.erfc(x) -> number\n\n"
+"context.erfc(x) -> mpfr\n\n"
 "Return complementary error function of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_erfc,
@@ -411,7 +411,7 @@ PyDoc_STRVAR(GMPy_doc_function_erfc,
 GMPY_MPFR_UNIOP_EXWT(Erfc, erfc)
 
 PyDoc_STRVAR(GMPy_doc_context_j0,
-"context.j0(x) -> number\n\n"
+"context.j0(x) -> mpfr\n\n"
 "Return first kind Bessel function of order 0 of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_j0,
@@ -421,7 +421,7 @@ PyDoc_STRVAR(GMPy_doc_function_j0,
 GMPY_MPFR_UNIOP_EXWT(J0, j0)
 
 PyDoc_STRVAR(GMPy_doc_context_j1,
-"context.j1(x) -> number\n\n"
+"context.j1(x) -> mpfr\n\n"
 "Return first kind Bessel function of order 1 of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_j1,
@@ -431,7 +431,7 @@ PyDoc_STRVAR(GMPy_doc_function_j1,
 GMPY_MPFR_UNIOP_EXWT(J1, j1)
 
 PyDoc_STRVAR(GMPy_doc_context_y0,
-"context.y0(x) -> number\n\n"
+"context.y0(x) -> mpfr\n\n"
 "Return second kind Bessel function of order 0 of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_y0,
@@ -441,7 +441,7 @@ PyDoc_STRVAR(GMPy_doc_function_y0,
 GMPY_MPFR_UNIOP_EXWT(Y0, y0)
 
 PyDoc_STRVAR(GMPy_doc_context_y1,
-"context.y1(x) -> number\n\n"
+"context.y1(x) -> mpfr\n\n"
 "Return second kind Bessel function of order 1 of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_y1,
@@ -451,7 +451,7 @@ PyDoc_STRVAR(GMPy_doc_function_y1,
 GMPY_MPFR_UNIOP_EXWT(Y1, y1)
 
 PyDoc_STRVAR(GMPy_doc_context_ai,
-"context.ai(x) -> number\n\n"
+"context.ai(x) -> mpfr\n\n"
 "Return Airy function of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_ai,
@@ -474,7 +474,7 @@ GMPY_MPFR_UNIOP_EXWT(Ai, ai)
  */
 
 PyDoc_STRVAR(GMPy_doc_context_acos,
-"context.acos(x) -> number\n\n"
+"context.acos(x) -> mpfr | mpc\n\n"
 "Return inverse cosine of x; result in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_acos,
@@ -561,7 +561,7 @@ GMPy_ComplexWithType_Acos(PyObject *x, int xtype, CTXT_Object *context)
 GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Acos, acos)
 
 PyDoc_STRVAR(GMPy_doc_context_asin,
-"context.asin(x) -> number\n\n"
+"context.asin(x) -> mpfr | mpc\n\n"
 "Return inverse sine of x; result in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_asin,
@@ -646,7 +646,7 @@ GMPy_ComplexWithType_Asin(PyObject *x, int xtype, CTXT_Object *context)
 GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Asin, asin)
 
 PyDoc_STRVAR(GMPy_doc_context_atanh,
-"context.atanh(x) -> number\n\n"
+"context.atanh(x) -> mpfr | mpc\n\n"
 "Return inverse hyperbolic tanget of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_atanh,
@@ -735,7 +735,7 @@ PyDoc_STRVAR(GMPy_doc_function_atan2,
 "Return arc-tangent of (y/x); result in radians.");
 
 PyDoc_STRVAR(GMPy_doc_context_atan2,
-"context.atan2(y, x) -> number\n\n"
+"context.atan2(y, x) -> mpfr\n\n"
 "Return arc-tangent of (y/x); result in radians.");
 
 GMPY_MPFR_BINOP_EXWT(Atan2, atan2)
@@ -745,7 +745,7 @@ PyDoc_STRVAR(GMPy_doc_function_hypot,
 "Return square root of (x**2 + y**2).");
 
 PyDoc_STRVAR(GMPy_doc_context_hypot,
-"context.hypot(x, y) -> number\n\n"
+"context.hypot(x, y) -> mpfr\n\n"
 "Return square root of (x**2 + y**2).");
 
 GMPY_MPFR_BINOP_EXWT(Hypot, hypot)
@@ -846,7 +846,7 @@ GMPy_ComplexWithType_Sin_Cos(PyObject *x, int xtype, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_sin_cos,
-"context.sin_cos(x) -> (number, number)\n\n"
+"context.sin_cos(x) -> tuple[mpfr|mpc, mpfr|mpc]\n\n"
 "Return a tuple containing the sine and cosine of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_sin_cos,
@@ -898,7 +898,7 @@ GMPy_RealWithType_Sinh_Cosh(PyObject *x, int xtype, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_sinh_cosh,
-"context.sinh_cosh(x) -> (number, number)\n\n"
+"context.sinh_cosh(x) -> tuple[mpfr, mpfr]\n\n"
 "Return a tuple containing the hyperbolic sine and cosine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_sinh_cosh,
@@ -1000,7 +1000,7 @@ GMPy_Context_Radians(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_log10,
-"context.log10(x) -> number\n\n"
+"context.log10(x) -> mpfr | mpc\n\n"
 "Return the base-10 logarithm of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_log10,
@@ -1010,7 +1010,7 @@ PyDoc_STRVAR(GMPy_doc_function_log10,
 GMPY_MPFR_MPC_UNIOP_EXWT(Log10, log10)
 
 PyDoc_STRVAR(GMPy_doc_context_log,
-"context.log(x) -> number\n\n"
+"context.log(x) -> mpfr | mpc\n\n"
 "Return the natural logarithm of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_log,
@@ -1020,7 +1020,7 @@ PyDoc_STRVAR(GMPy_doc_function_log,
 GMPY_MPFR_MPC_UNIOP_EXWT(Log, log)
 
 PyDoc_STRVAR(GMPy_doc_context_exp,
-"context.exp(x) -> number\n\n"
+"context.exp(x) -> mpfr | mpc\n\n"
 "Return the exponential of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_exp,
@@ -1030,7 +1030,7 @@ PyDoc_STRVAR(GMPy_doc_function_exp,
 GMPY_MPFR_MPC_UNIOP_EXWT(Exp, exp)
 
 PyDoc_STRVAR(GMPy_doc_context_sqrt,
-"context.sqrt(x) -> number\n\n"
+"context.sqrt(x) -> mpfr | mpc\n\n"
 "Return the square root of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_sqrt,
@@ -1419,7 +1419,8 @@ PyDoc_STRVAR(GMPy_doc_function_round2,
 "specified. See round_away() to access the mpfr_round() function.");
 
 PyDoc_STRVAR(GMPy_doc_context_round2,
-"context.round2(x[, n]) -> mpfr\n\n"
+"context.round2(x) -> mpfr\n"
+"context.round2(x, n) -> mpfr\n\n"
 "Return x rounded to n bits. Uses default precision if n is not\n"
 "specified. See round_away() to access the mpfr_round() function.");
 
@@ -1595,7 +1596,7 @@ PyDoc_STRVAR(GMPy_doc_function_modf,
 "of x.");
 
 PyDoc_STRVAR(GMPy_doc_context_modf,
-"context.modf(x) -> (mpfr, mpfr)\n\n"
+"context.modf(x) -> tuple[mpfr, mpfr]\n\n"
 "Return a tuple containing the integer and fractional portions\n"
 "of x.");
 
@@ -1651,7 +1652,7 @@ PyDoc_STRVAR(GMPy_doc_function_lgamma,
 "gamma(x) and the sign of gamma(x)");
 
 PyDoc_STRVAR(GMPy_doc_context_lgamma,
-"context.lgamma(x) -> (mpfr, int)\n\n"
+"context.lgamma(x) -> tuple[mpfr, int]\n\n"
 "Return a tuple containing the logarithm of the absolute value of\n"
 "gamma(x) and the sign of gamma(x)");
 
@@ -1697,7 +1698,7 @@ PyDoc_STRVAR(GMPy_doc_function_remquo,
 "quotient.");
 
 PyDoc_STRVAR(GMPy_doc_context_remquo,
-"context.remquo(x, y) -> (mpfr, int)\n\n"
+"context.remquo(x, y) -> tuple[mpfr, int]\n\n"
 "Return a tuple containing the remainder(x,y) and the low bits of the\n"
 "quotient.");
 
@@ -1741,7 +1742,7 @@ PyDoc_STRVAR(GMPy_doc_function_frexp,
 "Return a tuple containing the exponent and mantissa of x.");
 
 PyDoc_STRVAR(GMPy_doc_context_frexp,
-"context.frexp(x) -> (int, mpfr)\n\n"
+"context.frexp(x) -> tuple[int, mpfr]\n\n"
 "Return a tuple containing the exponent and mantissa of x.");
 
 static PyObject *

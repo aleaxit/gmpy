@@ -124,7 +124,7 @@ GMPy_Number_Plus(PyObject *x, CTXT_Object *context)
  * a context. */
 
 PyDoc_STRVAR(GMPy_doc_context_plus,
-"context.plus(x) -> number\n\n"
+"context.plus(x) -> mpz | mpq | mpfr | mpc\n\n"
 "Return +x, the context is applied to the result.");
 
 static PyObject *
@@ -146,4 +146,3 @@ GMPy_Context_Plus(PyObject *self, PyObject *args)
 
     return GMPy_Number_Plus(PyTuple_GET_ITEM(args, 0), context);
 }
-

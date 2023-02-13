@@ -787,7 +787,7 @@ GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_pow,
-"context.pow(x, y) -> number\n\n"
+"context.pow(x, y) -> mpz | mpq | mpfr | mpc\n\n"
 "Return x ** y.");
 
 static PyObject *

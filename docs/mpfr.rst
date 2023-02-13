@@ -89,7 +89,6 @@ mpfr Functions
 .. autofunction:: gamma
 .. autofunction:: get_exp
 .. autofunction:: hypot
-.. autofunction:: ieee
 .. autofunction:: inf
 .. autofunction:: is_finite
 .. autofunction:: is_infinite
@@ -138,3 +137,9 @@ mpfr Functions
 .. autofunction:: yn
 .. autofunction:: zero
 .. autofunction:: zeta
+.. autofunction:: get_max_precision
+.. autofunction:: get_emax_max
+.. autofunction:: get_emin_min
+.. autofunction:: copy_sign
+.. autofunction:: can_round
+.. autofunction:: free_cache
