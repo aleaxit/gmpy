@@ -84,6 +84,7 @@ mpz Functions
 .. autofunction:: is_odd
 .. autofunction:: is_power
 .. autofunction:: is_prime
+.. autofunction:: is_probab_prime
 .. autofunction:: is_square
 .. autofunction:: isqrt
 .. autofunction:: isqrt_rem

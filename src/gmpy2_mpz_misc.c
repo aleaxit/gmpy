@@ -1414,6 +1414,83 @@ GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_probab_prime,
+"is_probab_prime(x, n=25, /) -> int\n\n"
+"Return 2 if x is definitely prime, 1 if x is probably prime, \n"
+"or return 0 if x is definitely non-prime.  x is checked for small \n"
+"divisors and up to n Miller-Rabin tests are performed.  Reasonable \n"
+"values of n are between 15 and 50.");
+
+static PyObject *
+GMPy_MPZ_Function_IsProbabPrime(PyObject *module, PyObject *const *args,
+                                Py_ssize_t nargs)
+{
+    int ret;
+    unsigned long reps = 25;
+    MPZ_Object* tempx;
+
+    if (nargs == 0 || nargs > 2) {
+        TYPE_ERROR("is_probab_prime() requires 'mpz'[,'int'] arguments");
+        return NULL;
+    }
+
+    if (nargs == 2) {
+        reps = PyLong_AsUnsignedLong(args[1]);
+        if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
+        return NULL;
+    }
+
+    if (mpz_sgn(MPZ(tempx)) == -1) {
+        Py_DECREF((PyObject*)tempx);
+        return PyLong_FromLong(0);
+    }
+
+    ret = mpz_probab_prime_p(MPZ(tempx), reps);
+    Py_DECREF((PyObject*)tempx);
+
+    return PyLong_FromLong(ret);
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_method_is_probab_prime,
+"x.is_probab_prime(n=25, /) -> int\n\n"
+"Return 2 if x is definitely prime, 1 if x is probably prime, \n"
+"or return 0 if x is definitely non-prime.  x is checked for small \n"
+"divisors and up to n Miller-Rabin tests are performed.  Reasonable \n"
+"values of n are between 15 and 50.");
+
+static PyObject *
+GMPy_MPZ_Method_IsProbabPrime(PyObject *self, PyObject *const *args,
+                              Py_ssize_t nargs)
+{
+    int ret;
+    unsigned long reps = 25;
+
+    if (nargs > 1) {
+        TYPE_ERROR("is_probab_prime() takes at most 1 argument");
+        return NULL;
+    }
+
+    if (nargs == 1) {
+        reps = PyLong_AsUnsignedLong(args[0]);
+        if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+
+    if (mpz_sgn(MPZ(self)) == -1) {
+        return PyLong_FromLong(0);
+    }
+
+    ret = mpz_probab_prime_p(MPZ(self), (int)reps);
+
+    return PyLong_FromLong(ret);
+}
+
 PyDoc_STRVAR(GMPy_doc_mpz_function_next_prime,
 "next_prime(x) -> mpz\n\n"
 "Return the next _probable_ prime number > x.");

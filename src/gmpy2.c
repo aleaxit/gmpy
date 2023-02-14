@@ -743,6 +743,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "is_odd", GMPy_MPZ_Function_IsOdd, METH_O, GMPy_doc_mpz_function_is_odd },
     { "is_power", GMPy_MPZ_Function_IsPower, METH_O, GMPy_doc_mpz_function_is_power },
     { "is_prime", GMPy_MPZ_Function_IsPrime, METH_VARARGS, GMPy_doc_mpz_function_is_prime },
+    { "is_probab_prime", (PyCFunction)GMPy_MPZ_Function_IsProbabPrime, METH_FASTCALL, GMPy_doc_mpz_function_is_probab_prime },
     { "is_selfridge_prp", GMPY_mpz_is_selfridge_prp, METH_VARARGS, doc_mpz_is_selfridge_prp },
     { "is_square", GMPy_MPZ_Function_IsSquare, METH_O, GMPy_doc_mpz_function_is_square },
     { "is_strong_prp", GMPY_mpz_is_strong_prp, METH_VARARGS, doc_mpz_is_strong_prp },
