@@ -594,6 +594,53 @@ False
 >>> gmpy2.is_prime(-3)
 False
 
+Test is_probab_prime
+--------------------
+>>> gmpy2.is_probab_prime(3,-3)
+Traceback (most recent call last):
+  ...
+OverflowError: can't convert negative value to unsigned long
+>>> gmpy2.is_probab_prime()
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_probab_prime(1,2,3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_probab_prime('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_probab_prime(71)
+2
+>>> gmpy2.is_probab_prime(12345)
+0
+>>> gmpy2.is_probab_prime(80**81 + 81**80)
+1
+>>> gmpy2.is_probab_prime(80**81 + 81**80, 10000)
+1
+>>> mpz(129).is_probab_prime(1,2)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> mpz(129).is_probab_prime(-7)
+Traceback (most recent call last):
+  ...
+OverflowError: can't convert negative value to unsigned long
+>>> mpz(71).is_probab_prime(71)
+2
+>>> mpz(129).is_probab_prime(10000)
+0
+>>> mpz(80**81 + 81**80).is_probab_prime()
+1
+>>> mpz(1234567890).is_probab_prime()
+0
+>>> mpz(-3).is_probab_prime()
+0
+>>> gmpy2.is_probab_prime(-3)
+0
+
 Test next_prime
 ---------------
 >>> gmpy2.next_prime('a')
