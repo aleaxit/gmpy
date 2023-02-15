@@ -28,10 +28,15 @@ PyDoc_STRVAR(GMPy_doc_mpq,
 "mpq(n=0)\n"
 "mpq(n, m)\n"
 "mpq(s, base=10)\n\n"
-"Return an mpq object constructed from a numeric value n (Fraction values\n"
-"are converted exactly) or from a numeric value n/m or from a string s \n"
-"made up of digits in the given base. s may be made up of two numbers \n"
-"in the same base separated by a '/' character.\n");
+"Return a rational number constructed from a non-complex number n\n"
+"exactly or from a pair of `~numbers.Rational` values n and m or\n"
+"from a string s made up of digits in the given base.\n"
+"Every input, that is accepted by the `~fractions.Fraction` type\n"
+"constructor is also accepted.\n\n"
+"A string may be made up to two integers in the same base separated\n"
+"by a '/' character, both parsed the same as the `mpz` type constructor\n"
+"does.  If base=10, any string that represents a finite value and is\n"
+"accepted by the `float` constructor is also accepted.");
 
 /* Since `gmpy2.mpq` is now a type and no longer a factory function, see
  * gmpy2_cache.c/GMPy_MPQ_NewInit for details on creation.
