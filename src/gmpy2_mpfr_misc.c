@@ -186,8 +186,8 @@ GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_exp,
-"get_exp(mpfr, /) -> int\n\n"
-"Return the exponent of an mpfr. Returns 0 for NaN or Infinity and\n"
+"get_exp(x, /) -> int\n\n"
+"Return the exponent of x. Returns 0 for NaN or Infinity and\n"
 "sets the erange flag and will raise an exception if trap_erange\n"
 "is set.");
 
@@ -225,8 +225,8 @@ GMPy_MPFR_get_exp(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_exp,
-"set_exp(mpfr, n, /) -> mpfr\n\n"
-"Set the exponent of an mpfr to n. If n is outside the range of\n"
+"set_exp(x, n, /) -> mpfr\n\n"
+"Set the exponent of x to n. If n is outside the range of\n"
 "valid exponents, set_exp() will set the erange flag and either\n"
 "return the original value or raise an exception if trap_erange\n"
 "is set.");
@@ -283,8 +283,8 @@ GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_sign,
-"set_sign(mpfr, bool, /) -> mpfr\n\n"
-"If 'bool' is True, then return an 'mpfr' with the sign bit set.");
+"set_sign(x, s, /) -> mpfr\n\n"
+"If s is True, then return x with the sign bit set.");
 
 static PyObject *
 GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
@@ -313,9 +313,8 @@ GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_copy_sign,
-"copy_sign(mpfr, mpfr, /) -> mpfr\n\n"
-"Return an 'mpfr' composed of the first argument with the sign of the\n"
-"second argument.");
+"copy_sign(x, y, /) -> mpfr\n\n"
+"Return an 'mpfr' composed of x with the sign of y.");
 
 static PyObject *
 GMPy_MPFR_copy_sign(PyObject *self, PyObject *args)
@@ -743,4 +742,3 @@ GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args)
     mpz_clear(temp);
     return((PyObject*)resultf);
 }
-
