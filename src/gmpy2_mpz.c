@@ -25,8 +25,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpz,
-"mpz(n=0)\n"
-"mpz(s, base=0)\n\n"
+"mpz(n=0, /)\n"
+"mpz(s, /, base=0)\n\n"
 "Return an immutable integer constructed from a numeric value n (truncating\n"
 "n to its integer part) or a string s made of digits in the given base.\n"
 "Every input, that is accepted by the `int` type constructor is also accepted.\n\n"

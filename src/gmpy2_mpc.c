@@ -139,12 +139,12 @@ _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpc,
-"mpc(c=0, precision=0)\n"
-"mpc(c=0, precision=0, context)\n"
-"mpc(real, imag=0, precision=0)\n"
-"mpc(real, imag=0, precision=0, context)\n"
-"mpc(s, precision=0, base=10)\n"
-"mpc(s, precision, base, context)\n\n"
+"mpc(c=0, /, precision=0)\n"
+"mpc(c=0, /, precision, context)\n"
+"mpc(real, /, imag=0, precision=0)\n"
+"mpc(real, /, imag, precision, context)\n"
+"mpc(s, /, precision=0, base=10)\n"
+"mpc(s, /, precision, base, context)\n\n"
 "Return a complex floating-point number constructed from a numeric value\n"
 "c or from a pair of two non-complex numbers real and imag or from a\n"
 "string s made of digits in the given base.\n\n"

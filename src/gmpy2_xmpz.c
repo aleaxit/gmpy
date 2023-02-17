@@ -25,8 +25,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_xmpz,
-"xmpz(n=0)\n"
-"xmpz(s, base=0)\n\n"
+"xmpz(n=0, /)\n"
+"xmpz(s, /, base=0)\n\n"
 "Return a mutable integer constructed from a numeric value n\n"
 "or a string s made of digits in the given base.  Every input,\n"
 "that is accepted by the `mpz` type constructor is also accepted.\n\n"

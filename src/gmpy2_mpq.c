@@ -25,9 +25,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpq,
-"mpq(n=0)\n"
-"mpq(n, m)\n"
-"mpq(s, base=10)\n\n"
+"mpq(n=0, /)\n"
+"mpq(n, m, /)\n"
+"mpq(s, /, base=10)\n\n"
 "Return a rational number constructed from a non-complex number n\n"
 "exactly or from a pair of `~numbers.Rational` values n and m or\n"
 "from a string s made up of digits in the given base.\n"

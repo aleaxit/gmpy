@@ -96,10 +96,10 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr,
-"mpfr(n=0, precision=0)\n"
-"mpfr(n, precision, context)\n"
-"mpfr(s, precision=0, base=0)\n"
-"mpfr(s, precision, base, context)\n\n"
+"mpfr(n=0, /, precision=0)\n"
+"mpfr(n, /, precision, context)\n"
+"mpfr(s, /, precision=0, base=0)\n"
+"mpfr(s, /, precision, base, context)\n\n"
 "Return a floating-point number after converting a numeric value n or\n"
 "a string s made of digits in the given base.\n\n"
 "A string can be with fraction-part (with a period as a separator)\n"
