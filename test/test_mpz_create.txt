@@ -150,4 +150,11 @@ TypeError: ** message detail varies **
 mpz(99)
 >>> mpz(xmpz(5))
 mpz(5)
-
+>>> mpz('ы')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: string contains non-ASCII characters
+>>> mpz(bytes('ы', encoding='utf-8'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: string contains non-ASCII characters

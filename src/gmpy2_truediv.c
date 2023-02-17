@@ -62,7 +62,7 @@ GMPy_Integer_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-          
+
         if (mpz_sgn(tempy->z) == 0) {
             ZERO_ERROR("division or modulo by zero");
             Py_XDECREF((PyObject*)tempx);
@@ -81,16 +81,18 @@ GMPy_Integer_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         result->rc = mpfr_set_q(result->f, tempq, GET_MPFR_ROUND(context));
 
         mpq_clear(tempq);
-        
+
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         _GMPy_MPFR_Cleanup(&result, context);
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("div() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 static PyObject *
 GMPy_Rational_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
@@ -144,9 +146,11 @@ GMPy_Rational_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("div() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Attempt true division of two numbers and return an mpfr. The code path is
@@ -196,9 +200,11 @@ GMPy_Real_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("div() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -252,9 +258,11 @@ GMPy_Complex_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("div() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement all the slot methods here. */
@@ -264,7 +272,7 @@ GMPy_Number_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_TrueDivWithType(x, xtype, y, ytype, NULL);
 
@@ -273,7 +281,7 @@ GMPy_Number_TrueDiv_Slot(PyObject *x, PyObject *y)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_TrueDivWithType(x, xtype, y, ytype, NULL);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_TrueDivWithType(x, xtype, y, ytype, NULL);
 
@@ -289,7 +297,7 @@ GMPy_Number_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_TrueDivWithType(x, xtype, y, ytype, NULL);
 
@@ -298,7 +306,7 @@ GMPy_Number_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_TrueDivWithType(x, xtype, y, ytype, NULL);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_TrueDivWithType(x, xtype, y, ytype, NULL);
 
@@ -331,5 +339,3 @@ GMPy_Context_TrueDiv(PyObject *self, PyObject *args)
                                PyTuple_GET_ITEM(args, 1),
                                context);
 }
-
-

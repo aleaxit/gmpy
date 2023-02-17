@@ -685,7 +685,6 @@ static PyObject *GMPyExc_Erange = NULL;
 
 static PyMethodDef Pygmpy_methods [] =
 {
-    { "_printf", GMPy_printf, METH_VARARGS, GMPy_doc_function_printf },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_function_add },
     { "bit_clear", GMPy_MPZ_bit_clear_function, METH_VARARGS, doc_bit_clear_function },
     { "bit_count", GMPy_MPZ_bit_count, METH_O, doc_bit_count },
@@ -1370,7 +1369,9 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         result = PyRun_String(register_numbers, Py_file_input,
                               namespace, namespace);
         if (!result) {
+            /* LCOV_EXCL_START */
             PyErr_Clear();
+            /* LCOV_EXCL_STOP */
         }
 
         Py_DECREF(namespace);
@@ -1378,7 +1379,9 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         Py_XDECREF(result);
     }
     else {
+        /* LCOV_EXCL_START */
         PyErr_Clear();
+        /* LCOV_EXCL_STOP */
     }
 
     return gmpy_module;

@@ -89,6 +89,10 @@ Traceback (most recent call last):
 OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
+>>> gmpy2.bit_scan0(mpz(-1), 1) is None
+True
+>>> mpz(-1).bit_scan0(1) is None
+True
 
 Test bit_scan1
 --------------
@@ -131,6 +135,10 @@ Traceback (most recent call last):
 OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
+>>> gmpy2.bit_scan1(mpz(1), 1) is None
+True
+>>> mpz(1).bit_scan1(1) is None
+True
 
 Test bit_test
 -------------
@@ -350,4 +358,7 @@ mpz(-10009)
 7
 >>> gmpy2.popcount(a) == -1
 True
->>> 
+>>> gmpy2.bit_count('spam')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_count() requires 'mpz' argument

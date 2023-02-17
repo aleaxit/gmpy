@@ -37,7 +37,6 @@ static PyObject * GMPy_get_mp_version(PyObject *self, PyObject *args);
 static PyObject * GMPy_get_mpfr_version(PyObject *self, PyObject *args);
 static PyObject * GMPy_get_mpc_version(PyObject *self, PyObject *args);
 static PyObject * GMPy_get_mp_limbsize(PyObject *self, PyObject *args);
-static PyObject * GMPy_printf(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

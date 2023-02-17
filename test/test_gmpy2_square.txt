@@ -35,3 +35,7 @@ True
 True
 >>> square(complex(2,3)) == square(c)
 True
+>>> square('invalid')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: square() argument type not supported

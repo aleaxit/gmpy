@@ -128,9 +128,11 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("floor_div() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -179,7 +181,7 @@ GMPy_Rational_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-        
+
         if (mpq_sgn(tempy->q) == 0) {
             ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)tempx);
@@ -199,10 +201,12 @@ GMPy_Rational_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)tempq);
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("floor_div() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Attempt floor division of two numbers and return an mpfr. The code path is
@@ -257,9 +261,11 @@ GMPy_Real_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("floor_div() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -277,7 +283,7 @@ GMPy_Number_FloorDiv_Slot(PyObject *x, PyObject *y)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_FloorDivWithType(x, xtype, y, ytype, NULL);
 
@@ -286,7 +292,7 @@ GMPy_Number_FloorDiv_Slot(PyObject *x, PyObject *y)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_FloorDivWithType(x, xtype, y, ytype, NULL);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_FloorDivWithType(x, xtype, y, ytype, NULL);
 
@@ -302,7 +308,7 @@ GMPy_Number_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_FloorDivWithType(x, xtype, y, ytype, NULL);
 
@@ -311,7 +317,7 @@ GMPy_Number_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_FloorDivWithType(x, xtype, y, ytype, NULL);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_FloorDivWithType(x, xtype, y, ytype, NULL);
 
@@ -326,21 +332,12 @@ PyDoc_STRVAR(GMPy_doc_context_floordiv,
 static PyObject *
 GMPy_Context_FloorDiv(PyObject *self, PyObject *args)
 {
-    CTXT_Object *context = NULL;
-
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("floor_div() requires 2 arguments");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
     return GMPy_Number_FloorDiv(PyTuple_GET_ITEM(args, 0),
                                 PyTuple_GET_ITEM(args, 1),
-                                context);
+                                (CTXT_Object*)self);
 }

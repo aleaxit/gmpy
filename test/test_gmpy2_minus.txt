@@ -26,3 +26,11 @@ mpq(-2,3)
 mpc('-15.0-3.0j')
 >>> - mpc(5,5)
 mpc('-5.0-5.0j')
+>>> ctx.minus('invalid')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: minus() argument type not supported
+>>> ctx.minus()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: minus() requires 1 argument.
