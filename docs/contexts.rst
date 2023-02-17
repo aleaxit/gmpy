@@ -3,13 +3,13 @@ Contexts
 
 .. currentmodule:: gmpy2
 
-A *context* (an instance of :class:`_context`) is used to control the behavior
+A `context` type is used to control the behavior
 of :class:`mpfr` and :class:`mpc` arithmetic.  In addition to controlling the
 precision, the rounding mode can be specified, minimum and maximum exponent
 values can be changed, various exceptions can be raised or ignored, gradual
 underflow can be enabled, and returning complex results can be enabled.
 
-:func:`context` creates a new context with all options set to default.
+`context()` creates a new context with all options set to default.
 :func:`set_context` will set the active context.  :func:`get_context` will
 return a reference to the active context. Note that contexts are mutable:
 modifying the reference returned by :func:`get_context` will modify the active
@@ -64,13 +64,12 @@ be discussed later.
 Context Type
 ------------
 
-.. autoclass:: _context
+.. autoclass:: context
    :members:
 
 Context Functions
 -----------------
 
-.. autofunction:: context
 .. autofunction:: get_context
 .. autofunction:: ieee
 .. autofunction:: local_context
