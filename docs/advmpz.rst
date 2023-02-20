@@ -125,7 +125,6 @@ prime numbers.
 
 
 .. autoclass:: xmpz
-   :members:
 
 
 Advanced Number Theory Functions

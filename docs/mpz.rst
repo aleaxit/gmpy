@@ -37,7 +37,6 @@ mpz type
 --------
 
 .. autoclass:: mpz
-   :members:
 
 mpz Functions
 -------------

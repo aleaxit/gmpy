@@ -65,7 +65,6 @@ Context Type
 ------------
 
 .. autoclass:: context
-   :members:
 
 Context Functions
 -----------------

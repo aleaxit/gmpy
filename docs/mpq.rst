@@ -20,7 +20,6 @@ mpq type
 --------
 
 .. autoclass:: mpq
-   :members:
 
 mpq Functions
 -------------

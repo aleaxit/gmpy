@@ -73,7 +73,6 @@ mpc Type
 --------
 
 .. autoclass:: mpc
-   :members:
    :special-members: __format__
 
 mpc Functions

@@ -50,7 +50,6 @@ mpfr Type
 ---------
 
 .. autoclass:: mpfr
-   :members:
    :special-members: __format__
 
 mpfr Functions

@@ -21,6 +21,10 @@ default_role = 'py:obj'
 # or by source order (value 'bysource').
 autodoc_member_order = 'groupwise'
 
+# The default options for autodoc directives. They are applied to all
+# autodoc directives automatically.
+autodoc_default_options = {'members': True}
+
 # Contains mapping the locations and names of other projects that
 # should be linked to in this documentation.
 intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
