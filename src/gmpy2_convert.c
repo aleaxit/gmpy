@@ -117,9 +117,9 @@ static inline int GMPy_ObjectType(PyObject *obj)
 }
 
 static PyObject *
-GMPy_RemoveUnderscoreASCII(PyObject *s)
+GMPy_RemoveIgnoredASCII(PyObject *s)
 {
-    PyObject *ascii_str = NULL, *temp = NULL, *filtered = NULL, *under = NULL, *blank = NULL;
+    PyObject *ascii_str = NULL, *temp = NULL, *filtered = NULL, *symbol = NULL, *blank = NULL;
 
     if (PyBytes_CheckExact(s)) {
         temp = PyUnicode_DecodeASCII(PyBytes_AS_STRING(s), PyBytes_GET_SIZE(s), "strict");
@@ -139,13 +139,21 @@ GMPy_RemoveUnderscoreASCII(PyObject *s)
         /* LCOV_EXCL_STOP */
     }
 
-    if ((under = PyUnicode_FromString("_")) &&
-        (blank = PyUnicode_FromString(""))) {
-        filtered = PyUnicode_Replace(temp, under, blank, -1);
-    }
-    Py_XDECREF(under);
-    Py_XDECREF(blank);
+    blank = PyUnicode_FromString("");
+
+    symbol = PyUnicode_FromString(" ");
+    filtered = PyUnicode_Replace(temp, symbol, blank, -1);
+    Py_XDECREF(symbol);
     Py_XDECREF(temp);
+
+    temp = filtered;
+
+    symbol = PyUnicode_FromString("_");
+    filtered = PyUnicode_Replace(temp, symbol, blank, -1);
+    Py_XDECREF(symbol);
+    Py_XDECREF(temp);
+
+    Py_XDECREF(blank);
 
     if (!filtered) {
         return NULL;
@@ -173,13 +181,11 @@ mpz_set_PyStr(mpz_t z, PyObject *s, int base)
     char *cp, negative = 0;
     PyObject *ascii_str;
 
-    ascii_str = GMPy_RemoveUnderscoreASCII(s);
+    ascii_str = GMPy_RemoveIgnoredASCII(s);
 
     if (!ascii_str) return -1;
 
     cp = PyBytes_AsString(ascii_str);
-
-    while (*cp == ' ') cp++;
 
     if (cp[0] == '+') cp++;
     if (cp[0] == '-') {
