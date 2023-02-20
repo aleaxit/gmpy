@@ -37,7 +37,7 @@
  */
 
 PyDoc_STRVAR(doc_pack,
-"pack(lst, n, /) -> mpz\n\n"
+"pack(lst, n) -> mpz\n\n"
 "Pack a list of integers 'lst' into a single 'mpz' by concatenating\n"
 "each integer element of 'lst' after padding to length n bits. Raises\n"
 "an error if any integer is negative or greater than n bits in\n"
@@ -129,7 +129,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_unpack,
-"unpack(x, n, /) -> list\n\n"
+"unpack(x, n) -> list\n\n"
 "Unpack an integer 'x' into a list of n-bit values. Equivalent to\n"
 "repeated division by 2**n. Raises error if 'x' is negative.");
 

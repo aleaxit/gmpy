@@ -41,7 +41,7 @@ static PyObject* GMPy_XMPZ_Method_LimbsRead(PyObject* obj, PyObject* args)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_write,
-"xmpz.limbs_write(n, /) -> int\n\n"
+"xmpz.limbs_write(n) -> int\n\n"
 "     Returns the address of a mutable buffer representing the limbs \n"
 "     of 'xmpz', resized so that it may hold at least 'n' limbs.\n"
 "     Must be followed by a call to 'xmpz.limbs_finish(n)' after writing to\n"
@@ -63,7 +63,7 @@ static PyObject* GMPy_XMPZ_Method_LimbsWrite(PyObject* obj, PyObject* other)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_modify,
-"xmpz.limbs_modify(n, /) -> int\n\n"
+"xmpz.limbs_modify(n) -> int\n\n"
 "     Returns the address of a mutable buffer representing the limbs \n"
 "     of 'xmpz', resized so that it may hold at least 'n' limbs.\n"
 "     Must be followed by a call to 'xmpz.limbs_finish(n)' after writing to\n"
@@ -82,7 +82,7 @@ static PyObject* GMPy_XMPZ_Method_LimbsModify(PyObject* obj, PyObject* other)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_finish,
-"xmpz.limbs_finish(n, /) -> None\n\n"
+"xmpz.limbs_finish(n)\n\n"
 "     Must be called after writing to the address returned by \n"
 "     'xmpz.limbs_write(n)' or 'xmpz.limbs_modify(n)' to update\n"
 "     the limbs of 'xpmz'.");
