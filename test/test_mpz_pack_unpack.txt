@@ -28,3 +28,28 @@ Test
     >>> x -= 1
     >>> all((x == pack(unpack(x,i),i) for i in range(1,200)))
     True
+
+    >>> pack(x)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: pack() requires 'list','int' arguments
+    >>> pack(1, 1)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: pack() requires 'list','int' arguments
+    >>> pack([mpz(1), mpz(-1)], 2)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: pack() requires list elements be positive integers < 2^n bits
+    >>> unpack(x)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unpack() requires 'int','int' arguments
+    >>> unpack([], 1)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unpack() requires 'int','int' arguments
+    >>> unpack(-1, 1)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ValueError: unpack() requires x >= 0

@@ -160,6 +160,10 @@ Traceback (most recent call last):
 TypeError: unsupported operand type(s) for /: 'mpz' and 'str'
 >>> 1
 1
+>>> with gmpy2.local_context(rational_division=True):
+...     print(mpz(1)/mpz(2))
+...
+1/2
 
 Test modulo
 -----------
@@ -530,13 +534,29 @@ Test bit operations
 mpz(-124)
 >>> a&b
 mpz(72)
+>>> a&int(b)
+mpz(72)
+>>> int(a)&b
+mpz(72)
 >>> a|b
+mpz(507)
+>>> a|int(b)
+mpz(507)
+>>> int(a)|b
 mpz(507)
 >>> a^b
 mpz(435)
+>>> a^int(b)
+mpz(435)
+>>> int(a)^b
+mpz(435)
 >>> a<<1
 mpz(246)
+>>> int(a)<<mpz(1)
+mpz(246)
 >>> a>>1
+mpz(61)
+>>> int(a)>>mpz(1)
 mpz(61)
 >>> a<<-1
 Traceback (innermost last):
@@ -550,6 +570,26 @@ OverflowError: can't convert negative value to unsigned long
 mpz(123)
 >>> a>>0
 mpz(123)
+>>> "a" << a
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
+>>> "a" >> a
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
+>>> a&mpq(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
+>>> a|mpq(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
+>>> a^mpq(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
 
 Test conversions
 ----------------

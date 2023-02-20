@@ -130,19 +130,10 @@ PyDoc_STRVAR(GMPy_doc_context_plus,
 static PyObject *
 GMPy_Context_Plus(PyObject *self, PyObject *args)
 {
-    CTXT_Object *context = NULL;
-
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("plus() requires 1 argument.");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
-    return GMPy_Number_Plus(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Number_Plus(PyTuple_GET_ITEM(args, 0), (CTXT_Object*)self);
 }

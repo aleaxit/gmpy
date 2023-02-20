@@ -513,7 +513,9 @@ GMPy_MPZ_And_Slot(PyObject *self, PyObject *other)
         mpz_and(result->z, result->z, MPZ(other));
     }
     else {
+        /* LCOV_EXCL_START */
         Py_RETURN_NOTIMPLEMENTED;
+        /* LCOV_EXCL_STOP */
     }
     return (PyObject*)result;
 }
@@ -541,7 +543,9 @@ GMPy_MPZ_Ior_Slot(PyObject *self, PyObject *other)
         mpz_ior(result->z, result->z, MPZ(other));
     }
     else {
+        /* LCOV_EXCL_START */
         Py_RETURN_NOTIMPLEMENTED;
+        /* LCOV_EXCL_STOP */
     }
     return (PyObject*)result;
 }
@@ -569,7 +573,9 @@ GMPy_MPZ_Xor_Slot(PyObject *self, PyObject *other)
         mpz_xor(result->z, result->z, MPZ(other));
     }
     else {
+        /* LCOV_EXCL_START */
         Py_RETURN_NOTIMPLEMENTED;
+        /* LCOV_EXCL_STOP */
     }
     return (PyObject*)result;
 }
@@ -673,7 +679,7 @@ GMPy_MPZ_bit_count_method(PyObject *self, PyObject *other)
      * an existing mpz, we need to make a copy to change the
      * sign.
      */
-    
+
     if (mpz_sgn(MPZ(self)) == -1) {
         if (!(temppos = GMPy_MPZ_New(NULL))) {
             /* LCOV_EXCL_START */
@@ -759,4 +765,3 @@ GMPy_MPZ_hamdist(PyObject *self, PyObject *args)
     Py_XDECREF((PyObject*)tempy);
     return NULL;
 }
-
