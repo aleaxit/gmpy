@@ -12,6 +12,10 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath',
               'sphinx.ext.intersphinx', 'sphinx_rtd_theme',
               'sphinx.ext.doctest']
 
+# The name of a reST role (builtin or Sphinx extension) to use as the
+# default role, that is, for text marked up `like this`.
+default_role = 'py:obj'
+
 # This value selects if automatically documented members are sorted
 # alphabetical (value 'alphabetical'), by member type (value 'groupwise')
 # or by source order (value 'bysource').

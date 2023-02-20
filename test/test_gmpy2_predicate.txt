@@ -208,6 +208,8 @@ True
 True
 >>> ctx.is_regular(pynan)
 False
+>>> mpfr(-0.6).is_regular()
+True
 
 Tests is_integer
 ----------------
@@ -257,6 +259,14 @@ True
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: is_lessgreater() argument type not supported
+>>> class Spam:
+...     def __mpfr__(self):
+...         return
+...
+>>> gmpy2.is_lessgreater(2, Spam())
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: object could not be converted to 'mpfr'
 
 Tests is_unordered
 ------------------
@@ -275,3 +285,7 @@ True
 True
 >>> gmpy2.is_unordered(5, pynan)
 True
+>>> gmpy2.is_unordered(2, Spam())
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: object could not be converted to 'mpfr'

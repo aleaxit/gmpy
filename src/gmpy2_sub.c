@@ -32,7 +32,7 @@
  * converted into an mpz, Py_NotImplemented is returned. */
 
 static PyObject *
-GMPy_Integer_SubWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+GMPy_Integer_SubWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                          CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
@@ -117,9 +117,11 @@ GMPy_Integer_SubWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("sub() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Subtract two Rational objects (see gmpy2_convert.h). Returns None and
@@ -288,7 +290,7 @@ GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_SubWithType(x, xtype, y, ytype, context);
 
@@ -297,7 +299,7 @@ GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_SubWithType(x, xtype, y, ytype, context);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_SubWithType(x, xtype, y, ytype, context);
 
@@ -315,7 +317,7 @@ GMPy_Number_Sub_Slot(PyObject *x, PyObject *y)
 
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_SubWithType(x, xtype, y, ytype, context);
 
@@ -324,7 +326,7 @@ GMPy_Number_Sub_Slot(PyObject *x, PyObject *y)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_SubWithType(x, xtype, y, ytype, context);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_SubWithType(x, xtype, y, ytype, context);
 
@@ -362,4 +364,3 @@ GMPy_Context_Sub(PyObject *self, PyObject *args)
                            PyTuple_GET_ITEM(args, 1),
                            context);
 }
-

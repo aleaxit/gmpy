@@ -133,10 +133,12 @@ GMPy_RemoveUnderscoreASCII(PyObject *s)
         temp = s;
     }
     else {
+        /* LCOV_EXCL_START */
         TYPE_ERROR("object is not string or Unicode");
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
-    
+
     if ((under = PyUnicode_FromString("_")) &&
         (blank = PyUnicode_FromString(""))) {
         filtered = PyUnicode_Replace(temp, under, blank, -1);
@@ -144,7 +146,7 @@ GMPy_RemoveUnderscoreASCII(PyObject *s)
     Py_XDECREF(under);
     Py_XDECREF(blank);
     Py_XDECREF(temp);
-        
+
     if (!filtered) {
         return NULL;
     }

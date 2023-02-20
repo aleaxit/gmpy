@@ -5,6 +5,7 @@ Test divmod
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
+>>> from supportclasses import z
 >>> a = mpz(123)
 >>> b = mpz(456)
 >>> c = 12345678901234567890
@@ -61,6 +62,10 @@ ZeroDivisionError:
 Traceback (most recent call last):
   ...
 TypeError:
+>>> divmod(mpz(3), z)
+(mpz(1), mpz(1))
+>>> divmod(z, mpz(3))
+(mpz(0), mpz(2))
 >>> divmod(mpq(1,2), mpc(1,2))
 Traceback (most recent call last):
   ...
@@ -121,4 +126,21 @@ False
 (mpfr('nan'), mpfr('nan'))
 >>>
 >>> gmpy2.set_context(gmpy2.context())
-
+>>> with gmpy2.local_context(trap_divzero=True):
+...     divmod(mpfr(1), mpfr(0))
+...
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+gmpy2.DivisionByZeroError: divmod() division by zero
+>>> with gmpy2.local_context(trap_invalid=True):
+...     divmod(gmpy2.nan(), mpfr(1))
+...
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+gmpy2.InvalidOperationError: divmod() invalid operation
+>>> with gmpy2.local_context(trap_invalid=True):
+...     divmod(mpfr(1), gmpy2.inf())
+...
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+gmpy2.InvalidOperationError: divmod() invalid operation

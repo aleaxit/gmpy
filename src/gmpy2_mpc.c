@@ -139,30 +139,23 @@ _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpc,
-"mpc(c=0, precision=0)\n"
-"mpc(c=0, precision=0, context)\n"
-"mpc(real, imag=0, precision=0)\n"
-"mpc(real, imag=0, precision=0, context)\n"
-"mpc(s, precision=0, base=10)\n"
-"mpc(s, precision, base, context)\n\n"
-"Return an pmc object constructed from a numeric value c or from a \n"
-"pair of two non-complex numbers real and imag or from a string s \n"
-"made of digits in the given base.\n"
-"If base is omitted, then a base-10 representation is\n"
-"assumed otherwise the base must be in the interval [2,36].\n\n"
-"Note: The precision can be specified either a single number that\n"
-"is used for both the real and imaginary components, or as a\n"
-"tuple that can specify different precisions for the real\n"
-"and imaginary components.\n\n"
-"If a precision greater than or equal to 2 is specified, then it\n"
-"is used. A precision of 0 (the default) implies the precision of the\n"
-"current context is used.\n"
-"A precision of 1 minimizes the loss of precision by following\n"
-"these rules:\n\n"
-"    1) If n is a radix-2 floating point number, then the full\n"
-"       precision of n is retained.\n"
-"    2) If n is an integer, then the precision is the bit length\n"
-"       of the integer.\n");
+"mpc(c=0, /, precision=0)\n"
+"mpc(c=0, /, precision, context)\n"
+"mpc(real, /, imag=0, precision=0)\n"
+"mpc(real, /, imag, precision, context)\n"
+"mpc(s, /, precision=0, base=10)\n"
+"mpc(s, /, precision, base, context)\n\n"
+"Return a complex floating-point number constructed from a numeric value\n"
+"c or from a pair of two non-complex numbers real and imag or from a\n"
+"string s made of digits in the given base.\n\n"
+"A string can be possibly with real-part and/or imaginary-part (that\n"
+"have 'j' as a suffix), separated by '+' and parsed the same as the\n"
+"`mpfr` constructor does (but the base must be up to 36).\n\n"
+"The precision can be specified by either a single number that is used\n"
+"for both the real and imaginary components, or as a pair of different\n"
+"precisions for the real and imaginary components.  For every component,\n"
+"the meaning of its precision value is the same as in the `mpfr`\n"
+"type constructor.");
 
 static PyMethodDef Pympc_methods[] =
 {

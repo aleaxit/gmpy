@@ -4,6 +4,7 @@ Test gmpy2_mpz_misc.c
 >>> import gmpy2
 >>> from gmpy2 import mpz
 >>> import math
+>>> import sys
 >>> a = mpz(123)
 >>> b = mpz(456)
 
@@ -841,4 +842,10 @@ mpz(12)
 >>> mpz('1 2')
 mpz(12)
 >>> mpz(' 1 2')
-mpz(12) 
+mpz(12)
+
+Test sizeof
+-----------
+
+>>> sys.getsizeof(mpz(10)) > 0
+True

@@ -177,15 +177,19 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
     }
 
     if (!(result = PyList_New(lst_count))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     if (mpz_sgn(tempx->z) == 0) {
         if (!(item = GMPy_MPZ_New(context))) {
+            /* LCOV_EXCL_START */
             Py_DECREF((PyObject*)tempx);
             Py_DECREF(result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
         mpz_set_ui(item->z, 0);
         PyList_SET_ITEM(result, 0, (PyObject*)item);
@@ -220,10 +224,12 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
 
         while ((lst_ptr < lst_count) && (temp_bits >= nbits)) {
             if(!(item = GMPy_MPZ_New(context))) {
+                /* LCOV_EXCL_START */
                 mpz_clear(temp);
                 Py_DECREF((PyObject*)tempx);
                 Py_DECREF(result);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
             mpz_tdiv_r_2exp(item->z, temp, nbits);
             PyList_SET_ITEM(result, lst_ptr++, (PyObject*)item);
@@ -237,5 +243,3 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
     mpz_clear(temp);
     return result;
 }
-
-

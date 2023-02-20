@@ -28,7 +28,7 @@
  */
 
 static PyObject *
-GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                          CTXT_Object *context)
 {
     MPZ_Object *result;
@@ -124,9 +124,11 @@ GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("mod() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -146,7 +148,7 @@ GMPy_Rational_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return NULL;
         /* LCOV_EXCL_STOP */
     }
-    
+
     if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
         if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
             !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
@@ -182,9 +184,11 @@ GMPy_Rational_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("mod() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -260,9 +264,11 @@ GMPy_Real_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("mod() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 
   error:
     Py_XDECREF((PyObject*)tempx);
@@ -284,7 +290,7 @@ GMPy_Number_Mod_Slot(PyObject *x, PyObject *y)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_ModWithType(x, xtype, y, ytype, NULL);
 
@@ -293,7 +299,7 @@ GMPy_Number_Mod_Slot(PyObject *x, PyObject *y)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_ModWithType(x, xtype, y, ytype, NULL);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_ModWithType(x, xtype, y, ytype, NULL);
 

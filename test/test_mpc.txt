@@ -109,7 +109,11 @@ mpc('1.3333333333333333+1.3333333333333333j')
 mpc('1.3333333333333333+1.3333333333333333j')
 >>> mpc(15,15) / cx
 mpc('0.26147449224372299-0.059971213817367662j')
-
+>>> with gmpy2.local_context(trap_divzero=True):
+...     mpc(15, 15)/mpc(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+gmpy2.DivisionByZeroError: 'mpc' division by zero
 
 Test modulo
 -----------

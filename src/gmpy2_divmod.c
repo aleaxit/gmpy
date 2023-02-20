@@ -201,7 +201,7 @@ GMPy_Rational_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 }
 
 static PyObject *
-GMPy_Real_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+GMPy_Real_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                          CTXT_Object *context)
 {
     MPFR_Object *tempx = NULL, *tempy = NULL, *quo = NULL, *rem = NULL, *temp;
@@ -322,7 +322,7 @@ GMPy_Real_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 }
 
 static PyObject *
-GMPy_Complex_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+GMPy_Complex_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                             CTXT_Object *context)
 {
     TYPE_ERROR("can't take floor or mod of complex number.");
@@ -334,7 +334,7 @@ GMPy_Number_DivMod_Slot(PyObject *x, PyObject *y)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_DivModWithType(x, xtype, y, ytype, NULL);
 
@@ -343,7 +343,7 @@ GMPy_Number_DivMod_Slot(PyObject *x, PyObject *y)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_DivModWithType(x, xtype, y, ytype, NULL);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_DivModWithType(x, xtype, y, ytype, NULL);
 
@@ -355,7 +355,7 @@ GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_DivModWithType(x, xtype, y, ytype, NULL);
 
@@ -364,7 +364,7 @@ GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_DivModWithType(x, xtype, y, ytype, NULL);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_DivModWithType(x, xtype, y, ytype, NULL);
 
@@ -381,22 +381,12 @@ PyDoc_STRVAR(GMPy_doc_context_divmod,
 static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)
 {
-    CTXT_Object *context = NULL;
-
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("div_mod() requires 2 arguments");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
     return GMPy_Number_DivMod(PyTuple_GET_ITEM(args, 0),
                               PyTuple_GET_ITEM(args, 1),
-                              context);
+                              (CTXT_Object*)self);
 }
-

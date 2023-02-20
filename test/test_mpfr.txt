@@ -249,6 +249,8 @@ Traceback (most recent call last):
 TypeError: mod() requires 2 arguments
 >>> 1
 1
+>>> get_context().mod(a, -mpfr('inf'))
+mpfr('-inf')
 
 Test divmod
 -----------

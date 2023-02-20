@@ -146,4 +146,3 @@ GMPy_printf(PyObject *self, PyObject *args)
         return NULL;
     }
 }
-

@@ -33,7 +33,7 @@
  */
 
 static PyObject *
-GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                          CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
@@ -118,9 +118,11 @@ GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("add() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -163,9 +165,11 @@ GMPy_Rational_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("add() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Addition can be performed by the equivalent of mpfr.__add__ or by
@@ -201,7 +205,7 @@ GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         _GMPy_MPFR_Cleanup(&result, context);
         return (PyObject*)result;
     }
-    
+
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
         MPFR_Object *tempx = NULL, *tempy = NULL;
 
@@ -223,9 +227,11 @@ GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("add() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* GMPy_Complex_Add(x, y, context) returns x+y using the provided context. If
@@ -271,9 +277,11 @@ GMPy_Complex_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     TYPE_ERROR("add() argument type not supported");
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement all the slot methods here. */
@@ -286,7 +294,7 @@ GMPy_Number_Add_Slot(PyObject *x, PyObject *y)
 
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_AddWithType(x, xtype, y, ytype, context);
 
@@ -295,7 +303,7 @@ GMPy_Number_Add_Slot(PyObject *x, PyObject *y)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_AddWithType(x, xtype, y, ytype, context);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_AddWithType(x, xtype, y, ytype, context);
 
@@ -313,7 +321,7 @@ GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_AddWithType(x, xtype, y, ytype, context);
 
@@ -322,7 +330,7 @@ GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_AddWithType(x, xtype, y, ytype, context);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_AddWithType(x, xtype, y, ytype, context);
 
@@ -355,4 +363,3 @@ GMPy_Context_Add(PyObject *self, PyObject *args)
                            PyTuple_GET_ITEM(args, 1),
                            context);
 }
-

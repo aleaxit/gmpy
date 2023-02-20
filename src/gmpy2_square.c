@@ -220,4 +220,3 @@ GMPy_Context_Square(PyObject *self, PyObject *other)
 
     return GMPy_Number_Square(other, context);
 }
-
