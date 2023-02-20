@@ -96,29 +96,26 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr,
-"mpfr(n=0, precision=0)\n"
-"mpfr(n, precision, context)\n"
-"mpfr(s, precision=0, base=0)\n"
-"mpfr(s, precision, base, context)\n\n"
-"Return an mpfr object after converting a numeric value n or \n"
-"a string s made of digits in the given base, possibly with \n"
-"fraction-part (with a period as a separator) and/or exponent-part \n"
-"(with an exponent marker 'e' for base<=10, else '@'). See below \n"
-"for the interpretation of precision. The base of the string\n"
-"representation must be 0 or in the interval [2,62]. If the base\n"
-"is 0, the leading digits of the string are used to identify the\n"
-"base: 0b implies base=2, 0x implies base=16, otherwise base=10\n"
-"is assumed.\n\n"
-"Note: If a precision greater than or equal to 2 is specified, then it\n"
-"is used.\n"
-"A precision of 0 (the default) implies the precision of either\n"
-"the specified context or the current context is used.\n\n"
+"mpfr(n=0, /, precision=0)\n"
+"mpfr(n, /, precision, context)\n"
+"mpfr(s, /, precision=0, base=0)\n"
+"mpfr(s, /, precision, base, context)\n\n"
+"Return a floating-point number after converting a numeric value n or\n"
+"a string s made of digits in the given base.\n\n"
+"A string can be with fraction-part (with a period as a separator)\n"
+"and/or exponent-part (with an exponent marker 'e' for base<=10,\n"
+"else '@'), where digits are parsed the same as the `mpz` type constructor\n"
+"does and both the whole number and exponent-part optionally can be\n"
+"preceded by ‘+’ or ‘-’.\n\n"
+"If a precision greater than or equal to 2 is specified, then it\n"
+"is used.  A precision of 0 (the default) implies the precision of either\n"
+"the specified context or the current context is used.\n"
 "A precision of 1 minimizes the loss of precision by following\n"
 "these rules:\n\n"
 "    1) If n is a radix-2 floating point number, then the full\n"
 "       precision of n is retained.\n"
 "    2) If n is an integer, then the precision is the bit length\n"
-"       of the integer.\n" );
+"       of the integer.\n");
 
 static PyNumberMethods mpfr_number_methods =
 {

@@ -25,18 +25,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_xmpz,
-"xmpz(n=0)\n"
-"xmpz(s, base=0)\n\n"
-"Return an xmpz object constructed from a numeric value n (truncating n\n"
-"to its integer part) or from a string s made of digits in the\n"
-"given base.  If base=0, binary, octal, or hex Python strings\n"
-"are recognized by leading 0b, 0o, or 0x characters, otherwise\n"
-"the string is assumed to be decimal. Values for base can range\n"
-"between 2 and 62.\n\n"
-"Note: xmpz is a mutable integer. It can be faster when used\n"
-"for augmented assignment (+=, -=, etc). xmpz objects cannot\n"
-"be used as dictionary keys. The use of mpz objects is recommended\n"
-"in most cases.");
+"xmpz(n=0, /)\n"
+"xmpz(s, /, base=0)\n\n"
+"Return a mutable integer constructed from a numeric value n\n"
+"or a string s made of digits in the given base.  Every input,\n"
+"that is accepted by the `mpz` type constructor is also accepted.\n\n"
+"Note: This type can be faster when used for augmented assignment\n"
+"(+=, -=, etc), but `xmpz` objects cannot be used as dictionary keys.");
 
 
 static PyNumberMethods GMPy_XMPZ_number_methods =
