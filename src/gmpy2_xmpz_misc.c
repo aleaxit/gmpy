@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_xmpz_function_xbit_mask,
-"xbit_mask(n) -> xmpz\n\n"
+"xbit_mask(n, /) -> xmpz\n\n"
 "Return an 'xmpz' exactly n bits in length with all bits set.\n");
 
 static PyObject *
@@ -400,7 +400,7 @@ GMPy_Iter_Repr(GMPy_Iter_Object *self)
 };
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_bits,
-"xmpz.iter_bits(start=0, stop=-1) -> iterator\n\n"
+"xmpz.iter_bits(start=0, stop=-1) -> collections.abc.Iterator\n\n"
 "Return True or False for each bit position in 'xmpz' beginning at\n"
 "'start'. If a positive value is specified for 'stop', iteration is\n"
 "continued until 'stop' is reached. If a negative value is specified,\n"
@@ -433,7 +433,7 @@ GMPy_XMPZ_Method_IterBits(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_set,
-"xmpz.iter_set(start=0, stop=-1) -> iterator\n\n"
+"xmpz.iter_set(start=0, stop=-1) -> collections.abc.Iterator\n\n"
 "Return an iterator yielding the bit position for every bit that\n"
 "is set in 'xmpz', beginning at 'start'. If a positive value is\n"
 "specified for 'stop', iteration is continued until 'stop' is\n"
@@ -468,7 +468,7 @@ GMPy_XMPZ_Method_IterSet(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_clear,
-"xmpz.iter_clear(start=0, stop=-1) -> iterator\n\n"
+"xmpz.iter_clear(start=0, stop=-1) -> collections.abc.Iterator\n\n"
 "Return every bit position that is clear in 'xmpz', beginning at\n"
 "'start'. If a positive value is specified for 'stop', iteration\n"
 "is continued until 'stop' is reached. If a negative value is specified,\n"

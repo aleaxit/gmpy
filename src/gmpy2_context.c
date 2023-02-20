@@ -94,7 +94,7 @@ GMPy_CTXT_Dealloc(CTXT_Object *self)
 };
 
 PyDoc_STRVAR(GMPy_doc_set_context,
-"set_context(context) -> None\n\n"
+"set_context(context, /) -> None\n\n"
 "Activate a context object controlling gmpy2 arithmetic.\n");
 
 /* Begin support for context vars. */
@@ -154,7 +154,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *v)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
-"ieee(size, subnormalize=True) -> gmpy2._context\n\n"
+"ieee(size, /, subnormalize=True) -> gmpy2._context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
 "32 greater than 128.");
@@ -531,7 +531,8 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_local_context,
-"local_context(context, **kwargs) -> gmpy2._context\n\n"
+"local_context(**kwargs) -> gmpy2._context\n"
+"local_context(context, /, **kwargs) -> gmpy2._context\n\n"
 "Create a context manager object that will restore the current context\n"
 "when the 'with ...' block terminates. The temporary context for the\n"
 "'with ...' block is based on the current context if no context is\n"
