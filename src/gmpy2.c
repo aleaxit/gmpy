@@ -818,7 +818,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "const_euler", (PyCFunction)GMPy_Function_Const_Euler, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_euler },
     { "const_log2", (PyCFunction)GMPy_Function_Const_Log2, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_log2 },
     { "const_pi", (PyCFunction)GMPy_Function_Const_Pi, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_pi },
-    { "context", (PyCFunction)GMPy_CTXT_Context, METH_VARARGS | METH_KEYWORDS, GMPy_doc_context },
     { "copy_sign", GMPy_MPFR_copy_sign, METH_VARARGS, GMPy_doc_mpfr_copy_sign },
     { "cos", GMPy_Context_Cos, METH_O, GMPy_doc_function_cos },
     { "cosh", GMPy_Context_Cosh, METH_O, GMPy_doc_function_cosh },
@@ -1158,7 +1157,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     /* Add the context type to the module namespace. */
 
     Py_INCREF(&CTXT_Type);
-    PyModule_AddObject(gmpy_module, "_context", (PyObject*)&CTXT_Type);
+    PyModule_AddObject(gmpy_module, "context", (PyObject*)&CTXT_Type);
 
     /* Add the mpz type to the module namespace. */
 

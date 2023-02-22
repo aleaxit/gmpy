@@ -97,7 +97,7 @@ static void          GMPy_CTXT_Dealloc(CTXT_Object *self);
 static PyObject *    GMPy_CTXT_Repr_Slot(CTXT_Object *self);
 static PyObject *    GMPy_CTXT_Get(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject *    GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *    GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs);
 static PyObject *    GMPy_CTXT_Set(PyObject *self, PyObject *other);
 static PyObject *    GMPy_CTXT_Clear_Flags(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_Copy(PyObject *self, PyObject *other);

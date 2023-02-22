@@ -716,7 +716,7 @@ PyDoc_STRVAR(GMPy_doc_context,
 #endif
 
 static PyObject *
-GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 {
     CTXT_Object *result;
 
@@ -1401,7 +1401,7 @@ static PyMethodDef GMPyContext_methods[] =
 static PyTypeObject CTXT_Type =
 {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "gmpy2._context",
+    .tp_name = "gmpy2.context",
     .tp_basicsize = sizeof(CTXT_Object),    
     .tp_dealloc = (destructor) GMPy_CTXT_Dealloc,      
     .tp_repr = (reprfunc) GMPy_CTXT_Repr_Slot,       
@@ -1409,6 +1409,7 @@ static PyTypeObject CTXT_Type =
     .tp_doc = "GMPY2 Context Object",               
     .tp_methods = GMPyContext_methods,                
     .tp_getset = GMPyContext_getseters,                
+    .tp_new = GMPy_CTXT_Context,
 };
 
 static PyMethodDef GMPyContextManager_methods[] =
