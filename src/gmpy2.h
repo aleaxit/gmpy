@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * gmpy2.h                                                                 *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * Python interface to the GMP, MPFR, and MPC multiple precision           *
  * libraries.                                                              *
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
@@ -326,11 +326,7 @@ typedef struct {
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
    /* so one won't need to link explicitly to gmp.lib...: */
-#  if defined(MPIR)
-#    pragma comment(lib,"mpir.lib")
-#  else
-#    pragma comment(lib,"gmp.lib")
-#  endif
+#  pragma comment(lib,"gmp.lib")
 #  define USE_ALLOCA 1
 #  define inline __inline
 #endif

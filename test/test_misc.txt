@@ -7,11 +7,7 @@ Miscellaneous Functions
 True
 >>> gmpy2.mp_limbsize() in (32,64)
 True
->>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
-True
->>> check_gmp = gmpy2.mp_version().startswith('GMP') and '5.0.0' <= gmpy2.mp_version().split()[1]
->>> check_mpir = gmpy2.mp_version().startswith('MPIR') and '3.0.0' <= gmpy2.mp_version().split()[1]
->>> check_gmp or check_mpir
+>>> '5.0.0' <= gmpy2.mp_version()
 True
 >>> gmpy2.mpfr_version() and gmpy2.mpfr_version().startswith('MPFR')
 True
@@ -23,4 +19,3 @@ True
 True
 >>> gmpy2.license()
 'The GMPY2 source code is licensed under LGPL 3 or later. The supported versions of the GMP, MPFR, and MPC libraries are also licensed under LGPL 3 or later.'
-
