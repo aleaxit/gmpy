@@ -306,43 +306,35 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_gcd,
 "Return the greatest common divisor of integers.");
 
 static PyObject *
-GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_GCD(PyObject *self, PyObject * const *args, Py_ssize_t nargs)
 {
-    PyObject *arg;
-    MPZ_Object *result = NULL, *tempa = NULL;
+    MPZ_Object *arg, *result = NULL;
     CTXT_Object *context = NULL;
-    Py_ssize_t i, nargs;
+    Py_ssize_t i;
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPZ_New(NULL))) {
+    if (!(result = GMPy_MPZ_New(context))) {
         /* LCOV_EXCL_START */
         return NULL;
         /* LCOV_EXCL_STOP */
     }
 
-    nargs = PyTuple_Size(args);
-
     for (i = 0; i < nargs; i++) {
-        arg = PyTuple_GET_ITEM(args, i);
-
-        if MPZ_Check(arg) {
-            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
-            mpz_gcd(result->z, MPZ(arg), result->z);
-            GMPY_MAYBE_END_ALLOW_THREADS(context);\
-        } else {
-            if (!(tempa = GMPy_MPZ_From_Integer(arg, NULL))) {
-                TYPE_ERROR("gcd() requires 'mpz' arguments");
-                Py_XDECREF((PyObject*)tempa);
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-
-            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
-            mpz_gcd(result->z, tempa->z, result->z);
-            GMPY_MAYBE_END_ALLOW_THREADS(context);
-            Py_DECREF((PyObject*)tempa);
+        if (!(arg = GMPy_MPZ_From_Integer(args[i], context))) {
+            TYPE_ERROR("gcd() requires 'mpz' arguments");
+            Py_XDECREF((PyObject*)arg);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
+
+        if (mpz_cmp_si(MPZ(result), 1) != 0) {
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
+            mpz_gcd(MPZ(result), MPZ(arg), MPZ(result));
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
+        }
+
+        Py_DECREF((PyObject*)arg);
     }
     return (PyObject*)result;
 }
@@ -352,44 +344,35 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_lcm,
 "Return the lowest common multiple of integers.");
 
 static PyObject *
-GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_LCM(PyObject *self, PyObject * const *args, Py_ssize_t nargs)
 {
-    PyObject *arg;
-    MPZ_Object *result = NULL, *tempa = NULL;
+    MPZ_Object *arg, *result = NULL;
     CTXT_Object *context = NULL;
-    Py_ssize_t i, nargs;
+    Py_ssize_t i;
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPZ_New(NULL))) {
+    if (!(result = GMPy_MPZ_New(context))) {
         /* LCOV_EXCL_START */
         return NULL;
         /* LCOV_EXCL_STOP */
     }
 
     mpz_set_ui(result->z, 1);
-    nargs = PyTuple_Size(args);
 
     for (i = 0; i < nargs; i++) {
-        arg = PyTuple_GET_ITEM(args, i);
-
-        if MPZ_Check(arg) {
-            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
-            mpz_lcm(result->z, MPZ(arg), result->z);
-            GMPY_MAYBE_END_ALLOW_THREADS(context);
-        } else {
-            if (!(tempa = GMPy_MPZ_From_Integer(arg, NULL))) {
-                TYPE_ERROR("lcm() requires 'mpz' arguments");
-                Py_XDECREF((PyObject*)tempa);
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-
-            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
-            mpz_lcm(result->z, tempa->z, result->z);
-            GMPY_MAYBE_END_ALLOW_THREADS(context);
-            Py_DECREF((PyObject*)tempa);
+        if (!(arg = GMPy_MPZ_From_Integer(args[i], context))) {
+            TYPE_ERROR("lcm() requires 'mpz' arguments");
+            Py_XDECREF((PyObject*)arg);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
+
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
+        mpz_lcm(MPZ(result), MPZ(arg), MPZ(result));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
+
+        Py_DECREF((PyObject*)arg);
     }
     return (PyObject*)result;
 }
