@@ -1,3 +1,5 @@
+.. currentmodule:: gmpy2
+
 Conversion methods and gmpy2's numbers
 ======================================
 
