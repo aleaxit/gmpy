@@ -154,7 +154,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *v)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
-"ieee(size, /, subnormalize=True) -> gmpy2._context\n\n"
+"ieee(size, /, subnormalize=True) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
 "32 greater than 128.");
@@ -354,7 +354,7 @@ GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
 }
 
 PyDoc_STRVAR(GMPy_doc_get_context,
-"get_context() -> gmpy2._context\n\n"
+"get_context() -> context\n\n"
 "Return a reference to the current context.");
 
 static PyObject *
@@ -369,7 +369,7 @@ GMPy_CTXT_Get(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_copy,
-"context.copy() -> gmpy2._context\n\n"
+"context.copy() -> context\n\n"
 "Return a copy of a context.");
 
 static PyObject *
@@ -531,8 +531,8 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_local_context,
-"local_context(**kwargs) -> gmpy2._context\n"
-"local_context(context, /, **kwargs) -> gmpy2._context\n\n"
+"local_context(**kwargs) -> context\n"
+"local_context(context, /, **kwargs) -> context\n\n"
 "Create a context manager object that will restore the current context\n"
 "when the 'with ...' block terminates. The temporary context for the\n"
 "'with ...' block is based on the current context if no context is\n"
@@ -587,7 +587,7 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_context,
-"context() -> gmpy2._context\n\n"
+"context() -> context\n\n"
 "Return a new context for controlling MPFR and MPC arithmetic. To load\n"
 "the new context, use set_context(). Options can only be specified as\n"
 "keyword arguments. \n\n"

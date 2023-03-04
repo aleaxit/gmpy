@@ -14,7 +14,7 @@ underflow can be enabled, and returning complex results can be enabled.
 return a reference to the active context. Note that contexts are mutable:
 modifying the reference returned by :func:`get_context` will modify the active
 context until a new context is enabled with :func:`set_context`. The
-:meth:`~_context.copy` method of a context will return a copy of the context.
+:meth:`~context.copy` method of a context will return a copy of the context.
 
 The following example just modifies the precision. The remaining options will
 be discussed later.
