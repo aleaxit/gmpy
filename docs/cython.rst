@@ -15,7 +15,7 @@ In order to use the C-API you need to make one call to the function **void impor
 Types
 -----
 
-The types :class:`mpz`, :class:`mpq`, :class:`mpfr` and :class:`mpc` are
+The types `mpz`, `mpq`, `mpfr` and `mpc` are
 declared as extension types in gmpy2.pxd. They correspond respectively to the C
 structures **MPZ_Object**, **MPQ_Object**, **MPFR_Object** and **MPC_Object**.
 

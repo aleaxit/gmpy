@@ -6,8 +6,8 @@ Overview of gmpy2
 Tutorial
 --------
 
-The :class:`mpz` type is compatible with Python's built-in :class:`int` type
-but is significantly faster for large values. The cutover point for performance
+The `mpz` type is compatible with Python's built-in `int` type but is
+significantly faster for large values. The cutover point for performance
 varies, but can be as low as 20 to 40 digits. A variety of additional integer
 functions are provided.
 
@@ -38,8 +38,8 @@ optimized for performance.
     >>> (mpz(123) + 12) / 5.0
     mpfr('27.0')
 
-The :class:`mpq` type is compatible with the :class:`~fractions.Fraction` type
-included with Python.
+The `mpq` type is compatible with the `~fractions.Fraction` type included with
+Python.
 
 .. doctest::
 
@@ -121,6 +121,7 @@ return an Infinity or raise an exception.
 Miscellaneous gmpy2 Functions
 -----------------------------
 
+.. autofunction:: digits
 .. autofunction:: from_binary
 .. autofunction:: license
 .. autofunction:: mp_limbsize

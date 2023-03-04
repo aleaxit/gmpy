@@ -163,17 +163,11 @@ GMPy_Complex_Square(PyObject *x, CTXT_Object *context)
 
 PyDoc_STRVAR(GMPy_doc_function_square,
 "square(x, /) -> mpz | mpq | mpfr | mpc\n\n"
-"Return x * x. If x is an integer, then the result is an 'mpz'.\n"
-"If x is a rational, then the result is an 'mpq'. If x is a float,\n"
-"then the result is an 'mpfr'. If x is a complex number, then the\n"
-"result is an 'mpc'.");
+"Return x * x.");
 
 PyDoc_STRVAR(GMPy_doc_context_square,
 "context.square(x, /) -> mpz | mpq | mpfr | mpc\n\n"
-"Return x * x. If x is an integer, then the result is an 'mpz'.\n"
-"If x is a rational, then the result is an 'mpq'. If x is a float,\n"
-"then the result is an 'mpfr'. If x is a complex number, then the\n"
-"result is an 'mpc'.");
+"Return x * x.");
 
 static PyObject *
 GMPy_Number_Square(PyObject *x, CTXT_Object *context)

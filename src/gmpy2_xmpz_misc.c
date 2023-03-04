@@ -95,10 +95,9 @@ GMPy_XMPZ_Com_Slot(XMPZ_Object *x)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_make_mpz,
-"xmpz.make_mpz() -> mpz\n\n"
-"Return an mpz by converting an 'xmpz' to an 'mpz' as quickly as\n"
-"possible.\n\n"
-"NOTE: Optimized for speed so the original xmpz is set to 0!");
+"x.make_mpz() -> mpz\n\n"
+"Return an `mpz` by converting x as quickly as possible.\n\n"
+"NOTE: Optimized for speed so the original `xmpz` value is set to 0!");
 
 static PyObject *
 GMPy_XMPZ_Method_MakeMPZ(PyObject *self, PyObject *other)
@@ -117,8 +116,8 @@ GMPy_XMPZ_Method_MakeMPZ(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_copy,
-"xmpz.copy() -> xmpz\n\n"
-"Return a copy of an xmpz.");
+"x.copy() -> xmpz\n\n"
+"Return a copy of a x.");
 
 static PyObject *
 GMPy_XMPZ_Method_Copy(PyObject *self, PyObject *other)
@@ -400,12 +399,12 @@ GMPy_Iter_Repr(GMPy_Iter_Object *self)
 };
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_bits,
-"xmpz.iter_bits(start=0, stop=-1) -> collections.abc.Iterator\n\n"
-"Return True or False for each bit position in 'xmpz' beginning at\n"
+"x.iter_bits(start=0, stop=-1) -> collections.abc.Iterator\n\n"
+"Return `True` or `False` for each bit position in x beginning at\n"
 "'start'. If a positive value is specified for 'stop', iteration is\n"
 "continued until 'stop' is reached. If a negative value is specified,\n"
 "iteration is continued until the last 1-bit. Note: the value of the\n"
-"underlying xmpz object can change during iteration.");
+"underlying `xmpz` object can change during iteration.");
 
 static PyObject *
 GMPy_XMPZ_Method_IterBits(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -433,13 +432,13 @@ GMPy_XMPZ_Method_IterBits(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_set,
-"xmpz.iter_set(start=0, stop=-1) -> collections.abc.Iterator\n\n"
+"x.iter_set(start=0, stop=-1) -> collections.abc.Iterator\n\n"
 "Return an iterator yielding the bit position for every bit that\n"
-"is set in 'xmpz', beginning at 'start'. If a positive value is\n"
+"is set in x, beginning at 'start'. If a positive value is\n"
 "specified for 'stop', iteration is continued until 'stop' is\n"
 "reached. To match the behavior of slicing, 'stop' is not included.\n"
 "If a negative value is specified, iteration is continued until\n"
-"the last 1-bit. Note: the value of the underlying xmpz object can\n"
+"the last 1-bit. Note: the value of the underlying `xmpz` object can\n"
 "change during iteration.");
 
 static PyObject *
@@ -468,12 +467,12 @@ GMPy_XMPZ_Method_IterSet(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_clear,
-"xmpz.iter_clear(start=0, stop=-1) -> collections.abc.Iterator\n\n"
-"Return every bit position that is clear in 'xmpz', beginning at\n"
+"x.iter_clear(start=0, stop=-1) -> collections.abc.Iterator\n\n"
+"Return every bit position that is clear in x, beginning at\n"
 "'start'. If a positive value is specified for 'stop', iteration\n"
 "is continued until 'stop' is reached. If a negative value is specified,\n"
 "iteration is continued until the last 1-bit. Note: the value of the\n"
-"underlying xmpz object can change during iteration.");
+"underlying `xmpz` object can change during iteration.");
 
 static PyObject *
 GMPy_XMPZ_Method_IterClear(PyObject *self, PyObject *args, PyObject *kwargs)

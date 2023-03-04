@@ -680,7 +680,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr_digits_method,
 "Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
 "digits that are available are returned. No more digits than available\n"
 "given x's precision are returned. 'base' must be between 2 and 62,\n"
-"inclusive. The result is a three element tuple containing the mantissa,\n"
+"inclusive. The result is a three element `tuple` containing the mantissa,\n"
 "the exponent, and the number of bits of precision.");
 
 static PyObject *
@@ -717,8 +717,7 @@ GMPy_MPC_Digits_Method(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_context_digits,
 "digits(x, base=10, prec=0, /) -> str\n\n"
-"Return string representing x. Calls mpz.digits, mpq.digits,\n"
-"mpfr.digits, or mpc.digits as appropriate.");
+"Return string representing a number x.");
 
 static PyObject *
 GMPy_Context_Digits(PyObject *self, PyObject *args)

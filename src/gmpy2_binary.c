@@ -126,7 +126,7 @@ GMPy_MPQ_From_Old_Binary(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_mpfr_from_old_binary,
 "mpfr_from_old_binary(string, /) -> mpfr\n\n"
-"Return an 'mpfr' from a GMPY 1.x binary mpf format.");
+"Return an `mpfr` from a GMPY 1.x binary mpf format.");
 
 static PyObject *
 GMPy_MPFR_From_Old_Binary(PyObject *self, PyObject *other)
@@ -653,9 +653,7 @@ GMPy_MPC_To_Binary(MPC_Object *obj)
 
 PyDoc_STRVAR(doc_from_binary,
 "from_binary(bytes, /) -> mpz | xmpz | mpq | mpfr | mpc\n\n"
-"Return a Python object from a byte sequence created by\n"
-"gmpy2.to_binary().");
-
+"Return a Python object from a byte sequence created by `to_binary()`.");
 
 static PyObject *
 GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
@@ -1213,9 +1211,8 @@ PyDoc_STRVAR(doc_to_binary,
 "to_binary(x, /) -> bytes\n\n"
 "Return a Python byte sequence that is a portable binary\n"
 "representation of a gmpy2 object x. The byte sequence can\n"
-"be passed to gmpy2.from_binary() to obtain an exact copy of\n"
-"x's value. Works with mpz, xmpz, mpq, mpfr, and mpc types. \n"
-"Raises TypeError if x is not a gmpy2 object.");
+"be passed to `from_binary()` to obtain an exact copy of\n"
+"x's value.  Raises a `TypeError` if x is not a gmpy2 object.");
 
 static PyObject *
 GMPy_MPANY_To_Binary(PyObject *self, PyObject *other)
@@ -1233,4 +1230,3 @@ GMPy_MPANY_To_Binary(PyObject *self, PyObject *other)
     TYPE_ERROR("to_binary() argument type not supported");
     return NULL;
 }
-

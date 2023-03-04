@@ -3,9 +3,9 @@ Multiple-precision Integers
 
 .. currentmodule:: gmpy2
 
-The gmpy2 :class:`mpz` type supports arbitrary precision integers. It should be a
-drop-in replacement for Python's :class:`int` type. Depending on the platform and the
-specific operation, an :class:`mpz` will be faster than Python's :class:`int` once the
+The gmpy2 `mpz` type supports arbitrary precision integers. It should be a
+drop-in replacement for Python's `int` type. Depending on the platform and the
+specific operation, an `mpz` will be faster than Python's `int` once the
 precision exceeds 20 to 50 digits. All the special integer functions in GMP are
 supported.
 
@@ -30,8 +30,8 @@ Examples
     does use names that may conflict with other modules or variable names.
 
 .. note::
-   :class:`mpz` ignores all embedded underscore characters. It does not attempt
-   to be 100% compatible with all Python exceptions.
+   `mpz` ignores all embedded underscore characters. It does not attempt to be
+   100% compatible with all Python exceptions.
 
 mpz type
 --------
@@ -58,7 +58,6 @@ mpz Functions
 .. autofunction:: c_mod
 .. autofunction:: c_mod_2exp
 .. autofunction:: comb
-.. autofunction:: digits
 .. autofunction:: divexact
 .. autofunction:: divm
 .. autofunction:: double_fac

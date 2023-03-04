@@ -317,7 +317,7 @@ GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_ModWithType(x, xtype, y, ytype, context);
 
@@ -326,7 +326,7 @@ GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_ModWithType(x, xtype, y, ytype, context);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_ModWithType(x, xtype, y, ytype, context);
 
@@ -338,7 +338,7 @@ PyDoc_STRVAR(GMPy_doc_context_mod,
 "context.mod(x, y, /) -> mpz|mpq|mpfr\n\n"
 "Return mod(x, y).\n"
 "Note: overflow, underflow, and inexact exceptions are not supported for\n"
-"mpfr arguments to context.mod().");
+"`mpfr` arguments.");
 
 static PyObject *
 GMPy_Context_Mod(PyObject *self, PyObject *args)
