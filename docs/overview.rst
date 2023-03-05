@@ -146,3 +146,13 @@ Generic gmpy2 Functions
 
 .. autofunction:: fma
 .. autofunction:: fms
+
+Exceptions
+----------
+
+.. autoexception:: RangeError
+.. autoexception:: InexactResultError
+.. autoexception:: OverflowResultError
+.. autoexception:: UnderflowResultError
+.. autoexception:: InvalidOperationError
+.. autoexception:: DivisionByZeroError

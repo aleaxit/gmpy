@@ -882,7 +882,7 @@ PyDoc_STRVAR(GMPy_doc_CTXT_subnormalize,
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_underflow,
 "If set to `False`, a result that is smaller than the smallest possible\n"
 "`mpfr` given the current exponent range will be replaced by +/-0.0.\n"
-"If set to `True`, an UnderflowResultError exception is raised.");
+"If set to `True`, an `UnderflowResultError` exception is raised.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_underflow,
 "This flag is not user controllable. It is automatically set if a\n"
@@ -891,14 +891,14 @@ PyDoc_STRVAR(GMPy_doc_CTXT_underflow,
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_overflow,
 "If set to `False`, a result that is larger than the largest possible\n"
 "`mpfr` given the current exponent range will be replaced by +/-Infinity.\n"
-"If set to `True`, an OverflowResultError exception is raised.");
+"If set to `True`, an `OverflowResultError` exception is raised.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_overflow,
 "This flag is not user controllable.  It is automatically set if a\n"
 "result overflowed to +/-Infinity and `trap_overflow` is `False`.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_inexact,
-"This attribute controls whether or not an InexactResultError exception\n"
+"This attribute controls whether or not an `InexactResultError` exception\n"
 "is raised if an inexact result is returned.  To check if the result is\n"
 "greater or less than the exact result, check the rc attribute of\n"
 "the `mpfr` result.");
@@ -908,10 +908,10 @@ PyDoc_STRVAR(GMPy_doc_CTXT_inexact,
 "if an inexact result is returned.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_invalid,
-"This attribute controls whether or not an InvalidOperationError\n"
+"This attribute controls whether or not an `InvalidOperationError`\n"
 "exception is raised if a numerical result is not defined.  A\n"
 "special NaN (Not-A-Number) value will be returned if an exception\n"
-"is not raised. The InvalidOperationError is a sub-class of\n"
+"is not raised. The `InvalidOperationError` is a sub-class of\n"
 "Python’s `ValueError`.\n\nFor example, gmpy2.sqrt(-2) will normally\n"
 "return mpfr(‘nan’). However, if `allow_complex` is set to `True`,\n"
 "then an `mpc` result will be returned.");
@@ -921,7 +921,7 @@ PyDoc_STRVAR(GMPy_doc_CTXT_invalid,
 "invalid (Not-A-Number) result is returned.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_erange,
-"This attribute controls whether or not a RangeError exception is\n"
+"This attribute controls whether or not a `RangeError` exception is\n"
 "raised when certain operations are performed on NaN and/or Infinity\n"
 "values.  Setting `trap_erange` to `True` can be used to raise an exception\n"
 "if comparisons are attempted with a NaN.");
@@ -931,8 +931,8 @@ PyDoc_STRVAR(GMPy_doc_CTXT_erange,
 "set if an erange error occurred.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_divzero,
-"This attribute controls whether or not a DivisionByZeroError exception\n"
-"is raised if division by 0 occurs.  The DivisionByZeroError is a\n"
+"This attribute controls whether or not a `DivisionByZeroError` exception\n"
+"is raised if division by 0 occurs.  The `DivisionByZeroError` is a\n"
 "sub-class of Python’s `ZeroDivisionError`.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_divzero,
