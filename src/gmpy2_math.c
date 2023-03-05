@@ -1413,14 +1413,12 @@ PyDoc_STRVAR(GMPy_doc_context_fmod,
 GMPY_MPFR_BINOPWT(Fmod, fmod)
 
 PyDoc_STRVAR(GMPy_doc_function_round2,
-"round2(x, /) -> mpfr\n"
-"round2(x, n, /) -> mpfr\n\n"
+"round2(x, n=0, /) -> mpfr\n\n"
 "Return x rounded to n bits.  Uses default precision if n is not specified.\n"
 "See `round_away()` to access the mpfr_round() function of the MPFR.");
 
 PyDoc_STRVAR(GMPy_doc_context_round2,
-"context.round2(x, /) -> mpfr\n"
-"context.round2(x, n, /) -> mpfr\n\n"
+"context.round2(x, n=0, /) -> mpfr\n\n"
 "Return x rounded to n bits.  Uses default precision if n is not specified.\n"
 "See `context.round_away()` to access the mpfr_round() function of the MPFR.");
 
@@ -1428,17 +1426,20 @@ static PyObject *
 GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result, *tempx;
-    long n;
+    long n = 0;
 
     CHECK_CONTEXT(context);
-    n = GET_MPFR_PREC(context);
 
     if (y) {
         n = PyLong_AsLong(y);
-        if ( (n == -1 && PyErr_Occurred()) || n < MPFR_PREC_MIN || n > MPFR_PREC_MAX) {
+        if (n && ((n == -1 && PyErr_Occurred()) || n < MPFR_PREC_MIN || n > MPFR_PREC_MAX)) {
             VALUE_ERROR("invalid precision");
             return NULL;
         }
+    }
+
+    if (!n) {
+        n = GET_MPFR_PREC(context);
     }
 
     if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
