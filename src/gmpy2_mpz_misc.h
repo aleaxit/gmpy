@@ -40,6 +40,7 @@ static PyObject * GMPy_MPZ_Attrib_GetReal(MPZ_Object *self, void *closure);
 static PyObject * GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure);
 
 static PyObject * GMPy_MPZ_Method_As_Integer_Ratio(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames);
 
 static PyObject * GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other);
