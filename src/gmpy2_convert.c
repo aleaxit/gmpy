@@ -117,9 +117,9 @@ static inline int GMPy_ObjectType(PyObject *obj)
 }
 
 static PyObject *
-GMPy_RemoveUnderscoreASCII(PyObject *s)
+GMPy_RemoveIgnoredASCII(PyObject *s)
 {
-    PyObject *ascii_str = NULL, *temp = NULL, *filtered = NULL, *under = NULL, *blank = NULL;
+    PyObject *ascii_str = NULL, *temp = NULL, *filtered = NULL, *symbol = NULL, *blank = NULL;
 
     if (PyBytes_CheckExact(s)) {
         temp = PyUnicode_DecodeASCII(PyBytes_AS_STRING(s), PyBytes_GET_SIZE(s), "strict");
@@ -139,13 +139,21 @@ GMPy_RemoveUnderscoreASCII(PyObject *s)
         /* LCOV_EXCL_STOP */
     }
 
-    if ((under = PyUnicode_FromString("_")) &&
-        (blank = PyUnicode_FromString(""))) {
-        filtered = PyUnicode_Replace(temp, under, blank, -1);
-    }
-    Py_XDECREF(under);
-    Py_XDECREF(blank);
+    blank = PyUnicode_FromString("");
+
+    symbol = PyUnicode_FromString(" ");
+    filtered = PyUnicode_Replace(temp, symbol, blank, -1);
+    Py_XDECREF(symbol);
     Py_XDECREF(temp);
+
+    temp = filtered;
+
+    symbol = PyUnicode_FromString("_");
+    filtered = PyUnicode_Replace(temp, symbol, blank, -1);
+    Py_XDECREF(symbol);
+    Py_XDECREF(temp);
+
+    Py_XDECREF(blank);
 
     if (!filtered) {
         return NULL;
@@ -168,44 +176,58 @@ GMPy_RemoveUnderscoreASCII(PyObject *s)
  */
 
 static int
-mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
+mpz_set_PyStr(mpz_t z, PyObject *s, int base)
 {
-    char *cp;
-    Py_ssize_t len;
-    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
+    char *cp, negative = 0;
+    PyObject *ascii_str;
+
+    ascii_str = GMPy_RemoveIgnoredASCII(s);
 
     if (!ascii_str) return -1;
 
-    len = PyBytes_Size(ascii_str);
     cp = PyBytes_AsString(ascii_str);
 
+    if (cp[0] == '+') cp++;
+    if (cp[0] == '-') {
+        cp++;
+        negative = 1;
+    }
 
     /* Check for leading base indicators. */
-    if (base == 0) {
-        if (len > 2 && cp[0] == '0') {
-            if (cp[1] == 'b')      { base = 2;  cp += 2; }
-            else if (cp[1] == 'o') { base = 8;  cp += 2; }
-            else if (cp[1] == 'x') { base = 16; cp += 2; }
-            else                   { base = 10; }
+    if (cp[0] == '0' && cp[1] != '\0') {
+        if (base == 0) {
+            /* GMP uses prefix '0' for octal, so set base here. */
+            if (tolower(cp[1]) == 'o') {
+                base = 8;
+                cp += 2;
+            }
+            else if (tolower(cp[1]) != 'b' && tolower(cp[1]) != 'x') {
+                base = 10;
+            }
         }
         else {
-            base = 10;
+            /* If the specified base matches the leading base indicators,
+             * then we need to skip the base indicators.
+             */
+            if ((tolower(cp[1]) == 'b' && base ==  2) ||
+                (tolower(cp[1]) == 'o' && base ==  8) ||
+                (tolower(cp[1]) == 'x' && base == 16))
+            {
+                cp += 2;
+            }
         }
     }
-    else if (cp[0] == '0') {
-        /* If the specified base matches the leading base indicators, then
-         * we need to skip the base indicators.
-         */
-        if (cp[1] =='b' && base == 2)       { cp += 2; }
-        else if (cp[1] =='o' && base == 8)  { cp += 2; }
-        else if (cp[1] =='x' && base == 16) { cp += 2; }
-    }
 
-    /* delegate rest to GMP's _set_str function */
+    while (cp[0] == '0' && cp[1] != '\0' && base != 0) cp++;
+
+    /* delegate rest to GMP's function */
     if (-1 == mpz_set_str(z, cp, base)) {
         VALUE_ERROR("invalid digits");
         Py_DECREF(ascii_str);
         return -1;
+    }
+    if (negative) {
+        mpz_neg(z, z);
     }
     Py_DECREF(ascii_str);
     return 1;

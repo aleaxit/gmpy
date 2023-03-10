@@ -98,6 +98,12 @@ mpz(18)
 mpz(18)
 >>> mpz('12',16)
 mpz(18)
+>>> mpz('-1')
+mpz(-1)
+>>> mpz('+1')
+mpz(1)
+>>> mpz('  0xA', base=0)
+mpz(10)
 >>> mpz(float('nan'))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>

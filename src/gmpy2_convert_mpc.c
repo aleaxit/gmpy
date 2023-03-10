@@ -275,7 +275,7 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
     Py_ssize_t len;
     char *cp, *unwind, *tempchar, *lastchar;
     int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0;
-    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
+    PyObject *ascii_str = ascii_str = GMPy_RemoveIgnoredASCII(s);
 
     if (!ascii_str) return NULL;
 

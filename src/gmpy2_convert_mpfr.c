@@ -293,7 +293,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     MPQ_Object *tempq;
     char *cp, *endptr;
     Py_ssize_t len;
-    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
+    PyObject *ascii_str = ascii_str = GMPy_RemoveIgnoredASCII(s);
 
     if (!ascii_str) return NULL;
 

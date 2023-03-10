@@ -585,7 +585,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
     char *cp;
     char exp_char = 'E';
     long expt = 0;
-    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
+    PyObject *ascii_str = ascii_str = GMPy_RemoveIgnoredASCII(s);
 
     if (!ascii_str) return NULL;
 
