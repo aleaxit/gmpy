@@ -31,11 +31,11 @@
  */
 
 PyDoc_STRVAR(GMPy_doc_function_vector,
-"vector(iterable, /) -> list\n\n"
+"vector(iterable) -> list\n\n"
 "Template for applying a function to an iterable.");
 
 PyDoc_STRVAR(GMPy_doc_context_vector,
-"vector(iterable, /) -> list\n\n"
+"vector(iterable) -> list\n\n"
 "Template for applying a function to an iterable.");
 
 static PyObject *
@@ -91,11 +91,11 @@ GMPy_Context_Vector(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_vector2,
-"vector2(iterable, iterable, /) -> list\n\n"
+"vector2(iterable, iterable) -> list\n\n"
 "Template for applying a function to a pair of iterables.");
 
 PyDoc_STRVAR(GMPy_doc_context_vector2,
-"vector2(iterable, /) -> list\n\n"
+"vector2(iterable) -> list\n\n"
 "Template for applying a function to a pair of iterables.");
 
 static PyObject *

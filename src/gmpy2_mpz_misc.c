@@ -26,13 +26,13 @@
 
 /* return number-of-digits for an mpz in requested base, default 10 */
 PyDoc_STRVAR(GMPy_doc_mpz_method_num_digits,
-"x.num_digits(base=10, /) -> int\n\n"
+"x.num_digits(base=10) -> int\n\n"
 "Return length of string representing the absolute value of x in\n"
 "the given base. Values  for base can range between 2 and 62. The\n"
 "value returned may be 1 too large.");
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_num_digits,
-"num_digits(x, base=10, /) -> int\n\n"
+"num_digits(x, base=10) -> int\n\n"
 "Return length of string representing the absolute value of x in\n"
 "the given base. Values  for base can range between 2 and 62. The\n"
 "value returned may be 1 too large.");
@@ -95,7 +95,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_iroot,
-"iroot(x,n,/) -> tuple[mpz, bool]\n\n"
+"iroot(x,n) -> tuple[mpz, bool]\n\n"
 "Return the integer n-th root of x and boolean value that is True\n"
 "iff the root is exact. x >= 0. n > 0.");
 
@@ -153,7 +153,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_iroot_rem,
-"iroot_rem(x,n,/) -> tuple[mpz, mpz]\n\n"
+"iroot_rem(x,n) -> tuple[mpz, mpz]\n\n"
 "Return a 2-element tuple (y,r), such that y is the integer n-th\n"
 "root of x and x=y**n + r. x >= 0. n > 0.");
 
@@ -302,7 +302,7 @@ GMPy_MPZ_NonZero_Slot(MPZ_Object *self)
 /* Miscellaneous gmpy functions */
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_gcd,
-"gcd(*integers, /) -> mpz\n\n"
+"gcd(*integers) -> mpz\n\n"
 "Return the greatest common divisor of integers.");
 
 static PyObject *
@@ -340,7 +340,7 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject * const *args, Py_ssize_t nargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_lcm,
-"lcm(*integers, /) -> mpz\n\n"
+"lcm(*integers) -> mpz\n\n"
 "Return the lowest common multiple of integers.");
 
 static PyObject *
@@ -378,7 +378,7 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject * const *args, Py_ssize_t nargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_gcdext,
-"gcdext(a, b, /) -> tuple[mpz, mpz, mpz]\n\n"
+"gcdext(a, b) -> tuple[mpz, mpz, mpz]\n\n"
 "Return a 3-element tuple (g,s,t) such that\n"
 "    g == gcd(a,b) and g == a*s + b*t");
 
@@ -444,7 +444,7 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_divm,
-"divm(a, b, m, /) -> mpz\n\n"
+"divm(a, b, m) -> mpz\n\n"
 "Return x such that b*x == a mod m. Raises a ZeroDivisionError\n"
 "exception if no such value x exists.");
 
@@ -532,7 +532,7 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_fac,
-"fac(n, /) -> mpz\n\n"
+"fac(n) -> mpz\n\n"
 "Return the exact factorial of n.\n\n"
 "See factorial(n) to get the floating-point approximation.");
 
@@ -554,7 +554,7 @@ GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_double_fac,
-"double_fac(n, /) -> mpz\n\n"
+"double_fac(n) -> mpz\n\n"
 "Return the exact double factorial (n!!) of n. The double\n"
 "factorial is defined as n*(n-2)*(n-4)...");
 
@@ -576,7 +576,7 @@ GMPy_MPZ_Function_DoubleFac(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_primorial,
-"primorial(n, /) -> mpz\n\n"
+"primorial(n) -> mpz\n\n"
 "Return the product of all positive prime numbers less than or\n"
 "equal to n.");
 
@@ -598,7 +598,7 @@ GMPy_MPZ_Function_Primorial(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_multi_fac,
-"multi_fac(n,m,/) -> mpz\n\n"
+"multi_fac(n,m) -> mpz\n\n"
 "Return the exact m-multi factorial of n. The m-multi"
 "factorial is defined as n*(n-m)*(n-2m)...");
 
@@ -630,7 +630,7 @@ GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_fib,
-"fib(n, /) -> mpz\n\n"
+"fib(n) -> mpz\n\n"
 "Return the n-th Fibonacci number.");
 
 static PyObject *
@@ -650,7 +650,7 @@ GMPy_MPZ_Function_Fib(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_fib2,
-"fib2(n, /) -> tuple[mpz, mpz]\n\n"
+"fib2(n) -> tuple[mpz, mpz]\n\n"
 "Return a 2-tuple with the (n-1)-th and n-th Fibonacci numbers.");
 
 static PyObject *
@@ -684,7 +684,7 @@ GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_lucas,
-"lucas(n, /) -> mpz\n\n"
+"lucas(n) -> mpz\n\n"
 "Return the n-th Lucas number.");
 
 static PyObject *
@@ -705,7 +705,7 @@ GMPy_MPZ_Function_Lucas(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_lucas2,
-"lucas2(n, /) -> tuple[mpz, mpz]\n\n"
+"lucas2(n) -> tuple[mpz, mpz]\n\n"
 "Return a 2-tuple with the (n-1)-th and n-th Lucas numbers.");
 
 static PyObject *
@@ -739,11 +739,11 @@ GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_bincoef,
-"bincoef(n, k, /) -> mpz\n\n"
+"bincoef(n, k) -> mpz\n\n"
 "Return the binomial coefficient ('n choose k'). k >= 0.");
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_comb,
-"comb(n, k, /) -> mpz\n\n"
+"comb(n, k) -> mpz\n\n"
 "Return the number of combinations of 'n things, taking k at a\n"
 "time'. k >= 0. Same as bincoef(n, k)");
 
@@ -794,7 +794,7 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_isqrt,
-"isqrt(x, /) -> mpz\n\n"
+"isqrt(x) -> mpz\n\n"
 "Return the integer square root of an integer x. x >= 0.");
 
 static PyObject *
@@ -827,7 +827,7 @@ GMPy_MPZ_Function_Isqrt(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_isqrt_rem,
-"isqrt_rem(x, /) -> (mpz, mpz)\n\n"
+"isqrt_rem(x) -> (mpz, mpz)\n\n"
 "Return a 2-element tuple (s,t) such that s=isqrt(x) and t=x-s*s.\n"
 "x >=0.");
 
@@ -869,7 +869,7 @@ GMPy_MPZ_Function_IsqrtRem(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_remove,
-"remove(x, f, /) -> tuple[mpz, mpz]\n\n"
+"remove(x, f) -> tuple[mpz, mpz]\n\n"
 "Return a 2-element tuple (y,m) such that x=y*(f**m) and f does\n"
 "not divide y. Remove the factor f from x as many times as\n"
 "possible. m is the multiplicity f in x. f > 1.");
@@ -931,7 +931,7 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_invert,
-"invert(x, m, /) -> mpz\n\n"
+"invert(x, m) -> mpz\n\n"
 "Return y such that x*y == 1 modulo m. Raises ZeroDivisionError if no\n"
 "inverse exists.");
 
@@ -1001,7 +1001,7 @@ GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_divexact,
-"divexact(x, y, /) -> mpz\n\n"
+"divexact(x, y) -> mpz\n\n"
 "Return the quotient of x divided by y. Faster than standard\n"
 "division but requires the remainder is zero!");
 
@@ -1058,7 +1058,7 @@ GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_square,
-"is_square(x, /) -> bool\n\n"
+"is_square(x) -> bool\n\n"
 "Returns True if x is a perfect square, else return False.");
 
 static PyObject *
@@ -1105,7 +1105,7 @@ GMPy_MPZ_Method_IsSquare(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_divisible,
-"is_divisible(x, d, /) -> bool\n\n"
+"is_divisible(x, d) -> bool\n\n"
 "Returns True if x is divisible by d, else return False.");
 
 static PyObject *
@@ -1152,7 +1152,7 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_divisible,
-"x.is_divisible(d, /) -> bool\n\n"
+"x.is_divisible(d) -> bool\n\n"
 "Returns True if x is divisible by d, else return False.");
 
 static PyObject *
@@ -1187,7 +1187,7 @@ GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_congruent,
-"is_congruent(x, y, m, /) -> bool\n\n"
+"is_congruent(x, y, m) -> bool\n\n"
 "Returns True if x is congruent to y modulo m, else return False.");
 
 static PyObject *
@@ -1223,7 +1223,7 @@ GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_congruent,
-"x.is_congruent(y, m, /) -> bool\n\n"
+"x.is_congruent(y, m) -> bool\n\n"
 "Returns True if x is congruent to y modulo m, else return False.");
 
 static PyObject *
@@ -1256,7 +1256,7 @@ GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_power,
-"is_power(x, /) -> bool\n\n"
+"is_power(x) -> bool\n\n"
 "Return True if x is a perfect power (there exists a y and an\n"
 "n > 1, such that x=y**n), else return False.");
 
@@ -1305,7 +1305,7 @@ GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_prime,
-"is_prime(x, n=25, /) -> bool\n\n"
+"is_prime(x, n=25) -> bool\n\n"
 "Return True if x is _probably_ prime, else False if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
@@ -1355,7 +1355,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_prime,
-"x.is_prime(n=25, /) -> bool\n\n"
+"x.is_prime(n=25) -> bool\n\n"
 "Return True if x is _probably_ prime, else False if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
@@ -1475,7 +1475,7 @@ GMPy_MPZ_Method_IsProbabPrime(PyObject *self, PyObject *const *args,
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_next_prime,
-"next_prime(x, /) -> mpz\n\n"
+"next_prime(x) -> mpz\n\n"
 "Return the next _probable_ prime number > x.");
 
 static PyObject *
@@ -1504,7 +1504,7 @@ GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_jacobi,
-"jacobi(x, y, /) -> mpz\n\n"
+"jacobi(x, y) -> mpz\n\n"
 "Return the Jacobi symbol (x|y). y must be odd and >0.");
 
 static PyObject *
@@ -1540,7 +1540,7 @@ GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_legendre,
-"legendre(x, y, /) -> mpz\n\n"
+"legendre(x, y) -> mpz\n\n"
 "Return the Legendre symbol (x|y). y is assumed to be an odd prime.");
 
 static PyObject *
@@ -1576,7 +1576,7 @@ GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_kronecker,
-"kronecker(x, y, /) -> mpz\n\n"
+"kronecker(x, y) -> mpz\n\n"
 "Return the Kronecker-Jacobi symbol (x|y).");
 
 static PyObject *
@@ -1605,7 +1605,7 @@ GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_even,
-"is_even(x, /) -> bool\n\n"
+"is_even(x) -> bool\n\n"
 "Return True if x is even, False otherwise.");
 
 static PyObject *
@@ -1652,7 +1652,7 @@ GMPy_MPZ_Method_IsEven(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_odd,
-"is_odd(x, /) -> bool\n\n"
+"is_odd(x) -> bool\n\n"
 "Return True if x is odd, False otherwise.");
 
 static PyObject *

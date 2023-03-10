@@ -213,7 +213,7 @@ GMPy_Number_Abs(PyObject *x, CTXT_Object *context)
  * a context. */
 
 PyDoc_STRVAR(GMPy_doc_context_abs,
-"context.abs(x, /) -> mpz | mpq | mpfr\n\n"
+"context.abs(x) -> mpz | mpq | mpfr\n\n"
 "Return abs(x), the context is applied to the result.");
 
 static PyObject *

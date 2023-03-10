@@ -300,7 +300,7 @@ GMPy_Number_FloorDiv_Slot(PyObject *x, PyObject *y)
 }
 
 PyDoc_STRVAR(GMPy_doc_floordiv,
-"floor_div(x, y, /) -> mpz | mpfr\n\n"
+"floor_div(x, y) -> mpz | mpfr\n\n"
 "Return x // y; uses floor division.");
 
 static PyObject *
@@ -326,7 +326,7 @@ GMPy_Number_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_floordiv,
-"context.floor_div(x, y, /) -> mpz | mpfr\n\n"
+"context.floor_div(x, y) -> mpz | mpfr\n\n"
 "Return x // y; uses floor division.");
 
 static PyObject *
