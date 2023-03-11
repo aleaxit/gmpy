@@ -1919,8 +1919,7 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
         }
 
         mpz_init(tmp);
-        mpz_neg(tmp, MPZ(self));
-        mpz_sub_ui(tmp, tmp, 1);
+        mpz_com(tmp, MPZ(self));
         sign = mpz_sgn(tmp);
         pnumber = &tmp;
     }
@@ -1966,6 +1965,153 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
     TEMP_FREE(buffer, length);
 
     return bytes;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_method_from_bytes,
+"mpz.from_bytes(bytes, byteorder=\'big\', *, signed=False) -> mpz\n\n\
+Return the integer represented by the given array of bytes.\n\n\
+  bytes\n\
+    Holds the array of bytes to convert.  The argument must either\n\
+    support the buffer protocol or be an iterable object producing bytes.\n\
+    `bytes` and `bytearray` are examples of built-in objects that support\n\
+    the buffer protocol.\n\
+  byteorder\n\
+    The byte order used to represent the integer.  If byteorder is \'big\',\n\
+    the most significant byte is at the beginning of the byte array.  If\n\
+    byteorder is \'little\', the most significant byte is at the end of the\n\
+    byte array.  To request the native byte order of the host system, use\n\
+    `sys.byteorder` as the byte order value.\n\
+  signed\n\
+    Indicates whether two\'s complement is used to represent the integer.");
+static PyObject *
+GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
+{
+    Py_ssize_t i, nkws = 0, length;
+    PyObject *arg, *bytes_obj;
+    char is_signed = 0, is_negative = 0, is_big, *bytes, *p;
+    int argidx[2] = {-1, -1};
+    const char *byteorder = NULL, *kwname;
+    mpz_t tmp;
+    MPZ_Object *result;
+
+    if (nargs > 2) {
+        TYPE_ERROR("from_bytes() takes at most 2 positional arguments");
+        return NULL;
+    }
+    if (nargs >= 1) {
+        argidx[0] = 0;
+    }
+    if (nargs == 2) {
+        argidx[1] = 1;
+    }
+
+    if (kwnames) {
+        nkws = PyTuple_GET_SIZE(kwnames);
+    }
+    if (nkws > 3) {
+        TYPE_ERROR("from_bytes() takes at most 3 keyword arguments");
+        return NULL;
+    }
+    if (nkws + nargs < 1) {
+        TYPE_ERROR("from_bytes() missing required argument 'bytes' (pos 1)");
+        return NULL;
+    }
+    for (i = 0; i < nkws; i++) {
+        kwname = PyUnicode_AsUTF8(PyTuple_GET_ITEM(kwnames, i));
+        if (strcmp(kwname, "signed") == 0) {
+            is_signed = PyObject_IsTrue(args[nargs + i]);
+        }
+        else if (strcmp(kwname, "bytes") == 0) {
+            if (nargs == 0) {
+                argidx[0] = nargs + i;
+            }
+            else {
+                TYPE_ERROR("argument for from_bytes() given by name ('bytes') and position (1)");
+                return NULL;
+            }
+        }
+        else if (strcmp(kwname, "byteorder") == 0) {
+            if (nargs <= 1) {
+                argidx[1] = nargs + i;
+            }
+            else {
+                TYPE_ERROR("argument for from_bytes() given by name ('byteorder') and position (2)");
+                return NULL;
+            }
+        }
+        else {
+            TYPE_ERROR("got an invalid keyword argument for from_bytes()");
+            return NULL;
+        }
+    }
+
+    if (argidx[1] >= 0) {
+        arg = args[argidx[1]];
+        if (PyUnicode_Check(arg)) {
+            byteorder = PyUnicode_AsUTF8(arg);
+        }
+        else {
+            TYPE_ERROR("from_bytes() argument 'byteorder' must be str");
+            return NULL;
+        }
+    }
+
+    if (byteorder == NULL || strcmp(byteorder, "big") == 0) {
+        is_big = 1;
+    }
+    else if (strcmp(byteorder, "little") == 0) {
+        is_big = 0;
+    }
+    else {
+        VALUE_ERROR("byteorder must be either 'little' or 'big'");
+        return NULL;
+    }
+
+    if (!(result = GMPy_MPZ_New(NULL))) {
+        return NULL;
+    }
+
+    bytes_obj = PyObject_Bytes(args[argidx[0]]);
+    if (bytes_obj == NULL) {
+        return NULL;
+    }
+    if (PyBytes_AsStringAndSize(bytes_obj, &bytes, &length) == -1) {
+        return NULL;
+    }
+
+    if (is_signed) {
+        if (is_big) {
+            is_negative = (*bytes == '\xff');
+            while (*bytes == '\xff') {
+                bytes++;
+                length--;
+            }
+        }
+        else {
+            p = bytes + length - 1;
+            is_negative = (*p == '\xff');
+            while (*p == '\xff' && length > 0) {
+                p--;
+                length--;
+            }
+        }
+    }
+
+    mpz_import(MPZ(result), length, is_big ? 1 : -1, sizeof(char), 0, 0, bytes);
+    Py_DECREF(bytes_obj);
+
+    if (is_signed && !is_negative) {
+        is_negative = mpz_tstbit(MPZ(result), 8*length - 1);
+    }
+    if (is_negative) {
+        mpz_init(tmp);
+        mpz_ui_pow_ui(tmp, 256, length);
+        mpz_sub(MPZ(result), tmp, MPZ(result));
+        mpz_neg(MPZ(result), MPZ(result));
+        mpz_clear(tmp);
+    }
+
+    return (PyObject*)result;
 }
 
 static PyObject *
