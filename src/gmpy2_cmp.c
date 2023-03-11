@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpany_cmp,
-"cmp(x, y) -> integer\n\n"
+"cmp(x, y, /) -> integer\n\n"
 "Return -1 if x < y; 0 if x = y; or 1 if x > y. Both x and y must be\n"
 "integer, rational or real. Note: 0 is returned (and exception flag set)\n"
 "if either argument is NaN.");
@@ -251,7 +251,7 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpany_cmp_abs,
-"cmp_abs(x, y) -> integer\n\n"
+"cmp_abs(x, y, /) -> integer\n\n"
 "Return -1 if |x| < |y|; 0 if |x| = |y|; or 1 if |x| > |y|. Both x and y\n"
 "can be integer, rational, real, or complex.");
 
