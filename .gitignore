@@ -6,3 +6,5 @@ docs/_build
 gmpy2.egg-info/
 MANIFEST
 .vscode/
+# Ignore files cached by Hypothesis (including examples directory so far)
+.hypothesis/

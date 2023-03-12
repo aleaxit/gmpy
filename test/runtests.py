@@ -148,6 +148,14 @@ else:
     print("failed")
     failed += 1
 
+print("Running {0:30}  ".format("test_mpz.py"), end="")
+if os.system("pytest " + os.path.dirname(__file__) + "/test_mpz.py") == 0:
+    print("successful")
+    attempted += 1
+else:
+    print("failed")
+    failed += 1
+
 if failed:
     sys.exit(1)
 else:

@@ -19,6 +19,7 @@ jobs:
           CIBW_PRERELEASE_PYTHONS: True
           CIBW_SKIP: pp*
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build.sh
+          CIBW_TEST_EXTRAS: tests
           CIBW_TEST_COMMAND: python {package}/test/runtests.py
 
       - uses: actions/upload-artifact@v3
@@ -43,6 +44,7 @@ jobs:
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build_apple_silicon.sh
           CIBW_SKIP: pp*
           CIBW_ARCHS_MACOS: arm64
+          CIBW_TEST_EXTRAS: tests
           CIBW_TEST_COMMAND: python {package}/test/runtests.py
 
       - uses: actions/upload-artifact@v3
