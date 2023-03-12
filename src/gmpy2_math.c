@@ -899,11 +899,11 @@ GMPy_RealWithType_Sinh_Cosh(PyObject *x, int xtype, CTXT_Object *context)
 
 PyDoc_STRVAR(GMPy_doc_context_sinh_cosh,
 "context.sinh_cosh(x, /) -> tuple[mpfr, mpfr]\n\n"
-"Return a tuple containing the hyperbolic sine and cosine of x.");
+"Return a `tuple` containing the hyperbolic sine and cosine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_sinh_cosh,
 "sinh_cosh(x, /) -> tuple[mpfr, mpfr]\n\n"
-"Return a tuple containing the hyperbolic sine and cosine of x.");
+"Return a `tuple` containing the hyperbolic sine and cosine of x.");
 
 GMPY_MPFR_UNIOP_TEMPLATEWT(Sinh_Cosh, sinh_cosh)
 
@@ -1128,25 +1128,25 @@ GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Sqrt, sqrt)
 
 PyDoc_STRVAR(GMPy_doc_function_root,
 "root(x, n, /) -> mpfr\n\n"
-"Return n-th root of x. The result always an 'mpfr'.\n"
+"Return n-th root of x. The result always an `mpfr`.\n"
 "Note: not IEEE 754-2008 compliant; result differs when\n"
-"x = -0 and n is even. See rootn().");
+"x = -0 and n is even. See `rootn()`.");
 
 PyDoc_STRVAR(GMPy_doc_context_root,
 "context.root(x, n, /) -> mpfr\n\n"
-"Return n-th root of x. The result always an 'mpfr'.\n"
+"Return n-th root of x. The result always an `mpfr`.\n"
 "Note: not IEEE 754-2008 compliant; result differs when\n"
-"x = -0 and n is even. See rootn().");
+"x = -0 and n is even. See `context.rootn()`.");
 
 PyDoc_STRVAR(GMPy_doc_function_rootn,
 "rootn(x, n, /) -> mpfr\n\n"
-"Return n-th root of x. The result always an 'mpfr'.\n"
-"Note: this is IEEE 754-2008 compliant version of root().");
+"Return n-th root of x. The result always an `mpfr`.\n"
+"Note: this is IEEE 754-2008 compliant version of `root()`.");
 
 PyDoc_STRVAR(GMPy_doc_context_rootn,
 "context.rootn(x, n, /) -> mpfr\n\n"
-"Return n-th root of x. The result always an 'mpfr'.\n"
-"Note: this is IEEE 754-2008 compliant version of root().");
+"Return n-th root of x. The result always an `mpfr`.\n"
+"Note: this is IEEE 754-2008 compliant version of `context.root()`.");
 
 #if MPFR_VERSION_MAJOR > 3
 
@@ -1364,28 +1364,28 @@ GMPY_MPFR_BINOPWT(AGM, agm)
 
 PyDoc_STRVAR(GMPy_doc_function_maxnum,
 "maxnum(x, y, /) -> mpfr\n\n"
-"Return the maximum number of x and y. If x and y are not 'mpfr', they are\n"
-"converted to 'mpfr'. The result is rounded to match the current context.\n"
+"Return the maximum number of x and y. If x and y are not `mpfr`, they are\n"
+"converted to `mpfr`. The result is rounded to match the current context.\n"
 "If only one of x or y is a number, then that number is returned.");
 
 PyDoc_STRVAR(GMPy_doc_context_maxnum,
 "context.maxnum(x, y, /) -> mpfr\n\n"
-"Return the maximum number of x and y. If x and y are not 'mpfr', they are\n"
-"converted to 'mpfr'. The result is rounded to match the specified context.\n"
+"Return the maximum number of x and y. If x and y are not `mpfr`, they are\n"
+"converted to `mpfr`. The result is rounded to match the specified context.\n"
 "If only one of x or y is a number, then that number is returned.");
 
 GMPY_MPFR_BINOPWT(Maxnum, max)
 
 PyDoc_STRVAR(GMPy_doc_function_minnum,
 "minnum(x, y, /) -> mpfr\n\n"
-"Return the minimum number of x and y. If x and y are not 'mpfr', they are\n"
-"converted to 'mpfr'. The result is rounded to match the current context.\n"
+"Return the minimum number of x and y. If x and y are not `mpfr`, they are\n"
+"converted to `mpfr`. The result is rounded to match the current context.\n"
 "If only one of x or y is a number, then that number is returned.");
 
 PyDoc_STRVAR(GMPy_doc_context_minnum,
 "context.minnum(x, y, /) -> mpfr\n\n"
-"Return the minimum number of x and y. If x and y are not 'mpfr', they are\n"
-"converted to 'mpfr'. The result is rounded to match the specified context.\n"
+"Return the minimum number of x and y. If x and y are not `mpfr`, they are\n"
+"converted to `mpfr`. The result is rounded to match the specified context.\n"
 "If only one of x or y is a number, then that number is returned.");
 
 GMPY_MPFR_BINOPWT(Minnum, min)
@@ -1413,32 +1413,33 @@ PyDoc_STRVAR(GMPy_doc_context_fmod,
 GMPY_MPFR_BINOPWT(Fmod, fmod)
 
 PyDoc_STRVAR(GMPy_doc_function_round2,
-"round2(x, /) -> mpfr\n"
-"round2(x, n, /) -> mpfr\n\n"
-"Return x rounded to n bits. Uses default precision if n is not\n"
-"specified. See round_away() to access the mpfr_round() function.");
+"round2(x, n=0, /) -> mpfr\n\n"
+"Return x rounded to n bits.  Uses default precision if n is not specified.\n"
+"See `round_away()` to access the mpfr_round() function of the MPFR.");
 
 PyDoc_STRVAR(GMPy_doc_context_round2,
-"context.round2(x, /) -> mpfr\n"
-"context.round2(x, n, /) -> mpfr\n\n"
-"Return x rounded to n bits. Uses default precision if n is not\n"
-"specified. See round_away() to access the mpfr_round() function.");
+"context.round2(x, n=0, /) -> mpfr\n\n"
+"Return x rounded to n bits.  Uses default precision if n is not specified.\n"
+"See `context.round_away()` to access the mpfr_round() function of the MPFR.");
 
 static PyObject *
 GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result, *tempx;
-    long n;
+    long n = 0;
 
     CHECK_CONTEXT(context);
-    n = GET_MPFR_PREC(context);
 
     if (y) {
         n = PyLong_AsLong(y);
-        if ( (n == -1 && PyErr_Occurred()) || n < MPFR_PREC_MIN || n > MPFR_PREC_MAX) {
+        if (n && ((n == -1 && PyErr_Occurred()) || n < MPFR_PREC_MIN || n > MPFR_PREC_MAX)) {
             VALUE_ERROR("invalid precision");
             return NULL;
         }
+    }
+
+    if (!n) {
+        n = GET_MPFR_PREC(context);
     }
 
     if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
@@ -1543,7 +1544,7 @@ PyDoc_STRVAR(GMPy_doc_function_ceil,
 
 PyDoc_STRVAR(GMPy_doc_context_ceil,
 "context.ceil(x, /) ->mpfr\n\n"
-"Return an 'mpfr' that is the smallest integer >= x.");
+"Return an `mpfr` that is the smallest integer >= x.");
 
 GMPY_MPFR_UNIOP_NOROUNDWT(Ceil, ceil)
 
@@ -1553,11 +1554,11 @@ PyDoc_STRVAR(GMPy_doc_mpfr_floor_method,
 
 PyDoc_STRVAR(GMPy_doc_function_floor,
 "floor(x, /) -> mpfr\n\n"
-"Return an 'mpfr' that is the largest integer <= x.");
+"Return an `mpfr` that is the largest integer <= x.");
 
 PyDoc_STRVAR(GMPy_doc_context_floor,
 "context.floor(x, /) -> mpfr\n\n"
-"Return an 'mpfr' that is the largest integer <= x.");
+"Return an `mpfr` that is the largest integer <= x.");
 
 GMPY_MPFR_UNIOP_NOROUNDWT(Floor, floor);
 
@@ -1568,36 +1569,36 @@ PyDoc_STRVAR(GMPy_doc_mpfr_trunc_method,
 
 PyDoc_STRVAR(GMPy_doc_function_trunc,
 "trunc(x, /) -> mpfr\n\n"
-"Return an 'mpfr' that is x truncated towards 0. Same as\n"
+"Return an `mpfr` that is x truncated towards 0. Same as\n"
 "x.floor() if x>=0 or x.ceil() if x<0.");
 
 PyDoc_STRVAR(GMPy_doc_context_trunc,
 "context.trunc(x, /) -> mpfr\n\n"
-"Return an 'mpfr' that is x truncated towards 0. Same as\n"
+"Return an `mpfr` that is x truncated towards 0. Same as\n"
 "x.floor() if x>=0 or x.ceil() if x<0.");
 
 GMPY_MPFR_UNIOP_NOROUNDWT(Trunc, trunc)
 
 PyDoc_STRVAR(GMPy_doc_function_round_away,
 "round_away(x, /) -> mpfr\n\n"
-"Return an 'mpfr' that is x rounded to the nearest integer,\n"
+"Return an `mpfr` that is x rounded to the nearest integer,\n"
 "with ties rounded away from 0.");
 
 PyDoc_STRVAR(GMPy_doc_context_round_away,
 "context.round_away(x, /) -> mpfr\n\n"
-"Return an 'mpfr' that is x rounded to the nearest integer,\n"
+"Return an `mpfr` that is x rounded to the nearest integer,\n"
 "with ties rounded away from 0.");
 
 GMPY_MPFR_UNIOP_NOROUND_NOMETHODWT(RoundAway, round)
 
 PyDoc_STRVAR(GMPy_doc_function_modf,
 "modf(x, /) -> tuple[mpfr, mpfr]\n\n"
-"Return a tuple containing the integer and fractional portions\n"
+"Return a `tuple` containing the integer and fractional portions\n"
 "of x.");
 
 PyDoc_STRVAR(GMPy_doc_context_modf,
 "context.modf(x, /) -> tuple[mpfr, mpfr]\n\n"
-"Return a tuple containing the integer and fractional portions\n"
+"Return a `tuple` containing the integer and fractional portions\n"
 "of x.");
 
 static PyObject *
@@ -1648,12 +1649,12 @@ GMPY_MPFR_UNIOP_TEMPLATEWT(Modf, modf)
 
 PyDoc_STRVAR(GMPy_doc_function_lgamma,
 "lgamma(x, /) -> tuple[mpfr, int]\n\n"
-"Return a tuple containing the logarithm of the absolute value of\n"
+"Return a `tuple` containing the logarithm of the absolute value of\n"
 "gamma(x) and the sign of gamma(x)");
 
 PyDoc_STRVAR(GMPy_doc_context_lgamma,
 "context.lgamma(x, /) -> tuple[mpfr, int]\n\n"
-"Return a tuple containing the logarithm of the absolute value of\n"
+"Return a `tuple` containing the logarithm of the absolute value of\n"
 "gamma(x) and the sign of gamma(x)");
 
 static PyObject *
@@ -1694,12 +1695,12 @@ GMPY_MPFR_UNIOP_TEMPLATEWT(Lgamma, lgamma)
 
 PyDoc_STRVAR(GMPy_doc_function_remquo,
 "remquo(x, y, /) -> tuple[mpfr, int]\n\n"
-"Return a tuple containing the remainder(x,y) and the low bits of the\n"
+"Return a `tuple` containing the remainder(x,y) and the low bits of the\n"
 "quotient.");
 
 PyDoc_STRVAR(GMPy_doc_context_remquo,
 "context.remquo(x, y, /) -> tuple[mpfr, int]\n\n"
-"Return a tuple containing the remainder(x,y) and the low bits of the\n"
+"Return a `tuple` containing the remainder(x,y) and the low bits of the\n"
 "quotient.");
 
 static PyObject *
@@ -1739,11 +1740,11 @@ GMPY_MPFR_BINOP_TEMPLATEWT(RemQuo, remquo);
 
 PyDoc_STRVAR(GMPy_doc_function_frexp,
 "frexp(x, /) -> tuple[int, mpfr]\n\n"
-"Return a tuple containing the exponent and mantissa of x.");
+"Return a `tuple` containing the exponent and mantissa of x.");
 
 PyDoc_STRVAR(GMPy_doc_context_frexp,
 "context.frexp(x, /) -> tuple[int, mpfr]\n\n"
-"Return a tuple containing the exponent and mantissa of x.");
+"Return a `tuple` containing the exponent and mantissa of x.");
 
 static PyObject *
 GMPy_RealWithType_Frexp(PyObject *x, int xtype, CTXT_Object *context)
@@ -1776,12 +1777,12 @@ GMPY_MPFR_UNIOP_TEMPLATEWT(Frexp, frexp)
 
 PyDoc_STRVAR(GMPy_doc_function_next_toward,
 "next_toward(x, y, /) -> mpfr\n\n"
-"Return the next 'mpfr' from x in the direction of y. The result has\n"
+"Return the next `mpfr` from x in the direction of y. The result has\n"
 "the same precision as x.");
 
 PyDoc_STRVAR(GMPy_doc_context_next_toward,
 "context.next_toward(x, y, /) -> mpfr\n\n"
-"Return the next 'mpfr' from x in the direction of y. The result has\n"
+"Return the next `mpfr` from x in the direction of y. The result has\n"
 "the same precision as x.");
 
 static PyObject *
@@ -1839,11 +1840,11 @@ GMPy_Context_NextToward(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_function_next_above,
 "next_above(x, /) -> mpfr\n\n"
-"Return the next 'mpfr' from x toward +Infinity.");
+"Return the next `mpfr` from x toward +Infinity.");
 
 PyDoc_STRVAR(GMPy_doc_context_next_above,
 "context.next_above(x, /) -> mpfr\n\n"
-"Return the next 'mpfr' from x toward +Infinity.");
+"Return the next `mpfr` from x toward +Infinity.");
 
 static PyObject *
 GMPy_Context_NextAbove(PyObject *self, PyObject *other)
@@ -1884,11 +1885,11 @@ GMPy_Context_NextAbove(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_function_next_below,
 "next_below(x, /) -> mpfr\n\n"
-"Return the next 'mpfr' from x toward -Infinity.");
+"Return the next `mpfr` from x toward -Infinity.");
 
 PyDoc_STRVAR(GMPy_doc_context_next_below,
 "context.next_below(x, /) -> mpfr\n\n"
-"Return the next 'mpfr' from x toward -Infinity.");
+"Return the next `mpfr` from x toward -Infinity.");
 
 static PyObject *
 GMPy_Context_NextBelow(PyObject *self, PyObject *other)
@@ -1930,12 +1931,12 @@ GMPy_Context_NextBelow(PyObject *self, PyObject *other)
 PyDoc_STRVAR(GMPy_doc_function_factorial,
 "factorial(n, /) -> mpfr\n\n"
 "Return the floating-point approximation to the factorial of n.\n\n"
-"See fac(n) to get the exact integer result.");
+"See `fac()` to get the exact integer result.");
 
 PyDoc_STRVAR(GMPy_doc_context_factorial,
 "context.factorial(n, /) -> mpfr\n\n"
 "Return the floating-point approximation to the factorial of n.\n\n"
-"See fac(n) to get the exact integer result.");
+"See `fac()` to get the exact integer result.");
 
 static PyObject *
 GMPy_Context_Factorial(PyObject *self, PyObject *other)

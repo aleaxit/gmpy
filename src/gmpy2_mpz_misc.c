@@ -96,7 +96,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_iroot,
 "iroot(x,n,/) -> tuple[mpz, bool]\n\n"
-"Return the integer n-th root of x and boolean value that is True\n"
+"Return the integer n-th root of x and boolean value that is `True`\n"
 "iff the root is exact. x >= 0. n > 0.");
 
 static PyObject *
@@ -379,8 +379,8 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject * const *args, Py_ssize_t nargs)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_gcdext,
 "gcdext(a, b, /) -> tuple[mpz, mpz, mpz]\n\n"
-"Return a 3-element tuple (g,s,t) such that\n"
-"    g == gcd(a,b) and g == a*s + b*t");
+"Return a 3-element tuple (g,s,t) such that g == gcd(a,b)\n"
+"and g == a*s + b*t.");
 
 static PyObject *
 GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
@@ -445,7 +445,7 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_divm,
 "divm(a, b, m, /) -> mpz\n\n"
-"Return x such that b*x == a mod m. Raises a ZeroDivisionError\n"
+"Return x such that b*x == a mod m. Raises a `ZeroDivisionError`\n"
 "exception if no such value x exists.");
 
 static PyObject *
@@ -795,7 +795,7 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_isqrt,
 "isqrt(x, /) -> mpz\n\n"
-"Return the integer square root of an integer x. x >= 0.");
+"Return the integer square root of a non-negative integer x.");
 
 static PyObject *
 GMPy_MPZ_Function_Isqrt(PyObject *self, PyObject *other)
@@ -932,7 +932,7 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_invert,
 "invert(x, m, /) -> mpz\n\n"
-"Return y such that x*y == 1 modulo m. Raises ZeroDivisionError if no\n"
+"Return y such that x*y == 1 modulo m. Raises `ZeroDivisionError` if no\n"
 "inverse exists.");
 
 static PyObject *
@@ -1059,7 +1059,7 @@ GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_square,
 "is_square(x, /) -> bool\n\n"
-"Returns True if x is a perfect square, else return False.");
+"Returns `True` if x is a perfect square, else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
@@ -1089,7 +1089,7 @@ GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_square,
 "x.is_square() -> bool\n\n"
-"Returns True if x is a perfect square, else return False.");
+"Returns `True` if x is a perfect square, else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Method_IsSquare(PyObject *self, PyObject *other)
@@ -1106,7 +1106,7 @@ GMPy_MPZ_Method_IsSquare(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_divisible,
 "is_divisible(x, d, /) -> bool\n\n"
-"Returns True if x is divisible by d, else return False.");
+"Returns `True` if x is divisible by d, else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
@@ -1153,7 +1153,7 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_divisible,
 "x.is_divisible(d, /) -> bool\n\n"
-"Returns True if x is divisible by d, else return False.");
+"Returns `True` if x is divisible by d, else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
@@ -1188,7 +1188,7 @@ GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_congruent,
 "is_congruent(x, y, m, /) -> bool\n\n"
-"Returns True if x is congruent to y modulo m, else return False.");
+"Returns `True` if x is congruent to y modulo m, else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args)
@@ -1224,7 +1224,7 @@ GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_congruent,
 "x.is_congruent(y, m, /) -> bool\n\n"
-"Returns True if x is congruent to y modulo m, else return False.");
+"Returns `True` if x is congruent to y modulo m, else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args)
@@ -1257,8 +1257,8 @@ GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_power,
 "is_power(x, /) -> bool\n\n"
-"Return True if x is a perfect power (there exists a y and an\n"
-"n > 1, such that x=y**n), else return False.");
+"Return `True` if x is a perfect power (there exists a y and an\n"
+"n > 1, such that x=y**n), else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other)
@@ -1288,8 +1288,8 @@ GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_power,
 "x.is_power() -> bool\n\n"
-"Return True if x is a perfect power (there exists a y and an\n"
-"n > 1, such that x=y**n), else return False.");
+"Return `True` if x is a perfect power (there exists a y and an\n"
+"n > 1, such that x=y**n), else return `False`.");
 
 static PyObject *
 GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other)
@@ -1306,7 +1306,7 @@ GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_prime,
 "is_prime(x, n=25, /) -> bool\n\n"
-"Return True if x is _probably_ prime, else False if x is\n"
+"Return `True` if x is _probably_ prime, else `False` if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
 
@@ -1356,7 +1356,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_prime,
 "x.is_prime(n=25, /) -> bool\n\n"
-"Return True if x is _probably_ prime, else False if x is\n"
+"Return `True` if x is _probably_ prime, else `False` if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
 
@@ -1399,9 +1399,9 @@ GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_probab_prime,
 "is_probab_prime(x, n=25, /) -> int\n\n"
-"Return 2 if x is definitely prime, 1 if x is probably prime, \n"
-"or return 0 if x is definitely non-prime.  x is checked for small \n"
-"divisors and up to n Miller-Rabin tests are performed.  Reasonable \n"
+"Return 2 if x is definitely prime, 1 if x is probably prime,\n"
+"or return 0 if x is definitely non-prime.  x is checked for small\n"
+"divisors and up to n Miller-Rabin tests are performed.  Reasonable\n"
 "values of n are between 15 and 50.");
 
 static PyObject *
@@ -1441,9 +1441,9 @@ GMPy_MPZ_Function_IsProbabPrime(PyObject *module, PyObject *const *args,
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_probab_prime,
 "x.is_probab_prime(n=25, /) -> int\n\n"
-"Return 2 if x is definitely prime, 1 if x is probably prime, \n"
-"or return 0 if x is definitely non-prime.  x is checked for small \n"
-"divisors and up to n Miller-Rabin tests are performed.  Reasonable \n"
+"Return 2 if x is definitely prime, 1 if x is probably prime,\n"
+"or return 0 if x is definitely non-prime.  x is checked for small\n"
+"divisors and up to n Miller-Rabin tests are performed.  Reasonable\n"
 "values of n are between 15 and 50.");
 
 static PyObject *
@@ -1476,7 +1476,7 @@ GMPy_MPZ_Method_IsProbabPrime(PyObject *self, PyObject *const *args,
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_next_prime,
 "next_prime(x, /) -> mpz\n\n"
-"Return the next _probable_ prime number > x.");
+"Return the next *probable* prime number > x.");
 
 static PyObject *
 GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other)
@@ -1606,7 +1606,7 @@ GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_even,
 "is_even(x, /) -> bool\n\n"
-"Return True if x is even, False otherwise.");
+"Return `True` if x is even, `False` otherwise.");
 
 static PyObject *
 GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other)
@@ -1636,7 +1636,7 @@ GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_even,
 "x.is_even() -> bool\n\n"
-"Return True if x is even, False otherwise.");
+"Return `True` if x is even, `False` otherwise.");
 
 static PyObject *
 GMPy_MPZ_Method_IsEven(PyObject *self, PyObject *other)
@@ -1653,7 +1653,7 @@ GMPy_MPZ_Method_IsEven(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_odd,
 "is_odd(x, /) -> bool\n\n"
-"Return True if x is odd, False otherwise.");
+"Return `True` if x is odd, `False` otherwise.");
 
 static PyObject *
 GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other)
@@ -1683,7 +1683,7 @@ GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_odd,
 "x.is_odd() -> bool\n\n"
-"Return True if x is odd, False otherwise.");
+"Return `True` if x is odd, `False` otherwise.");
 
 static PyObject *
 GMPy_MPZ_Method_IsOdd(PyObject *self, PyObject *other)
@@ -1786,7 +1786,8 @@ GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure)
 PyDoc_STRVAR(GMPy_doc_mpz_method_as_integer_ratio,
 "x.as_integer_ratio() -> tuple[mpz, mpz]\n\n"
 "Return a pair of integers, whose ratio is exactly equal to the\n"
-"original number and with a positive denominator.");
+"original number.  The ratio is in lowest terms and has a\n"
+"positive denominator.");
 static PyObject *
 GMPy_MPZ_Method_As_Integer_Ratio(PyObject *self, PyObject *args)
 {

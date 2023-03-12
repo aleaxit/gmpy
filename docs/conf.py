@@ -16,10 +16,17 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath',
 # default role, that is, for text marked up `like this`.
 default_role = 'py:obj'
 
+# Sphinx will warn about all references where the target cannot be found.
+nitpicky = True
+
 # This value selects if automatically documented members are sorted
 # alphabetical (value 'alphabetical'), by member type (value 'groupwise')
 # or by source order (value 'bysource').
 autodoc_member_order = 'groupwise'
+
+# The default options for autodoc directives. They are applied to all
+# autodoc directives automatically.
+autodoc_default_options = {'members': True}
 
 # Contains mapping the locations and names of other projects that
 # should be linked to in this documentation.

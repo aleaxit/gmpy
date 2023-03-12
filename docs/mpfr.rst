@@ -3,15 +3,15 @@ Multiple-precision Reals
 
 .. currentmodule:: gmpy2
 
-The :class:`mpfr` type is based on the MPFR library. The new :class:`mpfr` type supports
+The `mpfr` type is based on the MPFR library. The new `mpfr` type supports
 correct rounding, selectable rounding modes, and many trigonometric,
 exponential, and special functions. A *context manager* is used to control
 precision, rounding modes, and the behavior of exceptions.
 
-The default precision of an :class:`mpfr` is 53 bits - the same precision as Python's
-:class:`float` type. If the precision is changed, then ``mpfr(float('1.2'))`` differs
+The default precision of an `mpfr` is 53 bits - the same precision as Python's
+`float` type. If the precision is changed, then ``mpfr(float('1.2'))`` differs
 from ``mpfr('1.2')``. To take advantage of the higher precision provided by
-the :class:`mpfr` type, always pass constants as strings.
+the `mpfr` type, always pass constants as strings.
 
 .. doctest::
 
@@ -28,7 +28,7 @@ the :class:`mpfr` type, always pass constants as strings.
     >>> mpfr(float('1.2'))
     mpfr('1.1999999999999999555910790149937',100)
 
-The :class:`mpfr` type supports the :meth:`~mpfr.__format__` special method to
+The `mpfr` type supports the `~mpfr.__format__()` special method to
 allow custom output formatting.
 
 .. doctest::
@@ -50,7 +50,6 @@ mpfr Type
 ---------
 
 .. autoclass:: mpfr
-   :members:
    :special-members: __format__
 
 mpfr Functions
@@ -123,6 +122,7 @@ mpfr Functions
 .. autofunction:: rint_round
 .. autofunction:: rint_trunc
 .. autofunction:: root
+.. autofunction:: rootn
 .. autofunction:: round2
 .. autofunction:: round_away
 .. autofunction:: sec

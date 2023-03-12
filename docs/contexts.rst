@@ -4,17 +4,17 @@ Contexts
 .. currentmodule:: gmpy2
 
 A `context` type is used to control the behavior
-of :class:`mpfr` and :class:`mpc` arithmetic.  In addition to controlling the
+of `mpfr` and `mpc` arithmetic.  In addition to controlling the
 precision, the rounding mode can be specified, minimum and maximum exponent
 values can be changed, various exceptions can be raised or ignored, gradual
 underflow can be enabled, and returning complex results can be enabled.
 
 `context()` creates a new context with all options set to default.
-:func:`set_context` will set the active context.  :func:`get_context` will
+`set_context()` will set the active context.  `get_context()` will
 return a reference to the active context. Note that contexts are mutable:
-modifying the reference returned by :func:`get_context` will modify the active
-context until a new context is enabled with :func:`set_context`. The
-:meth:`~_context.copy` method of a context will return a copy of the context.
+modifying the reference returned by `get_context()` will modify the active
+context until a new context is enabled with `set_context()`. The
+`~context.copy()` method of a context will return a copy of the context.
 
 The following example just modifies the precision. The remaining options will
 be discussed later.
@@ -65,7 +65,6 @@ Context Type
 ------------
 
 .. autoclass:: context
-   :members:
 
 Context Functions
 -----------------
@@ -82,13 +81,13 @@ Contexts can also be used in conjunction with Python's :keyword:`with`
 statement to temporarily change the context settings for a block of code and
 then restore the original settings when the block of code exits.
 
-:func:`local_context` first save the current context and then creates a new
+`local_context` first save the current context and then creates a new
 context based on a context passed as the first argument, or the current context
 if no context is passed. The new context is modified if any optional keyword
 arguments are given. The original active context is restored when the block
 completes.
 
-In the following example, the current context is saved by :func:`local_context`
+In the following example, the current context is saved by `local_context`
 and then the block begins with a copy of the default context and the precision
 set to 100. When the block is finished, the original context is restored.
 
@@ -107,4 +106,4 @@ set to 100. When the block is finished, the original context is restored.
     1.4142135623730951
 
 Contexts that implement the standard *single*, *double*, and *quadruple*
-precision floating point types can be created using :func:`ieee`.
+precision floating point types can be created using `ieee`.

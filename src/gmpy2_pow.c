@@ -285,10 +285,10 @@ GMPy_Integer_PowMod_Base_List(PyObject *self, PyObject *args)
         TYPE_ERROR("the first argument to powmod_base_list must be a sequence");
         return NULL;
     }
-        
+
     int etype = GMPy_ObjectType(PyTuple_GET_ITEM(args, 1));
     int mtype = GMPy_ObjectType(PyTuple_GET_ITEM(args, 2));
-    
+
     if (IS_TYPE_INTEGER(etype) && IS_TYPE_INTEGER(mtype))
         return GMPy_Integer_PowModBaseListWithType(PyTuple_GET_ITEM(args, 0),
                                                    PyTuple_GET_ITEM(args, 1), etype,
@@ -599,7 +599,7 @@ GMPy_Complex_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
         result->rc = mpc_pow_z(result->c, tempb->c, tempz->z, GET_MPC_ROUND(context));
         goto done;
     }
-    
+
     if (IS_TYPE_REAL(etype)) {
         if (!(tempf = GMPy_MPFR_From_RealWithType(exp, etype, 1, context))) {
             goto err;
@@ -608,7 +608,7 @@ GMPy_Complex_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
         result->rc = mpc_pow_fr(result->c, tempb->c, tempf->f, GET_MPC_ROUND(context));
         goto done;
     }
-    
+
     if (IS_TYPE_COMPLEX(etype)) {
         if (!(tempe = GMPy_MPC_From_ComplexWithType(exp, etype, 1, 1, context))) {
             goto err;
@@ -641,7 +641,7 @@ GMPy_Complex_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
 PyDoc_STRVAR(GMPy_doc_integer_powmod,
 "powmod(x, y, m, /) -> mpz\n\n"
 "Return (x**y) mod m. Same as the three argument version of Python's\n"
-"built-in pow(), but converts all three arguments to mpz.");
+"built-in `pow`, but converts all three arguments to `mpz`.");
 
 static PyObject *
 GMPy_Integer_PowMod(PyObject *self, PyObject *args)
@@ -661,7 +661,7 @@ GMPy_Integer_PowMod(PyObject *self, PyObject *args)
     xtype = GMPy_ObjectType(x);
     ytype = GMPy_ObjectType(y);
     mtype = GMPy_ObjectType(m);
-    
+
     if (IS_TYPE_INTEGER(xtype) &&
         IS_TYPE_INTEGER(ytype) &&
         IS_TYPE_INTEGER(mtype)) {
@@ -705,7 +705,7 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
     xtype = GMPy_ObjectType(x);
     ytype = GMPy_ObjectType(y);
     mtype = GMPy_ObjectType(m);
-    
+
     /* Validate base. */
 
     if (!IS_TYPE_INTEGER(xtype)) {
@@ -751,7 +751,7 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
     GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     mpz_powm_sec(result->z, tempx->z, tempy->z, tempm->z);
     GMPY_MAYBE_END_ALLOW_THREADS(context);
-    
+
     Py_DECREF(tempx);
     Py_DECREF(tempy);
     Py_DECREF(tempm);
@@ -769,7 +769,7 @@ GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
-    
+
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
         return GMPy_Integer_PowWithType(x, xtype, y, ytype, z, context);
 
@@ -778,7 +778,7 @@ GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
         return GMPy_Real_PowWithType(x, xtype, y, ytype, z, context);
-        
+
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
         return GMPy_Complex_PowWithType(x, xtype, y, ytype, z, context);
 
@@ -831,4 +831,3 @@ GMPy_Number_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
 
     Py_RETURN_NOTIMPLEMENTED;
 }
-

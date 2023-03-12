@@ -376,7 +376,7 @@ PyDoc_STRVAR(GMPy_doc_context_divmod,
 "context.divmod(x, y, /) -> tuple[mpz|mpfr, mpz|mpq|mpfr]\n\n"
 "Return divmod(x, y).\n\n"
 "Note: overflow, underflow, and inexact exceptions are not supported for\n"
-"mpfr arguments to context.div_mod().");
+"`mpfr` arguments.");
 
 static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)

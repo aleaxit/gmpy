@@ -3,11 +3,11 @@ Multiple-precision Complex
 
 .. currentmodule:: gmpy2
 
-gmpy2 adds a multiple-precision complex type called :class:`mpc` that is based
-on the MPC library. The context manager settings for :class:`mpfr` arithmetic are
-applied to :class:`mpc` arithmetic by default. It is possible to specify
+gmpy2 adds a multiple-precision complex type called `mpc` that is based
+on the MPC library. The context manager settings for `mpfr` arithmetic are
+applied to `mpc` arithmetic by default. It is possible to specify
 different precision and rounding modes for both the real and imaginary
-components of an :class:`mpc`.
+components of an `mpc`.
 
 .. doctest::
 
@@ -50,7 +50,7 @@ setting allow_complex to True, complex results will be returned.
     >>> gmpy2.sqrt(-4)
     mpc('0.0+2.0j')
 
-The :class:`mpc` type supports the :meth:`~mpc.__format__` special method to
+The `mpc` type supports the `~mpc.__format__()` special method to
 allow custom output formatting.
 
 .. doctest::
@@ -73,7 +73,6 @@ mpc Type
 --------
 
 .. autoclass:: mpc
-   :members:
    :special-members: __format__
 
 mpc Functions

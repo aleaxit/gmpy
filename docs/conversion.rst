@@ -1,3 +1,5 @@
+.. currentmodule:: gmpy2
+
 Conversion methods and gmpy2's numbers
 ======================================
 
@@ -6,10 +8,10 @@ Conversion methods
 
 A python object could interact with gmpy2 if it implements one of the following methods:
 
-- ``__mpz__`` : return an object of type :class:`mpz`.
-- ``__mpq__`` : return an object of type :class:`mpq`.
-- ``__mpfr__`` : return an object of type :class:`mpfr`.
-- ``__mpc__`` : return an object of type :class:`mpc`.
+- ``__mpz__`` : return an object of type `mpz`.
+- ``__mpq__`` : return an object of type `mpq`.
+- ``__mpfr__`` : return an object of type `mpfr`.
+- ``__mpc__`` : return an object of type `mpc`.
 
 Implementing on of these methods allow gmpy2 to convert a python object into a gmpy2 type.
 Example:

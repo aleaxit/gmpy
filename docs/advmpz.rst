@@ -6,10 +6,10 @@ Multiple-precision Integers (Advanced topics)
 The xmpz type
 -------------
 
-gmpy2 provides access to an experimental integer type called :class:`xmpz`. The
-:class:`xmpz` type is a mutable integer type. In-place operations (+=, //=,
+gmpy2 provides access to an experimental integer type called `xmpz`. The
+`xmpz` type is a mutable integer type. In-place operations (+=, //=,
 etc.) modify the original object and do not create a new object. Instances of
-:class:`xmpz` cannot be used as dictionary keys.
+`xmpz` cannot be used as dictionary keys.
 
 .. doctest::
 
@@ -22,7 +22,7 @@ etc.) modify the original object and do not create a new object. Instances of
     >>> b
     xmpz(124)
 
-The ability to change an :class:`xmpz` object in-place allows for efficient and
+The ability to change an `xmpz` object in-place allows for efficient and
 rapid bit manipulation.
 
 Individual bits can be set or cleared:
@@ -41,8 +41,8 @@ complements the bits in an integer. (~0 is -1 so you can also use -1.) In
 2s-complement format, -1 is represented by an arbitrary number of 1-bits.
 
 If a value for *stop* is specified in a slice assignment and the actual
-bit-length of the :class:`xmpz` is less than *stop*, then the destination
-:class:`xmpz` is logically padded with 0-bits to length *stop*.
+bit-length of the `xmpz` is less than *stop*, then the destination
+`xmpz` is logically padded with 0-bits to length *stop*.
 
 .. doctest::
 
@@ -65,9 +65,9 @@ Bits can be reversed:
     >>> bin(a)
     '0b111110001'
 
-The :meth:`~xmpz.iter_bits` method returns a generator that returns True or
-False for each bit position. The methods :meth:`~xmpz.iter_clear`, and
-:meth:`~xmpz.iter_set` return generators that return the bit positions that are
+The `~xmpz.iter_bits()` method returns a generator that returns True or
+False for each bit position. The methods `~xmpz.iter_clear()`, and
+`~xmpz.iter_set()` return generators that return the bit positions that are
 1 or 0. The methods support arguments *start* and *stop* that define the
 beginning and ending bit positions that are used. To mimic the behavior of
 slices. the bit positions checked include *start* but the last position checked
@@ -125,7 +125,6 @@ prime numbers.
 
 
 .. autoclass:: xmpz
-   :members:
 
 
 Advanced Number Theory Functions

@@ -64,7 +64,7 @@ GMPy_MPZ_bit_length_function(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_bit_mask,
 "bit_mask(n, /) -> mpz\n\n"
-"Return an 'mpz' exactly n bits in length with all bits set.\n");
+"Return an `mpz` exactly n bits in length with all bits set.\n");
 
 static PyObject *
 GMPy_MPZ_bit_mask(PyObject *self, PyObject *other)
@@ -89,11 +89,11 @@ GMPy_MPZ_bit_mask(PyObject *self, PyObject *other)
 
 /* return scan0/scan1 for an mpz */
 PyDoc_STRVAR(doc_bit_scan0_method,
-"x.bit_scan0(n=0, /) -> int\n\n"
+"x.bit_scan0(n=0, /) -> int | None\n\n"
 "Return the index of the first 0-bit of x with index >= n. n >= 0.\n"
 "If there are no more 0-bits in x at or above index n (which can\n"
 "only happen for x<0, assuming an infinitely long 2's complement\n"
-"format), then None is returned.");
+"format), then `None` is returned.");
 
 static PyObject *
 GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args)
@@ -118,11 +118,11 @@ GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_bit_scan0_function,
-"bit_scan0(x, n=0, /) -> int\n\n"
+"bit_scan0(x, n=0, /) -> int | None\n\n"
 "Return the index of the first 0-bit of x with index >= n. n >= 0.\n"
 "If there are no more 0-bits in x at or above index n (which can\n"
 "only happen for x<0, assuming an infinitely long 2's complement\n"
-"format), then None is returned.");
+"format), then `None` is returned.");
 
 static PyObject *
 GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
@@ -163,11 +163,11 @@ GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_bit_scan1_method,
-"x.bit_scan1(n=0, /) -> int\n\n"
+"x.bit_scan1(n=0, /) -> int | None\n\n"
 "Return the index of the first 1-bit of x with index >= n. n >= 0.\n"
 "If there are no more 1-bits in x at or above index n (which can\n"
 "only happen for x>=0, assuming an infinitely long 2's complement\n"
-"format), then None is returned.");
+"format), then `None` is returned.");
 
 static PyObject *
 GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args)
@@ -192,11 +192,11 @@ GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_bit_scan1_function,
-"bit_scan1(x, n=0, /) -> int\n\n"
+"bit_scan1(x, n=0, /) -> int | None\n\n"
 "Return the index of the first 1-bit of x with index >= n. n >= 0.\n"
 "If there are no more 1-bits in x at or above index n (which can\n"
 "only happen for x>=0, assuming an infinitely long 2's complement\n"
-"format), then None is returned.");
+"format), then `None` is returned.");
 
 static PyObject *
 GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args)

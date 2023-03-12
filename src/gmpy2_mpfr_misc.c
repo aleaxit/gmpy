@@ -26,10 +26,10 @@
 
 PyDoc_STRVAR(GMPy_doc_function_f2q,
 "f2q(x, err=0, /) -> mpz | mpq\n\n"
-"Return the 'best' mpq approximating x to within relative error 'err'.\n"
+"Return the 'best' `mpq` approximating x to within relative error err.\n"
 "Default is the precision of x. Uses Stern-Brocot tree to find the\n"
-"'best' approximation. An 'mpz' is returned if the denominator\n"
-"is 1. If 'err'<0, relative error is 2.0 ** err.");
+"'best' approximation. An `mpz` object is returned if the denominator\n"
+"is 1. If err<0, relative error is 2.0 ** err.");
 
 static PyObject *
 GMPy_Real_F2Q(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -114,7 +114,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr_can_round,
 "can_round(b, err, rnd1, rnd2, prec, /) -> bool\n\n"
 "Let b be an approximation to an unknown number x that is rounded\n"
 "according to rnd1. Assume the b has an error at most two to the power\n"
-"of E(b)-err where E(b) is the exponent of b. Then return true if x\n"
+"of E(b)-err where E(b) is the exponent of b. Then return `True` if x\n"
 "can be rounded correctly to prec bits with rounding mode rnd2.");
 
 static PyObject *
@@ -155,7 +155,7 @@ GMPy_MPFR_Can_Round(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_emin_min,
 "get_emin_min() -> int\n\n"
-"Return the minimum possible exponent that can be set for 'mpfr'.");
+"Return the minimum possible exponent that can be set for `mpfr`.");
 
 static PyObject *
 GMPy_MPFR_get_emin_min(PyObject *self, PyObject *args)
@@ -165,7 +165,7 @@ GMPy_MPFR_get_emin_min(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_emax_max,
 "get_emax_max() -> int\n\n"
-"Return the maximum possible exponent that can be set for 'mpfr'.");
+"Return the maximum possible exponent that can be set for `mpfr`.");
 
 static PyObject *
 GMPy_MPFR_get_emax_max(PyObject *self, PyObject *args)
@@ -188,8 +188,8 @@ GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args)
 PyDoc_STRVAR(GMPy_doc_mpfr_get_exp,
 "get_exp(x, /) -> int\n\n"
 "Return the exponent of x. Returns 0 for NaN or Infinity and\n"
-"sets the erange flag and will raise an exception if trap_erange\n"
-"is set.");
+"sets the `context.erange` flag of the current context and will\n"
+"raise an exception if `context.trap_erange` is set.");
 
 static PyObject *
 GMPy_MPFR_get_exp(PyObject *self, PyObject *other)
@@ -227,9 +227,9 @@ GMPy_MPFR_get_exp(PyObject *self, PyObject *other)
 PyDoc_STRVAR(GMPy_doc_mpfr_set_exp,
 "set_exp(x, n, /) -> mpfr\n\n"
 "Set the exponent of x to n. If n is outside the range of\n"
-"valid exponents, set_exp() will set the erange flag and either\n"
-"return the original value or raise an exception if trap_erange\n"
-"is set.");
+"valid exponents, `set_exp()` will set the `context.erange` flag\n"
+"of the current context and either return the original value or raise\n"
+"an exception if `context.trap_erange` is set.");
 
 static PyObject *
 GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
@@ -284,7 +284,7 @@ GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_sign,
 "set_sign(x, s, /) -> mpfr\n\n"
-"If s is True, then return x with the sign bit set.");
+"If s is `True`, then return x with the sign bit set.");
 
 static PyObject *
 GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
@@ -314,7 +314,7 @@ GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_copy_sign,
 "copy_sign(x, y, /) -> mpfr\n\n"
-"Return an 'mpfr' composed of x with the sign of y.");
+"Return an `mpfr` composed of x with the sign of y.");
 
 static PyObject *
 GMPy_MPFR_copy_sign(PyObject *self, PyObject *args)
@@ -344,7 +344,7 @@ GMPy_MPFR_copy_sign(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_nan,
 "nan() -> mpfr\n\n"
-"Return an 'mpfr' initialized to NaN (Not-A-Number).");
+"Return an `mpfr` initialized to NaN (Not-A-Number).");
 
 static PyObject *
 GMPy_MPFR_set_nan(PyObject *self, PyObject *other)
@@ -362,7 +362,7 @@ GMPy_MPFR_set_nan(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_inf,
 "inf(n, /) -> mpfr\n\n"
-"Return an 'mpfr' initialized to Infinity with the same sign as n.\n"
+"Return an `mpfr` initialized to Infinity with the same sign as n.\n"
 "If n is not given, +Infinity is returned.");
 
 static PyObject *
@@ -390,7 +390,7 @@ GMPy_MPFR_set_inf(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_zero,
 "zero(n, /) -> mpfr\n\n"
-"Return an 'mpfr' initialized to 0.0 with the same sign as n.\n"
+"Return an `mpfr` initialized to 0.0 with the same sign as n.\n"
 "If n is not given, +0.0 is returned.");
 
 static PyObject *
@@ -418,8 +418,8 @@ GMPy_MPFR_set_zero(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_method_integer_ratio,
 "x.as_integer_ratio() -> tuple[mpz, mpz]\n\n"
-"Return the exact rational equivalent of an mpfr. Value is a tuple\n"
-"for compatibility with Python's float.as_integer_ratio().");
+"Return the exact rational equivalent of an `mpfr`. Value is a `tuple`\n"
+"for compatibility with Python's `float.as_integer_ratio`.");
 
 /* Note: almost identical code exists in gmpy2_convert_mpfr.c as the
  * function GMPy_MPQ_From_MPFR. They should be refactored.
@@ -480,7 +480,7 @@ GMPy_MPFR_Integer_Ratio_Method(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_method_mantissa_exp,
 "x.as_mantissa_exp() -> tuple[mpz, mpz]\n\n"
-"Return the mantissa and exponent of an mpfr.");
+"Return the mantissa and exponent of an `mpfr`.");
 
 static PyObject *
 GMPy_MPFR_Mantissa_Exp_Method(PyObject *self, PyObject *args)
@@ -596,12 +596,12 @@ GMPy_MPFR_NonZero_Slot(MPFR_Object *self)
 
 PyDoc_STRVAR(GMPy_doc_function_check_range,
 "check_range(x, /) -> mpfr\n\n"
-"Return a new 'mpfr' with exponent that lies within the current range\n"
+"Return a new `mpfr` with exponent that lies within the current range\n"
 "of emin and emax.");
 
 PyDoc_STRVAR(GMPy_doc_context_check_range,
 "context.check_range(x, /) -> mpfr\n\n"
-"Return a new 'mpfr' with exponent that lies within the range of emin\n"
+"Return a new `mpfr` with exponent that lies within the range of emin\n"
 "and emax specified by context.");
 
 static PyObject *

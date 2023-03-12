@@ -154,7 +154,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *v)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
-"ieee(size, /, subnormalize=True) -> gmpy2._context\n\n"
+"ieee(size, /, subnormalize=True) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
 "32 greater than 128.");
@@ -354,7 +354,7 @@ GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
 }
 
 PyDoc_STRVAR(GMPy_doc_get_context,
-"get_context() -> gmpy2._context\n\n"
+"get_context() -> context\n\n"
 "Return a reference to the current context.");
 
 static PyObject *
@@ -369,7 +369,7 @@ GMPy_CTXT_Get(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_copy,
-"context.copy() -> gmpy2._context\n\n"
+"context.copy() -> context\n\n"
 "Return a copy of a context.");
 
 static PyObject *
@@ -531,8 +531,8 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_local_context,
-"local_context(**kwargs) -> gmpy2._context\n"
-"local_context(context, /, **kwargs) -> gmpy2._context\n\n"
+"local_context(**kwargs) -> context\n"
+"local_context(context, /, **kwargs) -> context\n\n"
 "Create a context manager object that will restore the current context\n"
 "when the 'with ...' block terminates. The temporary context for the\n"
 "'with ...' block is based on the current context if no context is\n"
@@ -587,10 +587,10 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_context,
-"context() -> gmpy2._context\n\n"
+"context() -> context\n\n"
 "Return a new context for controlling MPFR and MPC arithmetic. To load\n"
 "the new context, use set_context(). Options can only be specified as\n"
-"keyword arguments. \n\n"
+"keyword arguments.\n\n"
 "Options\n"
 " * precision:         precision, in bits, of an MPFR result\n"
 " * real_prec:         precision, in bits, of Re(MPC); -1 implies use mpfr_prec\n"
@@ -874,88 +874,88 @@ GETSET_BOOLEAN(rational_division)
 GETSET_BOOLEAN(allow_release_gil)
 
 PyDoc_STRVAR(GMPy_doc_CTXT_subnormalize,
-"The usual IEEE-754 floating point representation supports gradual \n"
-"underflow when the minimum exponent is reached. The MFPR library \n"
-"does not enable gradual underflow by default but it can be enabled \n"
+"The usual IEEE-754 floating point representation supports gradual\n"
+"underflow when the minimum exponent is reached.  The MFPR library\n"
+"does not enable gradual underflow by default but it can be enabled\n"
 "to precisely mimic the results of IEEE-754 floating point operations.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_underflow,
-"If set to False, a result that is smaller than the smallest possible \n"
-"mpfr given the current exponent range will be replaced by +/-0.0. \n"
-"If set to True, an UnderflowResultError exception is raised.");
+"If set to `False`, a result that is smaller than the smallest possible\n"
+"`mpfr` given the current exponent range will be replaced by +/-0.0.\n"
+"If set to `True`, an `UnderflowResultError` exception is raised.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_underflow,
-"This flag is not user controllable. It is automatically set if a \n"
-"result underflowed to +/-0.0 and trap_underflow is False.");
+"This flag is not user controllable. It is automatically set if a\n"
+"result underflowed to +/-0.0 and `trap_underflow` is `False`.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_overflow,
-"If set to False, a result that is larger than the largest possible \n"
-"mpfr given the current exponent range will be replaced by +/-Infinity. \n"
-"If set to True, an OverflowResultError exception is raised.");
+"If set to `False`, a result that is larger than the largest possible\n"
+"`mpfr` given the current exponent range will be replaced by +/-Infinity.\n"
+"If set to `True`, an `OverflowResultError` exception is raised.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_overflow,
-"This flag is not user controllable. It is automatically set if a \n"
-"result overflowed to +/-Infinity and trap_overflow is False.");
+"This flag is not user controllable.  It is automatically set if a\n"
+"result overflowed to +/-Infinity and `trap_overflow` is `False`.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_inexact,
-"This attribute controls whether or not an InexactResultError exception \n"
-"is raised if an inexact result is returned. To check if the result is \n"
-"greater or less than the exact result, check the rc attribute of \n"
-"the mpfr result.");
+"This attribute controls whether or not an `InexactResultError` exception\n"
+"is raised if an inexact result is returned.  To check if the result is\n"
+"greater or less than the exact result, check the rc attribute of\n"
+"the `mpfr` result.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_inexact,
-"This flag is not user controllable. It is automatically set \n"
+"This flag is not user controllable. It is automatically set\n"
 "if an inexact result is returned.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_invalid,
-"This attribute controls whether or not an InvalidOperationError \n"
-"exception is raised if a numerical result is not defined. A \n"
-"special NaN (Not-A-Number) value will be returned if an exception \n"
-"is not raised. The InvalidOperationError is a sub-class of\n"
-"Python’s ValueError.\n\nFor example, gmpy2.sqrt(-2) will normally \n"
-"return mpfr(‘nan’). However, if allow_complex is set to True, \n"
-"then an mpc result will be returned.");
+"This attribute controls whether or not an `InvalidOperationError`\n"
+"exception is raised if a numerical result is not defined.  A\n"
+"special NaN (Not-A-Number) value will be returned if an exception\n"
+"is not raised. The `InvalidOperationError` is a sub-class of\n"
+"Python’s `ValueError`.\n\nFor example, gmpy2.sqrt(-2) will normally\n"
+"return mpfr(‘nan’). However, if `allow_complex` is set to `True`,\n"
+"then an `mpc` result will be returned.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_invalid,
-"This flag is not user controllable. It is automatically set if an \n"
+"This flag is not user controllable.  It is automatically set if an\n"
 "invalid (Not-A-Number) result is returned.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_erange,
-"This attribute controls whether or not a RangeError exception is \n"
-"raised when certain operations are performed on NaN and/or Infinity \n"
-"values. Setting trap_erange to True can be used to raise an exception \n"
+"This attribute controls whether or not a `RangeError` exception is\n"
+"raised when certain operations are performed on NaN and/or Infinity\n"
+"values.  Setting `trap_erange` to `True` can be used to raise an exception\n"
 "if comparisons are attempted with a NaN.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_erange,
-"This flag is not user controllable. It is automatically \n"
+"This flag is not user controllable.  It is automatically\n"
 "set if an erange error occurred.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_divzero,
-"This attribute controls whether or not a DivisionByZeroError exception \n"
-"is raised if division by 0 occurs. The DivisionByZeroError is a \n"
-"sub-class of Python’s ZeroDivisionError.");
+"This attribute controls whether or not a `DivisionByZeroError` exception\n"
+"is raised if division by 0 occurs.  The `DivisionByZeroError` is a\n"
+"sub-class of Python’s `ZeroDivisionError`.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_divzero,
-"This flag is not user controllable. It is automatically set if a \n"
+"This flag is not user controllable.  It is automatically set if a\n"
 "division by zero occurred and NaN result was returned.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_allow_complex,
-"This attribute controls whether or not an mpc result can be returned \n"
-"if an mpfr result would normally not be possible.");
+"This attribute controls whether or not an `mpc` result can be returned\n"
+"if an `mpfr` result would normally not be possible.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_rational_division,
-"If set to True, mpz / mpz will return an mpq instead of an mpfr.");
+"If set to `True`, `mpz` / `mpz` will return an `mpq` instead of an `mpfr`.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_allow_release_gil,
-"If set to True, many mpz and mpq computations will release the GIL.\n\n"
+"If set to `True`, many `mpz` and `mpq` computations will release the GIL.\n\n"
 "This is considered an experimental feature.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_precision,
-"This attribute controls the precision of an mpfr result. The \n"
-"precision is specified in bits, not decimal digits. The maximum \n"
-"precision that can be specified is platform dependent and can be \n"
-"retrieved with get_max_precision().\n\n"
-"Note: Specifying a value for precision that is too close to the \n"
+"This attribute controls the precision of an `mpfr` result.  The\n"
+"precision is specified in bits, not decimal digits.  The maximum\n"
+"precision that can be specified is platform dependent and can be\n"
+"retrieved with `get_max_precision()`.\n\n"
+"Note: Specifying a value for precision that is too close to the\n"
 "maximum precision will cause the MPFR library to fail.");
 
 static PyObject *
@@ -986,8 +986,8 @@ GMPy_CTXT_Set_precision(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_CTXT_real_prec,
-"This attribute controls the precision of the real part of an mpc \n"
-"result. If the value is Default, then the value of the precision \n"
+"This attribute controls the precision of the real part of an `mpc`\n"
+"result.  If the value is Default, then the value of the `precision`\n"
 "attribute is used.");
 
 static PyObject *
@@ -1018,8 +1018,8 @@ GMPy_CTXT_Set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_CTXT_imag_prec,
-"This attribute controls the precision of the imaginary part of an mpc \n"
-"result. If the value is Default, then the value of real_prec is used.");
+"This attribute controls the precision of the imaginary part of an `mpc`\n"
+"result.  If the value is Default, then the value of `real_prec` is used.");
 
 static PyObject *
 GMPy_CTXT_Get_imag_prec(CTXT_Object *self, void *closure)
@@ -1049,7 +1049,7 @@ GMPy_CTXT_Set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_CTXT_round,
-"There are five rounding modes available to mpfr types:\n\n"
+"There are five rounding modes available to `mpfr` type:\n\n"
 " * RoundAwayZero - The result is rounded away from 0.0.\n"
 " * RoundDown - The result is rounded towards -Infinity.\n"
 " * RoundToNearest - Round to the nearest value; ties are rounded to an even value.\n"
@@ -1099,9 +1099,9 @@ GMPy_CTXT_Set_round(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_CTXT_real_round,
-"This attribute controls the rounding mode for the real part of an \n"
-"mpc result. If the value is Default, then the value of the round \n"
-"attribute is used. Note: RoundAwayZero is not a valid rounding mode for mpc.");
+"This attribute controls the rounding mode for the real part of an\n"
+"`mpc` result.  If the value is Default, then the value of the round\n"
+"attribute is used.  Note: RoundAwayZero is not a valid rounding mode for `mpc`.");
 
 static PyObject *
 GMPy_CTXT_Get_real_round(CTXT_Object *self, void *closure)
@@ -1135,9 +1135,9 @@ GMPy_CTXT_Set_real_round(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_CTXT_imag_round,
-"This attribute controls the rounding mode for the imaginary part of an \n"
-"mpc result. If the value is Default, then the value of the real_round \n"
-"attribute is used. Note: RoundAwayZero is not a valid rounding mode for mpc.");
+"This attribute controls the rounding mode for the imaginary part of an\n"
+"`mpc` result. If the value is Default, then the value of the `real_round`\n"
+"attribute is used. Note: RoundAwayZero is not a valid rounding mode for `mpc`.");
 
 static PyObject *
 GMPy_CTXT_Get_imag_round(CTXT_Object *self, void *closure)
@@ -1171,9 +1171,9 @@ GMPy_CTXT_Set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_CTXT_emin,
-"This attribute controls the minimum allowed exponent of an mpfr \n"
-"result. The minimum exponent is platform dependent and can be \n"
-"retrieved with get_emin_min().");
+"This attribute controls the minimum allowed exponent of an `mpfr`\n"
+"result.  The minimum exponent is platform dependent and can be\n"
+"retrieved with `get_emin_min()`.");
 
 static PyObject *
 GMPy_CTXT_Get_emin(CTXT_Object *self, void *closure)
@@ -1204,9 +1204,9 @@ GMPy_CTXT_Set_emin(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_CTXT_emax,
-"This attribute controls the maximum allowed exponent of an mpfr \n"
-"result. The maximum exponent is platform dependent and can be \n"
-"retrieved with get_emax_max().");
+"This attribute controls the maximum allowed exponent of an `mpfr`\n"
+"result.  The maximum exponent is platform dependent and can be\n"
+"retrieved with `get_emax_max()`.");
 
 static PyObject *
 GMPy_CTXT_Get_emax(CTXT_Object *self, void *closure)
