@@ -112,6 +112,19 @@ GMPy_MPQ_Function_Denom(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpq_method_as_integer_ratio,
+"x.as_integer_ratio() -> tuple[mpz, mpz]\n\n\
+Return a pair of integers, whose ratio is exactly equal to the\n\
+original number.  The ratio is in lowest terms and has a\n\
+positive denominator.");
+static PyObject *
+GMPy_MPQ_Method_As_Integer_Ratio(PyObject *self, PyObject *Py_UNUSED(ignored))
+{
+    return PyTuple_Pack(2, GMPy_MPQ_Attrib_GetNumer((MPQ_Object*)self, NULL),
+                        GMPy_MPQ_Attrib_GetDenom((MPQ_Object*)self, NULL));
+}
+
+
 PyDoc_STRVAR(GMPy_doc_function_qdiv,
 "qdiv(x, y=1, /) -> mpz | mpq\n\n"
 "Return x/y as `mpz` if possible, or as `mpq` if x is not exactly\n"
