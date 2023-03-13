@@ -1938,7 +1938,11 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
         blank = 0xff;
     }
 
-    TEMP_ALLOC(buffer, length);
+    bytes = PyBytes_FromStringAndSize(NULL, length);
+    if (bytes == NULL) {
+        return NULL;
+    }
+    buffer = PyBytes_AS_STRING(bytes);
 
     if (is_big) {
         mpz_export(buffer + gap, NULL, 1, sizeof(char), 0, 0, *pnumber);
@@ -1956,13 +1960,6 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
     if (is_negative) {
         mpz_clear(tmp);
     }
-
-    bytes = PyBytes_FromStringAndSize(buffer, length);
-    if (bytes == NULL) {
-        return NULL;
-    }
-
-    TEMP_FREE(buffer, length);
 
     return bytes;
 }
