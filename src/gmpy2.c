@@ -996,20 +996,6 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 
     /* Validate the sizes of the various typedef'ed integer types. */
 
-    if (sizeof(mp_bitcnt_t) != sizeof(long)) {
-        /* LCOV_EXCL_START */
-        SYSTEM_ERROR("Size of long and mp_bitcnt_t not compatible");
-        return NULL;;
-        /* LCOV_EXCL_STOP */
-    }
-
-    if (sizeof(mp_bitcnt_t) > sizeof(size_t)) {
-        /* LCOV_EXCL_START */
-        SYSTEM_ERROR("Size of size_t and mp_bitcnt_t not compatible");
-        return NULL;;
-        /* LCOV_EXCL_STOP */
-    }
-
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
         /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
