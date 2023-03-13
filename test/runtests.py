@@ -149,7 +149,7 @@ else:
     failed += 1
 
 print("Running {0:30}  ".format("test_mpz.py"), end="")
-if os.system("pytest " + os.path.dirname(__file__) + "/test_mpz.py") == 0:
+if os.system(sys.executable +" -m pytest " + os.path.dirname(__file__) + "/test_mpz.py") == 0:
     print("successful")
     attempted += 1
 else:
