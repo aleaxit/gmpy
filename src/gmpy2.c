@@ -1298,18 +1298,17 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     if (copy_reg_module) {
         char* enable_pickle =
             "def gmpy2_reducer(x): return (gmpy2.from_binary, (gmpy2.to_binary(x),))\n"
-            "copyreg.pickle(type(gmpy2.mpz(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.xmpz(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n";
+            "copyreg.pickle(gmpy2.mpz, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.xmpz, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.mpq, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.mpfr, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.mpc, gmpy2_reducer)\n";
 
         namespace = PyDict_New();
         result = NULL;
 
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
-        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(enable_pickle, Py_file_input, namespace, namespace);
         if (!result) {
             /* LCOV_EXCL_START */

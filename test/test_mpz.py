@@ -1,4 +1,5 @@
 import numbers
+import pickle
 
 from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
@@ -131,3 +132,9 @@ def test_mpz_as_integer_ratio():
 
 def test_mpz_numbers_abc():
     assert isinstance(mpz(2), numbers.Integral)
+
+
+def test_mpz_pickling():
+    for proto in range(pickle.HIGHEST_PROTOCOL + 1):
+        for x in [mpz(12346789), mpz(-12346789), mpz(0)]:
+            assert pickle.loads(pickle.dumps(x, protocol=proto)) == x

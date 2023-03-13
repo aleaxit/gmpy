@@ -191,19 +191,6 @@ TypeError: mod() argument type not supported
 >>> 1
 1
 
-Test pickle
------------
-
->>> import pickle
->>> pickle.loads(pickle.dumps(G.mpq(1234,6789)))
-mpq(1234,6789)
->>> pickle.loads(pickle.dumps(G.mpq(-1234,6789)))
-mpq(-1234,6789)
->>> pickle.loads(pickle.dumps(G.mpq(0,1)))
-mpq(0,1)
->>>
-1
-
 Test operations involving NaN/Inf
 ---------------------------------
 
