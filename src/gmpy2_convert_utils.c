@@ -247,7 +247,13 @@ GMPy_Integer_AsLongLong(PyObject *x)
 {
     return GMPy_Integer_AsLongLongWithType(x, GMPy_ObjectType(x));
 }
-
+static mp_bitcnt_t
+GMPy_Integer_AsMpBitCnt(PyObject *x)
+{
+    if(sizeof(mp_bitcnt_t) == 8)
+        return GMPy_Integer_AsUnsignedLongLong(x);
+    return GMPy_Integer_AsUnsignedLong(x);
+}
 /* static unsigned PY_LONG_LONG
 GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype)
 {
