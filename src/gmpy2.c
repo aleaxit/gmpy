@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * gmpy2.c                                                                 *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * Python interface to the GMP, MPFR, and MPC multiple precision           *
  * libraries.                                                              *
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
@@ -995,29 +995,6 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 #endif
 
     /* Validate the sizes of the various typedef'ed integer types. */
-
-#if defined _WIN64 && MPIR
-    if (sizeof(mp_bitcnt_t) != sizeof(PY_LONG_LONG)) {
-        /* LCOV_EXCL_START */
-        SYSTEM_ERROR("Size of PY_LONG_LONG and mp_bitcnt_t not compatible (_WIN64 && MPIR)");
-        return NULL;;
-        /* LCOV_EXCL_STOP */
-    }
-#else
-    if (sizeof(mp_bitcnt_t) != sizeof(long)) {
-        /* LCOV_EXCL_START */
-        SYSTEM_ERROR("Size of long and mp_bitcnt_t not compatible");
-        return NULL;;
-        /* LCOV_EXCL_STOP */
-    }
-#endif
-
-    if (sizeof(mp_bitcnt_t) > sizeof(size_t)) {
-        /* LCOV_EXCL_START */
-        SYSTEM_ERROR("Size of size_t and mp_bitcnt_t not compatible");
-        return NULL;;
-        /* LCOV_EXCL_STOP */
-    }
 
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
         /* LCOV_EXCL_START */

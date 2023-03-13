@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * gmpy2_misc.c                                                            *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * Python interface to the GMP, MPFR, and MPC multiple precision           *
  * libraries.                                                              *
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
@@ -48,17 +48,12 @@ GMPy_get_version(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mp_version,
 "mp_version() -> str\n\n"
-"Return string giving the name and version of the multiple precision\n"
-"library used.");
+"Return string giving current GMP version.");
 
 static PyObject *
 GMPy_get_mp_version(PyObject *self, PyObject *args)
 {
-#ifndef __MPIR_VERSION
-    return PyUnicode_FromFormat("%s %s", "GMP", gmp_version);
-#else
-    return PyUnicode_FromFormat("%s %s", "MPIR", mpir_version);
-#endif
+    return PyUnicode_FromFormat("%s", gmp_version);
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_version,

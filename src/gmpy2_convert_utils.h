@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * gmpy_convert_utils.h                                                    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * Python interface to the GMP, MPFR, and MPC multiple precision           *
  * libraries.                                                              *
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
@@ -60,11 +60,7 @@ static PY_LONG_LONG          GMPy_Integer_AsLongLong(PyObject *x);
 #define GMPy_Integer_AsSsize_t (Py_ssize_t)GMPy_Integer_AsLongLong
 /* #define GMPy_Integer_AsSize_t (size_t)GMPy_Integer_AsUnsignedLongLong */
 
-#ifdef GMPY2_64BIT_BITCNT
-#define GMPy_Integer_AsMpBitCnt (mp_bitcnt_t)GMPy_Integer_AsUnsignedLongLong
-#else
-#define GMPy_Integer_AsMpBitCnt (mp_bitcnt_t)GMPy_Integer_AsUnsignedLong
-#endif
+static mp_bitcnt_t GMPy_Integer_AsMpBitCnt(PyObject *x);
 
 #else
 #define GMPy_Integer_AsSsize_t (Py_ssize_t)GMPy_Integer_AsLong

@@ -30,7 +30,7 @@ cd gmp-6.2.1/
 make distclean
 ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/d/64/static --enable-static --disable-shared --enable-fat --with-pic
 mv gmp.h gmp.original
-sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t\n#define GMPY2_64BIT_BITCNT\n/g' gmp.original > gmp.h
+sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t\n/g' gmp.original > gmp.h
 make -j4
 make check
 make install
