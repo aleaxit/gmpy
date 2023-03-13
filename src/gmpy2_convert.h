@@ -155,7 +155,7 @@ static int GMPy_isComplex(PyObject *obj);
 #endif
 
 /* ======== C helper routines ======== */
-static int             mpz_set_PyStr(mpz_ptr z, PyObject *s, int base);
+static int             mpz_set_PyStr(mpz_t z, PyObject *s, int base);
 static PyObject *      mpz_ascii(mpz_t z, int base, int option, int which);
 
 #ifdef __cplusplus
