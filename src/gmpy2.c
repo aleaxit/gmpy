@@ -1331,17 +1331,16 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     numbers_module = PyImport_ImportModule("numbers");
     if (numbers_module) {
         char* register_numbers =
-            "numbers.Integral.register(type(gmpy2.mpz()))\n"
-            "numbers.Rational.register(type(gmpy2.mpq()))\n"
-            "numbers.Real.register(type(gmpy2.mpfr()))\n"
-            "numbers.Complex.register(type(gmpy2.mpc()))\n"
+            "numbers.Integral.register(gmpy2.mpz)\n"
+            "numbers.Rational.register(gmpy2.mpq)\n"
+            "numbers.Real.register(gmpy2.mpfr)\n"
+            "numbers.Complex.register(gmpy2.mpc)\n"
         ;
         namespace = PyDict_New();
         result = NULL;
 
         PyDict_SetItemString(namespace, "numbers", numbers_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
-        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(register_numbers, Py_file_input,
                               namespace, namespace);
         if (!result) {

@@ -1,3 +1,5 @@
+import numbers
+
 from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
@@ -125,3 +127,7 @@ def test_mpz_from_bytes(x, length, byteorder, signed):
 
 def test_mpz_as_integer_ratio():
     assert mpz(3).as_integer_ratio() == (mpz(3), mpz(1))
+
+
+def test_mpz_numbers_abc():
+    assert isinstance(mpz(2), numbers.Integral)
