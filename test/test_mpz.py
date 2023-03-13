@@ -55,7 +55,7 @@ def test_mpz_to_bytes_interface():
 @example(1000, 2, 'big', False)
 @example(1000, 4, 'big', False)
 @example(-2049, 1, 'big', True)
-def test_to_bytes_mpz_vs_int(x, length, byteorder, signed):
+def test_mpz_to_bytes(x, length, byteorder, signed):
     try:
         rx = x.to_bytes(length, byteorder, signed=signed)
     except OverflowError:
@@ -111,7 +111,7 @@ def test_mpz_from_bytes_interface():
 @example(-1, 3, 'big', True)
 @example(-2, 3, 'big', True)
 @example(-2, 5, 'little', True)
-def test_from_bytes_mpz_vs_int(x, length, byteorder, signed):
+def test_mpz_from_bytes(x, length, byteorder, signed):
     try:
         bytes = x.to_bytes(length, byteorder, signed=signed)
     except OverflowError:
