@@ -121,3 +121,7 @@ def test_from_bytes_mpz_vs_int(x, length, byteorder, signed):
         assert rx == mpz.from_bytes(bytes, byteorder, signed=signed)
         assert rx == mpz.from_bytes(bytearray(bytes), byteorder, signed=signed)
         assert rx == mpz.from_bytes(list(bytes), byteorder, signed=signed)
+
+
+def test_mpz_as_integer_ratio():
+    assert mpz(3).as_integer_ratio() == (mpz(3), mpz(1))
