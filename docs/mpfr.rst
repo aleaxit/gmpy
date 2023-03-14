@@ -86,6 +86,7 @@ mpfr Functions
 .. autofunction:: frexp
 .. autofunction:: fsum
 .. autofunction:: gamma
+.. autofunction:: gamma_inc
 .. autofunction:: get_exp
 .. autofunction:: hypot
 .. autofunction:: inf

@@ -848,6 +848,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "frexp", GMPy_Context_Frexp, METH_O, GMPy_doc_function_frexp },
     { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_function_fsum },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_function_gamma },
+    { "gamma_inc", GMPy_Context_Gamma_Inc, METH_VARARGS, GMPy_doc_function_gamma_inc },
     { "get_context", GMPy_CTXT_Get, METH_NOARGS, GMPy_doc_get_context },
     { "get_emax_max", GMPy_MPFR_get_emax_max, METH_NOARGS, GMPy_doc_mpfr_get_emax_max },
     { "get_emin_min", GMPy_MPFR_get_emin_min, METH_NOARGS, GMPy_doc_mpfr_get_emin_min },
