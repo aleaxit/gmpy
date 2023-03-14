@@ -83,6 +83,8 @@ static PyMethodDef GMPy_MPQ_methods [] =
     { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "digits", GMPy_MPQ_Digits_Method, METH_VARARGS, GMPy_doc_mpq_digits_method },
     { "as_integer_ratio", GMPy_MPQ_Method_As_Integer_Ratio, METH_NOARGS, GMPy_doc_mpq_method_as_integer_ratio },
+    { "from_float", (PyCFunction)GMPy_MPQ_Method_From_As_Integer_Ratio, METH_FASTCALL | METH_CLASS, GMPy_doc_mpq_method_from_float },
+    { "from_decimal", (PyCFunction)GMPy_MPQ_Method_From_As_Integer_Ratio, METH_FASTCALL | METH_CLASS, GMPy_doc_mpq_method_from_decimal },
     { NULL, NULL, 1 }
 };
 

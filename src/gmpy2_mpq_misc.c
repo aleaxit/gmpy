@@ -124,6 +124,34 @@ GMPy_MPQ_Method_As_Integer_Ratio(PyObject *self, PyObject *Py_UNUSED(ignored))
                         GMPy_MPQ_Attrib_GetDenom((MPQ_Object*)self, NULL));
 }
 
+PyDoc_STRVAR(GMPy_doc_mpq_method_from_float,
+"mpq.from_float(f, /) -> mpq\n\n\
+Converts a finite float to a rational number, exactly.");
+
+PyDoc_STRVAR(GMPy_doc_mpq_method_from_decimal,
+"mpq.from_decimal(dec, /) -> mpq\n\n\
+Converts a finite `decimal.Decimal` instance to a rational number, exactly.");
+
+static PyObject *
+GMPy_MPQ_Method_From_As_Integer_Ratio(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs)
+{
+    PyObject *pair, *result;
+
+    if (nargs != 1) {
+        TYPE_ERROR("missing 1 required positional argument");
+        return NULL;
+    }
+
+    pair = PyObject_CallMethod(args[0], "as_integer_ratio", NULL);
+    if (pair == NULL) {
+        return NULL;
+    }
+
+    result = GMPy_MPQ_NewInit(type, pair, NULL);
+    Py_DECREF(pair);
+
+    return result;
+}
 
 PyDoc_STRVAR(GMPy_doc_function_qdiv,
 "qdiv(x, y=1, /) -> mpz | mpq\n\n"
