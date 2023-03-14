@@ -138,3 +138,32 @@ def test_mpz_pickling():
     for proto in range(pickle.HIGHEST_PROTOCOL + 1):
         for x in [mpz(12346789), mpz(-12346789), mpz(0)]:
             assert pickle.loads(pickle.dumps(x, protocol=proto)) == x
+
+
+@settings(max_examples=1000)
+@given(integers(), integers())
+@example(0, 0)
+@example(0, 1)
+@example(-11, 75)
+@example(14, 105)
+@example(64, 123456789012345678901234567890)
+def test_mpz_arithmetics(i, z):
+    assert int(i) + int(z) == i + z
+    assert int(z) + int(i) == z + i
+
+    assert int(i) - int(z) == i - z
+    assert int(z) - int(i) == z - i
+
+    assert int(i) * int(z) == i * z
+    assert int(z) * int(i) == z * i
+
+    # Test all permutations of floor division
+    if z:
+        assert int(i) // int(z) == i // z
+        assert int(i) % int(z) == i % z
+        assert divmod(int(i), int(z)) == divmod(i, z)
+
+    if i:
+        assert int(z) // int(i) == z // i
+        assert int(z) % int(i) == z % i
+        assert divmod(int(z), int(i)) == divmod(z, i)
