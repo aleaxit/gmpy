@@ -46,3 +46,7 @@ include-package-data = true
 find = {namespaces = false}
 [tool.setuptools.package-data]
 gmpy2 = ['*.pxd', 'gmpy2.h', '*.dll', 'vector.py']
+[tool.pytest.ini_options]
+addopts = "--durations=10"
+norecursedirs = ['build', '.eggs', '.git']
+xfail_strict = true
