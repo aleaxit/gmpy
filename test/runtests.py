@@ -130,17 +130,8 @@ print("                              Summary - Attempted: {0:4d}   Failed: {1:4d
 print()
 print("Running external test programs.")
 
-print("Running {0:30}  ".format("test_pack.py"), end="")
-import test_pack
-if test_pack.test():
-    print("successful")
-    attempted += 1
-else:
-    print("failed")
-    failed += 1
-
-print("Running {0:30}  ".format("test_mp*.py"), end="")
-if os.system(sys.executable +" -m pytest " + os.path.dirname(__file__) + "/test_mp*.py") == 0:
+print("Running {0:30}  ".format("pytest"), end="")
+if os.system(sys.executable +" -m pytest " + os.path.dirname(__file__) + "/test_*.py") == 0:
     print("successful")
     attempted += 1
 else:

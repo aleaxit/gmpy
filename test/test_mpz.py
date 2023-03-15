@@ -5,7 +5,7 @@ from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
-from gmpy2 import mpz
+from gmpy2 import mpz, pack, unpack
 
 
 def test_mpz_to_bytes_interface():
@@ -167,3 +167,10 @@ def test_mpz_arithmetics(i, z):
         assert int(z) // int(i) == z // i
         assert int(z) % int(i) == z % i
         assert divmod(int(z), int(i)) == divmod(z, i)
+
+@settings(max_examples=1000)
+@given(integers(min_value=0),
+       integers(min_value=1, max_value=100000))
+def test_mpz_pack_unpack(x, n):
+    lst = unpack(x, n)
+    assert pack(lst, n) == x
