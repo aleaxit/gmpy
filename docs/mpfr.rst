@@ -61,6 +61,7 @@ mpfr Functions
 .. autofunction:: cbrt
 .. autofunction:: ceil
 .. autofunction:: check_range
+.. autofunction:: cmp
 .. autofunction:: const_catalan
 .. autofunction:: const_euler
 .. autofunction:: const_log2

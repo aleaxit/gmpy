@@ -147,6 +147,8 @@ Generic gmpy2 Functions
 .. autofunction:: fma
 .. autofunction:: fms
 
+.. autofunction:: cmp_abs
+
 Exceptions
 ----------
 

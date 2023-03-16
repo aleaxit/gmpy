@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpany_cmp,
-"cmp(x, y, /) -> integer\n\n"
+"cmp(x, y, /) -> int\n\n"
 "Return -1 if x < y; 0 if x = y; or 1 if x > y. Both x and y must be\n"
 "integer, rational or real. Note: 0 is returned (and exception flag set)\n"
 "if either argument is NaN.");
@@ -60,7 +60,7 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    
+
     xtype = GMPy_ObjectType(x);
     ytype = GMPy_ObjectType(y);
 
@@ -251,9 +251,8 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpany_cmp_abs,
-"cmp_abs(x, y, /) -> integer\n\n"
-"Return -1 if |x| < |y|; 0 if |x| = |y|; or 1 if |x| > |y|. Both x and y\n"
-"can be integer, rational, real, or complex.");
+"cmp_abs(x, y, /) -> int\n\n"
+"Return -1 if abs(x) < abs(y); 0 if abs(x) = abs(y); or 1 else.");
 
 static PyObject *
 GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
