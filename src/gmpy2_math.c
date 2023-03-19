@@ -360,6 +360,16 @@ PyDoc_STRVAR(GMPy_doc_function_gamma,
 
 GMPY_MPFR_UNIOP_EXWT(Gamma, gamma)
 
+PyDoc_STRVAR(GMPy_doc_function_gamma_inc,
+"gamma_inc(a, x, /) -> mpfr\n\n\
+Return (upper) incomplete gamma of a and x.");
+
+PyDoc_STRVAR(GMPy_doc_context_gamma_inc,
+"context.gamma_inc(a, x, /) -> mpfr\n\n\
+Return (upper) incomplete gamma of a and x.");
+
+GMPY_MPFR_BINOP_EXWT(Gamma_Inc, gamma_inc)
+
 PyDoc_STRVAR(GMPy_doc_context_lngamma,
 "context.lngamma(x, /) -> mpfr\n\n"
 "Return natural logarithm of gamma(x).");
@@ -499,7 +509,7 @@ _GMPy_MPFR_Acos(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    
+
     result->rc = mpfr_acos(result->f, MPFR(x), GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
@@ -770,7 +780,7 @@ GMPy_RealWithType_Sin_Cos(PyObject *x, int xtype, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    
+
     code = mpfr_sin_cos(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF(tempx);
 
@@ -1048,7 +1058,7 @@ GMPy_RealWithType_Sqrt(PyObject *x, int xtype, CTXT_Object *context)
         if (mpfr_sgn(MPFR(x)) < 0 && context->ctx.allow_complex) {
             return GMPy_ComplexWithType_Sqrt(x, xtype, context);
         }
-       
+
         if (!(result = GMPy_MPFR_New(0, context))) {
             return NULL;
         }
@@ -1068,16 +1078,16 @@ GMPy_RealWithType_Sqrt(PyObject *x, int xtype, CTXT_Object *context)
 
         if (mpfr_sgn(MPFR(tempx)) < 0 && context->ctx.allow_complex) {
             PyObject *res = NULL;
-            
+
             res = GMPy_ComplexWithType_Sqrt((PyObject*)tempx, OBJ_TYPE_MPFR, context);
             Py_DECREF(tempx);
             return res;
-        }   
+        }
         if (!(result = GMPy_MPFR_New(0, context))) {
             Py_DECREF((PyObject*)tempx);
             return NULL;
         }
-        
+
         mpfr_clear_flags();
         result->rc = mpfr_sqrt(result->f, MPFR(tempx), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
@@ -1108,7 +1118,7 @@ GMPy_ComplexWithType_Sqrt(PyObject *x, int xtype, CTXT_Object *context)
 
     if (IS_TYPE_COMPLEX(xtype)) {
         MPC_Object *tempx = NULL;
-                
+
         if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context))) {
             Py_DECREF(result);
             return NULL;
@@ -1621,7 +1631,7 @@ GMPy_RealWithType_Modf(PyObject *x, int xtype, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    
+
     code = mpfr_modf(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
 

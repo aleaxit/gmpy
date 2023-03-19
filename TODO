@@ -15,8 +15,6 @@ MPFR related functions
 
 * Add  mpfr_fmodquo function.
 
-* Add mpfr_gamma_inc functon.
-
 * Add mpfr_rint_roundeven and mpfr_roudneven functions.
 
 * Check behavior of mpfr_get_str for NaN input and the setting of the inexact
@@ -47,8 +45,3 @@ release.
 * Support new thread local storage functions.
 
 * Support proper module initialization (??).
-
-
-
-
-

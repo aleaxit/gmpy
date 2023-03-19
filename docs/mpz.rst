@@ -37,6 +37,7 @@ mpz type
 --------
 
 .. autoclass:: mpz
+   :special-members: __format__
 
 mpz Functions
 -------------

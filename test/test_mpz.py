@@ -1,8 +1,11 @@
+import numbers
+import pickle
+
 from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
-from gmpy2 import mpz
+from gmpy2 import mpz, pack, unpack
 
 
 def test_mpz_to_bytes_interface():
@@ -55,7 +58,7 @@ def test_mpz_to_bytes_interface():
 @example(1000, 2, 'big', False)
 @example(1000, 4, 'big', False)
 @example(-2049, 1, 'big', True)
-def test_to_bytes_mpz_vs_int(x, length, byteorder, signed):
+def test_mpz_to_bytes(x, length, byteorder, signed):
     try:
         rx = x.to_bytes(length, byteorder, signed=signed)
     except OverflowError:
@@ -111,7 +114,7 @@ def test_mpz_from_bytes_interface():
 @example(-1, 3, 'big', True)
 @example(-2, 3, 'big', True)
 @example(-2, 5, 'little', True)
-def test_from_bytes_mpz_vs_int(x, length, byteorder, signed):
+def test_mpz_from_bytes(x, length, byteorder, signed):
     try:
         bytes = x.to_bytes(length, byteorder, signed=signed)
     except OverflowError:
@@ -121,3 +124,53 @@ def test_from_bytes_mpz_vs_int(x, length, byteorder, signed):
         assert rx == mpz.from_bytes(bytes, byteorder, signed=signed)
         assert rx == mpz.from_bytes(bytearray(bytes), byteorder, signed=signed)
         assert rx == mpz.from_bytes(list(bytes), byteorder, signed=signed)
+
+
+def test_mpz_as_integer_ratio():
+    assert mpz(3).as_integer_ratio() == (mpz(3), mpz(1))
+
+
+def test_mpz_numbers_abc():
+    assert isinstance(mpz(2), numbers.Integral)
+
+
+def test_mpz_pickling():
+    for proto in range(pickle.HIGHEST_PROTOCOL + 1):
+        for x in [mpz(12346789), mpz(-12346789), mpz(0)]:
+            assert pickle.loads(pickle.dumps(x, protocol=proto)) == x
+
+
+@settings(max_examples=1000)
+@given(integers(), integers())
+@example(0, 0)
+@example(0, 1)
+@example(-11, 75)
+@example(14, 105)
+@example(64, 123456789012345678901234567890)
+def test_mpz_arithmetics(i, z):
+    assert int(i) + int(z) == i + z
+    assert int(z) + int(i) == z + i
+
+    assert int(i) - int(z) == i - z
+    assert int(z) - int(i) == z - i
+
+    assert int(i) * int(z) == i * z
+    assert int(z) * int(i) == z * i
+
+    # Test all permutations of floor division
+    if z:
+        assert int(i) // int(z) == i // z
+        assert int(i) % int(z) == i % z
+        assert divmod(int(i), int(z)) == divmod(i, z)
+
+    if i:
+        assert int(z) // int(i) == z // i
+        assert int(z) % int(i) == z % i
+        assert divmod(int(z), int(i)) == divmod(z, i)
+
+@settings(max_examples=1000)
+@given(integers(min_value=0),
+       integers(min_value=1, max_value=100000))
+def test_mpz_pack_unpack(x, n):
+    lst = unpack(x, n)
+    assert pack(lst, n) == x

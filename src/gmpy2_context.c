@@ -1323,6 +1323,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "frexp", GMPy_Context_Frexp, METH_O, GMPy_doc_context_frexp },
     { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_context_fsum },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_context_gamma },
+    { "gamma_inc", GMPy_Context_Gamma_Inc, METH_VARARGS, GMPy_doc_context_gamma_inc },
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_context_hypot },
     { "is_finite", GMPy_Context_Is_Finite, METH_O, GMPy_doc_context_is_finite },
     { "is_infinite", GMPy_Context_Is_Infinite, METH_O, GMPy_doc_context_is_infinite },

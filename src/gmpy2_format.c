@@ -25,8 +25,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpz_format,
-"x.__format__(fmt) -> string\n\n"
-"Return a Python string by formatting mpz 'x' using the format string\n"
+"x.__format__(fmt) -> str\n\n"
+"Return a Python string by formatting `mpz` 'x' using the format string\n"
 "'fmt'. A valid format string consists of:\n\n"
 "     optional alignment code:\n\n"
 "        '<' -> left shifted in field\n"

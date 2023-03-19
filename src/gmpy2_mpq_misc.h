@@ -35,6 +35,8 @@ static PyObject * GMPy_MPQ_Attrib_GetNumer(MPQ_Object *self, void *closure);
 static PyObject * GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure);
 static PyObject * GMPy_MPQ_Attrib_GetReal(MPQ_Object *self, void *closure);
 static PyObject * GMPy_MPQ_Attrib_GetImag(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPQ_Method_As_Integer_Ratio(PyObject *self, PyObject *Py_UNUSED(ignored));
+static PyObject * GMPy_MPQ_Method_From_As_Integer_Ratio(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs);
 
 static PyObject * GMPy_MPQ_Function_Numer(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPQ_Function_Denom(PyObject *self, PyObject *other);

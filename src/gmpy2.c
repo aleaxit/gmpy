@@ -848,6 +848,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "frexp", GMPy_Context_Frexp, METH_O, GMPy_doc_function_frexp },
     { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_function_fsum },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_function_gamma },
+    { "gamma_inc", GMPy_Context_Gamma_Inc, METH_VARARGS, GMPy_doc_function_gamma_inc },
     { "get_context", GMPy_CTXT_Get, METH_NOARGS, GMPy_doc_get_context },
     { "get_emax_max", GMPy_MPFR_get_emax_max, METH_NOARGS, GMPy_doc_mpfr_get_emax_max },
     { "get_emin_min", GMPy_MPFR_get_emin_min, METH_NOARGS, GMPy_doc_mpfr_get_emin_min },
@@ -1298,18 +1299,17 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     if (copy_reg_module) {
         char* enable_pickle =
             "def gmpy2_reducer(x): return (gmpy2.from_binary, (gmpy2.to_binary(x),))\n"
-            "copyreg.pickle(type(gmpy2.mpz(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.xmpz(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n";
+            "copyreg.pickle(gmpy2.mpz, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.xmpz, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.mpq, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.mpfr, gmpy2_reducer)\n"
+            "copyreg.pickle(gmpy2.mpc, gmpy2_reducer)\n";
 
         namespace = PyDict_New();
         result = NULL;
 
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
-        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(enable_pickle, Py_file_input, namespace, namespace);
         if (!result) {
             /* LCOV_EXCL_START */
@@ -1331,17 +1331,16 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     numbers_module = PyImport_ImportModule("numbers");
     if (numbers_module) {
         char* register_numbers =
-            "numbers.Integral.register(type(gmpy2.mpz()))\n"
-            "numbers.Rational.register(type(gmpy2.mpq()))\n"
-            "numbers.Real.register(type(gmpy2.mpfr()))\n"
-            "numbers.Complex.register(type(gmpy2.mpc()))\n"
+            "numbers.Integral.register(gmpy2.mpz)\n"
+            "numbers.Rational.register(gmpy2.mpq)\n"
+            "numbers.Real.register(gmpy2.mpfr)\n"
+            "numbers.Complex.register(gmpy2.mpc)\n"
         ;
         namespace = PyDict_New();
         result = NULL;
 
         PyDict_SetItemString(namespace, "numbers", numbers_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
-        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(register_numbers, Py_file_input,
                               namespace, namespace);
         if (!result) {
