@@ -45,8 +45,8 @@ static unsigned long   GMPy_Integer_AsUnsignedLong_v2(PyObject *x);
 #ifdef _WIN64
 static PY_LONG_LONG          GMPy_Integer_AsLongLongWithType(PyObject *x, int xtype);
 static PY_LONG_LONG          GMPy_Integer_AsLongLong(PyObject *x);
-/* static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype); */
-/* static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLong(PyObject *x); */
+static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype);
+static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLong(PyObject *x);
 #endif
 
 /* This just requires that sizeof(mp_bitcnt_t) <= sizeof(size_t) */
