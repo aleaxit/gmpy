@@ -1818,8 +1818,8 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
 {
     Py_ssize_t i, nkws = 0, size, gap, length = 1;
     PyObject *bytes, *arg;
-    mpz_t tmp, *pnumber;
-    char *buffer, sign, is_signed = 0, is_negative, is_big, blank = 0;
+    mpz_t tmp, *px = &MPZ(self);
+    char *buffer, sign, is_signed = 0, is_negative, is_big;
     int argidx[2] = {-1, -1};
     const char *byteorder = NULL, *kwname;
 
@@ -1907,35 +1907,28 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
         return NULL;
     }
 
-    sign = mpz_sgn(MPZ(self));
-    is_negative = sign < 0;
-    size = mpz_sizeinbase(MPZ(self), 256);
-    pnumber = &MPZ(self);
+    is_negative = mpz_sgn(*px) < 0;
 
     if (is_negative) {
         if (!is_signed) {
             OVERFLOW_ERROR("can't convert negative mpz to unsigned");
             return NULL;
         }
-
         mpz_init(tmp);
-        mpz_com(tmp, MPZ(self));
-        sign = mpz_sgn(tmp);
-        pnumber = &tmp;
+        mpz_ui_pow_ui(tmp, 256, length);
+        mpz_add(tmp, tmp, *px);
+        px = &tmp;
     }
 
-    size -= !sign;
+    sign = mpz_sgn(*px);
+    size = mpz_sizeinbase(*px, 256) - !sign;
     gap = length - size;
 
-    if ((is_signed && mpz_tstbit(*pnumber, 8*length - 1)) || gap < 0) {
+    if (gap < 0 || sign < 0 ||
+        (is_signed && length && mpz_tstbit(*px, 8*length - 1) == !is_negative))
+    {
         OVERFLOW_ERROR("mpz too big to convert");
         return NULL;
-    }
-
-    if (is_negative) {
-        mpz_ui_pow_ui(tmp, 256, size);
-        mpz_add(tmp, tmp, MPZ(self));
-        blank = 0xff;
     }
 
     bytes = PyBytes_FromStringAndSize(NULL, length);
@@ -1943,18 +1936,13 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
         return NULL;
     }
     buffer = PyBytes_AS_STRING(bytes);
+    memset(buffer, 0, length);
 
     if (is_big) {
-        mpz_export(buffer + gap, NULL, 1, sizeof(char), 0, 0, *pnumber);
-        for (i = 0; i < gap; i++) {
-            buffer[i] = blank;
-        }
+        mpz_export(buffer + gap, NULL, 1, sizeof(char), 0, 0, *px);
     }
     else {
-        mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, *pnumber);
-        for (i = size; i < length; i++) {
-            buffer[i] = blank;
-        }
+        mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, *px);
     }
 
     if (is_negative) {
@@ -1984,8 +1972,8 @@ static PyObject *
 GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
 {
     Py_ssize_t i, nkws = 0, length;
-    PyObject *arg, *bytes_obj;
-    char is_signed = 0, is_negative = 0, is_big, *bytes, *p;
+    PyObject *arg, *bytes;
+    char is_signed = 0, endian, *buffer;
     int argidx[2] = {-1, -1};
     const char *byteorder = NULL, *kwname;
     mpz_t tmp;
@@ -2054,10 +2042,10 @@ GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t
     }
 
     if (byteorder == NULL || strcmp(byteorder, "big") == 0) {
-        is_big = 1;
+        endian = 1;
     }
     else if (strcmp(byteorder, "little") == 0) {
-        is_big = 0;
+        endian = -1;
     }
     else {
         VALUE_ERROR("byteorder must be either 'little' or 'big'");
@@ -2068,44 +2056,23 @@ GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t
         return NULL;
     }
 
-    bytes_obj = PyObject_Bytes(args[argidx[0]]);
-    if (bytes_obj == NULL) {
+    bytes = PyObject_Bytes(args[argidx[0]]);
+    if (bytes == NULL) {
         return NULL;
     }
-    if (PyBytes_AsStringAndSize(bytes_obj, &bytes, &length) == -1) {
+    if (PyBytes_AsStringAndSize(bytes, &buffer, &length) == -1) {
         return NULL;
     }
 
-    if (is_signed) {
-        if (is_big) {
-            is_negative = (*bytes == '\xff');
-            while (*bytes == '\xff') {
-                bytes++;
-                length--;
-            }
-        }
-        else {
-            p = bytes + length - 1;
-            is_negative = (*p == '\xff');
-            while (*p == '\xff' && length > 0) {
-                p--;
-                length--;
-            }
-        }
-    }
+    mpz_import(MPZ(result), length, endian, sizeof(char), 0, 0, buffer);
+    Py_DECREF(bytes);
 
-    mpz_import(MPZ(result), length, is_big ? 1 : -1, sizeof(char), 0, 0, bytes);
-    Py_DECREF(bytes_obj);
-
-    if (is_signed && !is_negative) {
-        is_negative = mpz_tstbit(MPZ(result), 8*length - 1);
-    }
-    if (is_negative) {
+    if (is_signed && mpz_tstbit(MPZ(result), 8*length - 1)) {
         mpz_init(tmp);
         mpz_ui_pow_ui(tmp, 256, length);
         mpz_sub(MPZ(result), tmp, MPZ(result));
-        mpz_neg(MPZ(result), MPZ(result));
         mpz_clear(tmp);
+        mpz_neg(MPZ(result), MPZ(result));
     }
 
     return (PyObject*)result;
