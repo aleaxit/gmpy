@@ -11,8 +11,8 @@ jobs:
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@master
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install --upgrade pip
@@ -29,8 +29,8 @@ jobs:
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@master
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk lcov
@@ -65,3 +65,30 @@ jobs:
             build/sphinx/html/
             build/sphinx/latex/gmpy2.pdf
             build/coverage/
+
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        name: Setup msys2
+        with:
+          update: true
+          install: >-
+            gcc
+            gmp-devel
+            mpfr-devel
+            mpc-devel
+            python-setuptools
+            python-pip
+      - run: pip install --upgrade pip
+      - run: pip --verbose install -e .[tests]
+      - run: python test/runtests.py
+      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
