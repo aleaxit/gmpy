@@ -58,6 +58,8 @@ def test_mpz_to_bytes_interface():
 @example(1000, 2, 'big', False)
 @example(1000, 4, 'big', False)
 @example(-2049, 1, 'big', True)
+@example(-65281, 3, 'big', True)
+@example(-65281, 3, 'little', True)
 def test_mpz_to_bytes(x, length, byteorder, signed):
     try:
         rx = x.to_bytes(length, byteorder, signed=signed)
