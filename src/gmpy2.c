@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2022 Case Van Horsen                                   *
+ * Copyright 2008 - 2023 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -462,12 +462,18 @@
  *
  ************************************************************************
  *
- *    2.2.0
- *    Remove support for versions of Python < 3.7.
- *    Support more modern build tools.
- *    Use contextvars to manage gmpy2 contexts.
- *    _mpmath functions now use vectorcall protocol.
- *
+ *    2.2.0a1
+ *    Remove support for versions of Python < 3.7. () (skirpichev)
+ *    Support more modern build tools. (skirpichev)
+ *    Use contextvars to manage gmpy2 contexts. (casevh)
+ *    _mpmath functions now use vectorcall protocol. (casevh)
+ *    Many documentation updates. (skirpichev)
+ *    Add mpz.as_integer_ratio()/to_bytes()/from_bytes(). (skirpichev)
+ *    Add mpz_probab_prime_p() to direction expose the GMP behavior.
+ *      (skirpichev)
+ *    gcd()/lcm() now user vectorcoll protocol. (skirpichev)
+ *    Expose context type. (skirpichev)
+ *    
  ************************************************************************
  *
  * Discussion on sizes of C integer types.

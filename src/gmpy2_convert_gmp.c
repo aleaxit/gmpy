@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2022 Case Van Horsen                                   *
+ * Copyright 2008 - 2023 Case Van Horsen                                   *
  *                                                                         * 
  *                                                                         *
  * GMPY2 is free software: you can redistribute it and/or modify it under  *

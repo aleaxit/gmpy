@@ -11,7 +11,7 @@ keywords = ['gmp', 'mpfr', 'mpc', 'multiple-precision',
 license = {text = 'LGPL-3.0+'}
 authors = [{name = 'Case Van Horsen'}]
 maintainers = [{name = 'Case Van Horsen', email = 'casevh@gmail.com'}]
-classifiers = ['Development Status :: 4 - Beta',
+classifiers = ['Development Status :: 3 - Alpah',
                'Intended Audience :: Developers',
                'Intended Audience :: Science/Research',
                'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
@@ -45,7 +45,7 @@ include-package-data = true
 [tool.setuptools.packages]
 find = {namespaces = false}
 [tool.setuptools.package-data]
-gmpy2 = ['*.pxd', 'gmpy2.h', '*.dll', 'vector.py']
+gmpy2 = ['*.pxd', '*.h', '*.dll', 'vector.py']
 [tool.pytest.ini_options]
 addopts = "--durations=10"
 norecursedirs = ['build', '.eggs', '.git']
