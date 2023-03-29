@@ -1,18 +1,3 @@
-TODO: Things to remember to document or automate
-* Properly handle symlinks in <<source>>/gmpy2 directory for:
-  * gmpy2.h (all platforms)
-  * gmpy2.pxd (all platforms)
-  * various support DLLs (Windows)
-* Force older versions of setuptools (probably not needed)
-  * 47.1.0 seems to be okay (maybe) (probably not needed)
-* Make MANIFEST.in include all dll files in gmpy2 sub-directory
-  * Also, make sure to copy the dll
-* pip install wheel
-* Convert .egg format to .whl format
-  * cd dist
-  * py27 -m wheel convert *.egg
-
-
 Building gmpy2 with MSYS2 and MinGW-w64
 =======================================
 
@@ -23,7 +8,7 @@ High-level overview
     1.  Install the MSYS2 environment
     2.  Install the MinGW-w64 compiler tools
 
-        The MSYS2 version of MinGW-w64 or a version from winlibs.com can be used.
+        To get a reproducible compiler, I use one winlibs.com.
 
     3.  Dowload and compile GMP, MPFR, and MPC
 
@@ -71,7 +56,7 @@ release cycles makeit difficult to provide a reproducible compliler. We will
 be using MinGW-w64 as distributed by http://winlibs.com/. This documentation
 was based on the following version:
 
-https://github.com/brechtsanders/winlibs_mingw/releases/download/10.3.0-12.0.0-9.0.0-r2/winlibs-x86_64-posix-seh-gcc-10.3.0-llvm-12.0.0-mingw-w64-9.0.0-r2.7z
+https://github.com/brechtsanders/winlibs_mingw/releases/download/12.2.0-15.0.7-10.0.0-ucrt-r4/winlibs-x86_64-posix-seh-gcc-12.2.0-mingw-w64ucrt-10.0.0-r4.7z
 
 Unzip the downloaded file and copy the "mingw64" to the desired location.
 The following documentation assumes the files are copied to D:\mingw64.
@@ -105,63 +90,7 @@ Compiling GMP, MPFR, and MPC
 
 # Start the appropriate shell: MSYS2 MSYS
 
-# Add the MinGW-w64 compiler to the PATH.
-
-  PATH="/c/mingw64/bin:"$PATH
-
-# In you home directory, create directories for the various files that
-# are created.
-
-  mkdir $HOME/64
-  mkdir $HOME/64/src
-  mkdir $HOME/64/static
-  mkdir $HOME/64/shared
-
-# Download and uncompress GMP, MPFR, and MPC
-
-  The following instructions build GMP, MPFR, and MPC shared libraries that are redistributed with gmpy2.
-
-  cd $HOME/64/src
-
-# Download GMP
-  wget https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz
-  tar xf gmp-6.2.1.tar.lz
-
-# Download MPFR and any patches
-  wget http://www.mpfr.org/mpfr-current/mpfr-4.1.0.tar.bz2
-  tar xf mpfr-4.1.0.tar.bz2
-  cd mpfr-4.1.0/
-  wget http://www.mpfr.org/mpfr-current/allpatches
-  patch -N -Z -p1 < allpatches
-  cd ..
-
-# Download MPC
-  wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.2.0.tar.gz
-  tar xf mpc-1.2.0.tar.gz
-
-# Compile GMP
-  cd gmp-6.2.1/
-  ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-shared --disable-static --enable-fat --with-pic
-  make
-  make check
-  make install
-  cd ..
-
-# Compile MPFR
-  cd mpfr-4.1.0/
-  ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --disable-decimal-float --disable-float128 --with-pic --with-gmp=$HOME/64/static
-  make
-  make check
-  make install
-  cd ..
-
-# Compile MPC
-  cd mpc-1.2.0/
-  ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/64/static --with-mpfr=$HOME/64/static
-  make
-  make check
-  make install
-  cd ..
+# Execute <<source>>/mingw64/msys2_64_shared.sh
 
 The Windows build environment
 =============================
@@ -266,6 +195,20 @@ copy /y D:\mingw64\bin\libwinpthread-1.dll D:\64\gmpy2\mingw64\shared\bin
 # Copy the additional DLL files to <<gmpy2 source>>\gmpy2
 
 xcopy /y D:\64\gmpy2\mingw64\shared\bin\. D:\64\gmpy2\gmpy2\
+
+The contents should be similar to:
+
+03/20/2023  10:19 PM            83,947 gmp.h
+03/12/2023  08:57 PM            19,159 gmpy2.h
+09/23/2022  09:12 PM             4,681 gmpy2.pxd
+01/17/2023  03:23 PM           634,184 libgcc_s_seh-1.dll
+03/20/2023  10:39 PM           923,565 libgmp-10.dll
+03/20/2023  11:13 PM           212,180 libmpc-3.dll
+03/20/2023  11:04 PM           634,883 libmpfr-6.dll
+01/17/2023  03:23 PM            92,865 libwinpthread-1.dll
+12/15/2022  02:57 AM            16,949 mpc.h
+03/20/2023  11:04 PM            57,443 mpfr.h
+12/30/2022  07:48 AM                26 vector.py
 
 # Complile and create a binary wheel.
 
