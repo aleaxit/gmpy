@@ -469,9 +469,9 @@
  *    _mpmath functions now use vectorcall protocol. (casevh)
  *    Many documentation updates. (skirpichev)
  *    Add mpz.as_integer_ratio()/to_bytes()/from_bytes(). (skirpichev)
- *    Add mpz_probab_prime_p() to direction expose the GMP behavior.
+ *    Add mpz_probab_prime_p() to directly expose the GMP behavior.
  *      (skirpichev)
- *    gcd()/lcm() now user vectorcoll protocol. (skirpichev)
+ *    gcd()/lcm() now uses vectorcoll protocol. (skirpichev)
  *    Expose context type. (skirpichev)
  *    
  ************************************************************************
@@ -485,7 +485,7 @@
  * the module is initialized.
  *
  * mp_limb_t: This is usually an 'unsigned long' but is an 'unsigned
- *     long long' on MPIR/64-bit Windows.
+ *     long long' on certain 64-bit Windows builds.
  *
  * mp_bitcnt_t: This is usually an 'unsigned long' but is an 'unsigned
  *     long long' on MPIR/64-bit Windows. 'size_t' is the best match.
@@ -538,7 +538,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.2.0";
+char gmpy_version[] = "2.2.0a1";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
