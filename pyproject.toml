@@ -11,7 +11,7 @@ keywords = ['gmp', 'mpfr', 'mpc', 'multiple-precision',
 license = {text = 'LGPL-3.0+'}
 authors = [{name = 'Case Van Horsen'}]
 maintainers = [{name = 'Case Van Horsen', email = 'casevh@gmail.com'}]
-classifiers = ['Development Status :: 3 - Alpah',
+classifiers = ['Development Status :: 3 - Alpha',
                'Intended Audience :: Developers',
                'Intended Audience :: Science/Research',
                'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
@@ -30,22 +30,28 @@ classifiers = ['Development Status :: 3 - Alpah',
                'Topic :: Scientific/Engineering :: Mathematics',
                'Topic :: Software Development :: Libraries :: Python Modules']
 requires-python = '>=3.7'
+
 [project.readme]
 file = 'README.rst'
 content-type = 'text/x-rst'
+
 [project.optional-dependencies]
 docs = ['sphinx>=4', 'sphinx-rtd-theme>=1']
 tests = ['pytest', 'hypothesis', 'cython']
+
 [project.urls]
 Homepage = 'https://github.com/aleaxit/gmpy'
 
 [tool.setuptools]
 zip-safe = false
 include-package-data = true
+
 [tool.setuptools.packages]
 find = {namespaces = false}
+
 [tool.setuptools.package-data]
 gmpy2 = ['*.pxd', '*.h', '*.dll', 'vector.py']
+
 [tool.pytest.ini_options]
 addopts = "--durations=10"
 norecursedirs = ['build', '.eggs', '.git']

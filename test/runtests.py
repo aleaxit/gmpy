@@ -131,7 +131,7 @@ print()
 print("Running external test programs.")
 
 print("Running {0:30}  ".format("pytest"), end="")
-if os.system(sys.executable +" -m pytest " + os.path.dirname(__file__) + "/test_*.py") == 0:
+if os.system(sys.executable + " -m pytest " + " ".join(glob.glob(os.path.dirname(__file__) + "/test_*.py"))) == 0:
     print("successful")
     attempted += 1
 else:
