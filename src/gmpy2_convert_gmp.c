@@ -7,7 +7,7 @@
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
  * Copyright 2008 - 2023 Case Van Horsen                                   *
- *                                                                         * 
+ *                                                                         *
  *                                                                         *
  * GMPY2 is free software: you can redistribute it and/or modify it under  *
  * the terms of the GNU Lesser General Public License as published by the  *
@@ -34,12 +34,6 @@
  * some basic types such as C longs or doubles.
  */
 
-#if PY_VERSION_HEX >= 0x030C0000
-#  define GET_OB_DIGIT(obj) obj->long_value.ob_digit
-#else
-#  define GET_OB_DIGIT(obj) obj->ob_digit
-#endif
-
 /* ======================================================================== *
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
@@ -58,33 +52,24 @@ GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    switch (Py_SIZE(templong)) {
-    case -1:
-        mpz_set_si(result->z, -(sdigit)GET_OB_DIGIT(templong)[0]);
+    len = _PyLong_DigitCount(templong);
+    negative = _PyLong_IsNegative(templong);
+
+    switch (len) {
+    case 1:
+        mpz_set_si(result->z, (sdigit)GET_OB_DIGIT(templong)[0]);
         break;
     case 0:
         mpz_set_si(result->z, 0);
         break;
-    case 1:
-        mpz_set_si(result->z, GET_OB_DIGIT(templong)[0]);
-        break;
     default:
-        mpz_set_si(result->z, 0);
-
-        if (Py_SIZE(templong) < 0) {
-            len = - Py_SIZE(templong);
-            negative = 1;
-        } else {
-            len = Py_SIZE(templong);
-            negative = 0;
-        }
-
         mpz_import(result->z, len, -1, sizeof(GET_OB_DIGIT(templong)[0]), 0,
-                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT, GET_OB_DIGIT(templong));
+                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT,
+                   GET_OB_DIGIT(templong));
+    }
 
-        if (negative) {
-            mpz_neg(result->z, result->z);
-        }
+    if (negative) {
+        mpz_neg(result->z, result->z);
     }
     return result;
 }
@@ -97,33 +82,24 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
     Py_ssize_t len;
     PyLongObject *templong = (PyLongObject*)obj;
 
-    switch (Py_SIZE(templong)) {
-    case -1:
-        mpz_set_si(z, -(sdigit)GET_OB_DIGIT(templong)[0]);
+    len = _PyLong_DigitCount(templong);
+    negative = _PyLong_IsNegative(templong);
+
+    switch (len) {
+    case 1:
+        mpz_set_si(z, (sdigit)GET_OB_DIGIT(templong)[0]);
         break;
     case 0:
         mpz_set_si(z, 0);
         break;
-    case 1:
-        mpz_set_si(z, GET_OB_DIGIT(templong)[0]);
-        break;
     default:
-        mpz_set_si(z, 0);
-
-        if (Py_SIZE(templong) < 0) {
-            len = - Py_SIZE(templong);
-            negative = 1;
-        } else {
-            len = Py_SIZE(templong);
-            negative = 0;
-        }
-
         mpz_import(z, len, -1, sizeof(GET_OB_DIGIT(templong)[0]), 0,
-                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT, GET_OB_DIGIT(templong));
+                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT,
+                   GET_OB_DIGIT(templong));
+    }
 
-        if (negative) {
-            mpz_neg(z, z);
-        }
+    if (negative) {
+        mpz_neg(z, z);
     }
     return;
 }
@@ -178,12 +154,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
 
-    if (mpz_sgn(obj->z) < 0) {
-        negative = 1;
-    } else {
-        negative = 0;
-    }
-
+    negative = mpz_sgn(obj->z) < 0;
     size = (mpz_sizeinbase(obj->z, 2) + PyLong_SHIFT - 1) / PyLong_SHIFT;
 
     if (!(result = _PyLong_New(size))) {
@@ -204,19 +175,8 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     while ((size>0) && (GET_OB_DIGIT(result)[size-1] == 0)) {
         size--;
     }
-#if PY_VERSION_HEX >= 0x030900A4
-    Py_SET_SIZE(result, size);
-#else
-    Py_SIZE(result) = size;
-#endif
 
-    if (negative) {
-#if PY_VERSION_HEX >= 0x030900A4
-        Py_SET_SIZE(result, - Py_SIZE(result));
-#else
-        Py_SIZE(result) = - Py_SIZE(result);
-#endif
-    }
+    _PyLong_SetSignAndDigitCount(result, negative, size);
     return (PyObject*)result;
 }
 
@@ -433,33 +393,24 @@ GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    switch (Py_SIZE(templong)) {
-    case -1:
-        mpz_set_si(result->z, -(sdigit)GET_OB_DIGIT(templong)[0]);
+    len = _PyLong_DigitCount(templong);
+    negative = _PyLong_IsNegative(templong);
+
+    switch (len) {
+    case 1:
+        mpz_set_si(result->z, (sdigit)GET_OB_DIGIT(templong)[0]);
         break;
     case 0:
         mpz_set_si(result->z, 0);
         break;
-    case 1:
-        mpz_set_si(result->z, GET_OB_DIGIT(templong)[0]);
-        break;
     default:
-        mpz_set_si(result->z, 0);
-
-        if (Py_SIZE(templong) < 0) {
-            len = - Py_SIZE(templong);
-            negative = 1;
-        } else {
-            len = Py_SIZE(templong);
-            negative = 0;
-        }
-
         mpz_import(result->z, len, -1, sizeof(GET_OB_DIGIT(templong)[0]), 0,
-                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT, GET_OB_DIGIT(templong));
+                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT,
+                   GET_OB_DIGIT(templong));
+    }
 
-        if (negative) {
-            mpz_neg(result->z, result->z);
-        }
+    if (negative) {
+        mpz_neg(result->z, result->z);
     }
     return result;
 }
@@ -596,7 +547,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
     }
 
     cp = PyBytes_AsString(ascii_str);
-    
+
     {
         char *whereslash = strchr((char*)cp, '/');
         char *wheredot = strchr((char*)cp, '.');
