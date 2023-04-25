@@ -123,7 +123,7 @@ static unsigned long
 GMPy_Integer_AsUnsignedLongWithType_v2(PyObject *x, int xtype)
 {
     if IS_TYPE_PyInteger(xtype) {
-        if (Py_SIZE(x) < 0) {
+        if (_PyLong_IsNegative(((PyLongObject*)x))) {
             VALUE_ERROR("n must be > 0");
             return (unsigned long)-1;
         }
