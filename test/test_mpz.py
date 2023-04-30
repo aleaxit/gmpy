@@ -5,7 +5,8 @@ from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
-from gmpy2 import mpz, pack, unpack
+from gmpy2 import mpz, pack, unpack, cmp, cmp_abs
+from supportclasses import z, q
 
 
 def test_mpz_to_bytes_interface():
@@ -176,3 +177,28 @@ def test_mpz_arithmetics(i, z):
 def test_mpz_pack_unpack(x, n):
     lst = unpack(x, n)
     assert pack(lst, n) == x
+
+
+def test_mpz_cmp():
+    assert cmp(0, mpz(0)) == 0
+    assert cmp(1, mpz(0)) == 1
+    assert cmp(0, mpz(1)) == -1
+    assert cmp(-1, mpz(0)) == -1
+    assert cmp(0, mpz(-1)) == 1
+
+    assert cmp_abs(mpz(0), 0) == 0
+    assert cmp_abs(mpz(1), 0) == 1
+    assert cmp_abs(mpz(0), 1) == -1
+    assert cmp_abs(mpz(-1), 0) == 1
+    assert cmp_abs(mpz(0), -1) == -1
+
+    a = mpz(-10)
+    assert cmp_abs(a, 0) == 1
+    assert a == mpz(-10)
+    assert cmp_abs(100, a) == 1
+    assert a == mpz(-10)
+
+    assert cmp(mpz(2), z) == 0
+    assert cmp(z, mpz(3)) == -1
+    assert cmp(mpz(1), q) == -1
+    assert cmp(mpz(1), mpz(q)) == 0

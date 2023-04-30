@@ -2,7 +2,8 @@ import decimal
 import numbers
 import pickle
 
-from gmpy2 import mpq, mpz
+from gmpy2 import mpq, mpz, cmp, cmp_abs
+from supportclasses import q
 
 
 def test_mpq_as_integer_ratio():
@@ -25,3 +26,21 @@ def test_mpq_from_float():
 
 def test_mpq_from_Decimal():
     assert mpq.from_decimal(decimal.Decimal("5e-3")) == mpq(5, 1000)
+
+
+def test_mpq_cmp():
+    assert cmp(mpq(1,2), mpq(1,2)) == 0
+    assert cmp(mpq(-1,2), mpq(1,2)) == -1
+    assert cmp(mpq(1,2), mpq(-1,2)) == 1
+    assert cmp(0, mpq(1,2)) == -1
+    assert cmp(mpq(1,2), 0) == 1
+
+    assert cmp_abs(mpq(1,2), mpq(1,3)) == 1
+    assert cmp_abs(mpq(-1,2), mpq(1,3)) == 1
+    assert cmp_abs(mpq(1,2), mpq(-1,3)) == 1
+    assert cmp_abs(mpq(1,4), mpq(1,3)) == -1
+    assert cmp_abs(mpq(-1,4), mpq(1,3)) == -1
+    assert cmp_abs(mpq(1,4), mpq(-1,3)) == -1
+
+    assert cmp(mpq(3,2), q) == 0
+    assert cmp(q, mpq(3,5)) == 1
