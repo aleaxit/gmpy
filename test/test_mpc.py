@@ -2,6 +2,7 @@ import pytest
 
 import gmpy2
 from gmpy2 import mpc, cmp, cmp_abs, nan
+from supportclasses import a, b, c, d
 
 
 def test_mpc_cmp():
@@ -13,3 +14,13 @@ def test_mpc_cmp():
     assert gmpy2.get_context().erange is False
     assert cmp_abs(mpc(nan(),1), mpc(4.5)) == 0
     assert gmpy2.get_context().erange is True
+
+
+def test_mpc_conversion():
+    x = mpc(a)
+    assert isinstance(x, mpc)
+    assert x == 42+67j
+
+    pytest.raises(TypeError, lambda: mpc(b))
+    pytest.raises(TypeError, lambda: mpc(c))
+    pytest.raises(TypeError, lambda: mpc(d))

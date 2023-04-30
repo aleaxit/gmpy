@@ -1,6 +1,8 @@
+import pytest
+
 import gmpy2
 from gmpy2 import gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq
-from supportclasses import q, r
+from supportclasses import a, b, c, d, q, r
 
 
 def test_mpfr_gamma_inc():
@@ -40,3 +42,12 @@ def test_mpfr_cmp():
 
     assert cmp(mpfr(1.5), q) == 0
     assert cmp(r, mpfr(1.5)) == 0
+
+
+def test_mpfr_conversion():
+    x = mpfr(a)
+    assert isinstance(x, mpfr)
+    assert x == 1.5
+    pytest.raises(TypeError, lambda: mpfr(b))
+    pytest.raises(TypeError, lambda: mpfr(c))
+    pytest.raises(TypeError, lambda: mpfr(d))

@@ -6,7 +6,7 @@ from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
 from gmpy2 import mpz, pack, unpack, cmp, cmp_abs
-from supportclasses import z, q
+from supportclasses import a, b, c, d, z, q
 
 
 def test_mpz_to_bytes_interface():
@@ -202,3 +202,12 @@ def test_mpz_cmp():
     assert cmp(z, mpz(3)) == -1
     assert cmp(mpz(1), q) == -1
     assert cmp(mpz(1), mpz(q)) == 0
+
+
+def test_mpz_conversion():
+    x = mpz(a)
+    assert isinstance(x, mpz)
+    assert x == 1
+    raises(TypeError, lambda: mpz(b))
+    raises(TypeError, lambda: mpz(c))
+    raises(TypeError, lambda: mpz(d))

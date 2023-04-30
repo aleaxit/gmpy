@@ -2,8 +2,10 @@ import decimal
 import numbers
 import pickle
 
+import pytest
+
 from gmpy2 import mpq, mpz, cmp, cmp_abs
-from supportclasses import q
+from supportclasses import a, b, c, d, q, z
 
 
 def test_mpq_as_integer_ratio():
@@ -44,3 +46,19 @@ def test_mpq_cmp():
 
     assert cmp(mpq(3,2), q) == 0
     assert cmp(q, mpq(3,5)) == 1
+
+
+def test_mpq_conversion():
+    x = mpq(a)
+    assert isinstance(x, mpq)
+    assert 2*x == 3
+    assert mpq(z, z) == mpq(1, 1)
+
+    class Three:
+        def __mpz__(self): return mpz(3)
+
+    assert mpq(z, Three()) == mpq(2,3)
+
+    pytest.raises(TypeError, lambda: mpq(b))
+    pytest.raises(TypeError, lambda: mpq(c))
+    pytest.raises(TypeError, lambda: mpq(d))
