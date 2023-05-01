@@ -24,3 +24,11 @@ def test_mpc_conversion():
     pytest.raises(TypeError, lambda: mpc(b))
     pytest.raises(TypeError, lambda: mpc(c))
     pytest.raises(TypeError, lambda: mpc(d))
+
+
+def test_mpc_creation():
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+    a = mpc("1.2")
+    assert a.rc == (-1, 0)
+    assert ctx.inexact
