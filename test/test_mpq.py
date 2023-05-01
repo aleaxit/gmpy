@@ -62,3 +62,7 @@ def test_mpq_conversion():
     pytest.raises(TypeError, lambda: mpq(b))
     pytest.raises(TypeError, lambda: mpq(c))
     pytest.raises(TypeError, lambda: mpq(d))
+
+
+def test_mpq_round():
+    pytest.raises(TypeError, lambda: mpq(7,3).__round__(4.5))
