@@ -6,7 +6,8 @@ from hypothesis.strategies import floats
 
 import gmpy2
 from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
-                   to_binary, from_binary, is_nan)
+                   to_binary, from_binary, is_nan, random_state,
+                   mpfr_grandom, mpfr_nrandom)
 from supportclasses import a, b, c, d, q, r
 
 
@@ -105,3 +106,12 @@ def test_mpfr_to_from_binary():
         ctx.precision = 300
         x = from_binary(to_binary(x))
         assert x.precision == 200
+
+
+def test_mpfr_grandom():
+    assert mpfr_grandom(random_state(42)) == (mpfr('-0.32898912492644183'),
+                                              mpfr('0.03656576719642516'))
+
+
+def test_mpfr_nrandom():
+    assert mpfr_nrandom(random_state(42)) == mpfr('-0.32898912492644183')

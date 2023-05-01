@@ -1,7 +1,7 @@
 import pytest
 
 import gmpy2
-from gmpy2 import mpc, cmp, cmp_abs, nan
+from gmpy2 import mpc, cmp, cmp_abs, nan, random_state, mpc_random
 from supportclasses import a, b, c, d
 
 
@@ -32,3 +32,8 @@ def test_mpc_creation():
     a = mpc("1.2")
     assert a.rc == (-1, 0)
     assert ctx.inexact
+
+
+def test_mpc_random():
+    assert (mpc_random(random_state(42))
+            == mpc('0.86555158787663011+0.4422082613292212j'))

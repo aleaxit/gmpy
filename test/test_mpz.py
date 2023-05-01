@@ -7,7 +7,8 @@ from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
-from gmpy2 import mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary
+from gmpy2 import (mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary,
+                   random_state, mpz_random, mpz_urandomb, mpz_rrandomb)
 from supportclasses import a, b, c, d, z, q
 
 
@@ -282,3 +283,23 @@ def test_mpz_round():
     assert round(mpz(123454), -1) == mpz(123450)
     assert round(mpz(123445), -1) == mpz(123440)
     assert round(mpz(123445)) == mpz(123445)
+
+
+def test_mpz_random():
+    r1 = random_state(42)
+    r2 = random_state(42)
+
+    assert mpz_random(r1, 2**88) == mpz(171378365038768291737094841)
+    assert mpz_random(r2, 2**88) == mpz(171378365038768291737094841)
+    assert mpz_random(r1, 2**88) == mpz(62749575961297098445301393)
+    assert mpz_random(r2, 2**88) == mpz(62749575961297098445301393)
+
+
+def test_mpz_urandomb():
+    assert (mpz_urandomb(random_state(42), 64).digits(2) ==
+            '1100100011011011101100101001100100111110010111011100101010111001')
+
+
+def test_mpz_rrandomb():
+    assert (mpz_rrandomb(random_state(42), 64).digits(2) ==
+            '1111111111111111111111111100000000111111111111111111000000000000')
