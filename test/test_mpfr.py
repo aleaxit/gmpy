@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 
 import gmpy2
@@ -51,3 +53,17 @@ def test_mpfr_conversion():
     pytest.raises(TypeError, lambda: mpfr(b))
     pytest.raises(TypeError, lambda: mpfr(c))
     pytest.raises(TypeError, lambda: mpfr(d))
+
+
+def test_mpfr_hash():
+    assert hash(mpfr('123.456')) == hash(float('123.456'))
+    assert hash(mpfr('123.5')) == hash(float('123.5'))
+    assert hash(mpfr('0')) == hash(float('0'))
+    assert hash(mpfr('1')) == hash(float('1'))
+    assert hash(mpfr('2')) == hash(float('2'))
+    assert hash(mpfr('-1')) == hash(float('-1'))
+    assert hash(mpfr('Inf')) == hash(float('Inf'))
+    assert hash(mpfr('-Inf')) == hash(float('-Inf'))
+    assert hash(mpfr('-0')) == hash(float('-0'))
+    assert hash(mpfr('123.456')) != hash(Decimal('123.456'))
+    assert hash(mpfr('123.5')) == hash(Decimal('123.5'))

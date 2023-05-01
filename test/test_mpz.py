@@ -1,5 +1,6 @@
 import numbers
 import pickle
+from decimal import Decimal
 
 from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
@@ -222,3 +223,7 @@ def test_mpz_conversion():
 def test_mpz_to_from_binary(n):
     x = mpz(n)
     assert x == from_binary(to_binary(x))
+
+
+def test_mpz_hash():
+    assert hash(mpz(123)) == hash(Decimal(123))

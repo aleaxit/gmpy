@@ -1,6 +1,6 @@
-import decimal
 import numbers
 import pickle
+from decimal import Decimal
 
 import pytest
 from hypothesis import given, example, settings
@@ -29,7 +29,7 @@ def test_mpq_from_float():
 
 
 def test_mpq_from_Decimal():
-    assert mpq.from_decimal(decimal.Decimal("5e-3")) == mpq(5, 1000)
+    assert mpq.from_decimal(Decimal("5e-3")) == mpq(5, 1000)
 
 
 def test_mpq_cmp():
@@ -79,3 +79,7 @@ def test_mpq_round():
 def test_mpq_to_from_binary(p, q):
     x = mpq(p,q)
     assert x == from_binary(to_binary(x))
+
+
+def test_mpq_hash():
+    hash(mpq(123456,1000)) == hash(Decimal('123.456'))

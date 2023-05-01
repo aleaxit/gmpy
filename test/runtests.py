@@ -92,9 +92,6 @@ gmpy2_tests = [os.path.basename(i)
                for i in glob.glob(os.path.join(os.path.dirname(__file__),
                                   "test_gmpy2*.txt"))]
 
-# The following tests will only pass on Python 3.2+.
-py32_doctests = ["test_py32_hash.txt"]
-
 failed = 0
 attempted = 0
 
@@ -103,8 +100,6 @@ all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
 all_doctests += mpfr_doctests + mpfr_version_tests
 
 all_doctests += mpc_doctests
-
-all_doctests += py32_doctests
 
 for test in sorted(all_doctests):
     for r in range(repeat):
