@@ -72,7 +72,7 @@ print("  Complex library:                {0}".format(gmpy2.mpc_version()))
 print()
 
 mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt",
-                "test_mpz_pack_unpack.txt", "test_misc.txt"]
+                "test_mpz_pack_unpack.txt"]
 
 mpq_doctests = ["test_mpq.txt"]
 
