@@ -1,9 +1,12 @@
 from decimal import Decimal
 
 import pytest
+from hypothesis import given, example, settings
+from hypothesis.strategies import floats
 
 import gmpy2
-from gmpy2 import gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq
+from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
+                   to_binary, from_binary, is_nan)
 from supportclasses import a, b, c, d, q, r
 
 
@@ -67,3 +70,38 @@ def test_mpfr_hash():
     assert hash(mpfr('-0')) == hash(float('-0'))
     assert hash(mpfr('123.456')) != hash(Decimal('123.456'))
     assert hash(mpfr('123.5')) == hash(Decimal('123.5'))
+
+
+@given(floats())
+@example(0.0)
+@example(1.0)
+@example(-1.0)
+@example(+float('inf'))
+@example(-float('inf'))
+@example(float('nan'))
+@example(1.345)
+def test_mpfr_to_from_binary_bulk(r):
+    x = mpfr(r)
+    y = from_binary(to_binary(x))
+    assert x == y or (is_nan(x) and is_nan(y))
+
+
+def test_mpfr_to_from_binary():
+    x = mpfr("1.345e1000")
+    assert x==from_binary(to_binary(x))
+    x = gmpy2.const_pi()
+    assert x.rc == -1
+    y = from_binary(to_binary(x))
+    assert x == y and y.rc == -1
+    -1
+    with gmpy2.local_context() as ctx:
+        ctx.precision = 100
+        x = gmpy2.const_pi()
+        assert x == from_binary(to_binary(x))
+        ctx.precision = 200
+        x = mpfr(gmpy2.const_pi())
+        assert x == from_binary(to_binary(x))
+        x = gmpy2.const_pi()
+        ctx.precision = 300
+        x = from_binary(to_binary(x))
+        assert x.precision == 200
