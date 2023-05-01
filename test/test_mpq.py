@@ -3,8 +3,10 @@ import numbers
 import pickle
 
 import pytest
+from hypothesis import given, example, settings
+from hypothesis.strategies import integers
 
-from gmpy2 import mpq, mpz, cmp, cmp_abs
+from gmpy2 import mpq, mpz, cmp, cmp_abs, from_binary, to_binary
 from supportclasses import a, b, c, d, q, z
 
 
@@ -66,3 +68,14 @@ def test_mpq_conversion():
 
 def test_mpq_round():
     pytest.raises(TypeError, lambda: mpq(7,3).__round__(4.5))
+
+
+@settings(max_examples=1000)
+@given(integers(), integers(min_value=1))
+@example(0, 1)
+@example(1, 1)
+@example(-1, 2)
+@example(123456789123456789, 9876)
+def test_mpq_to_from_binary(p, q):
+    x = mpq(p,q)
+    assert x == from_binary(to_binary(x))
