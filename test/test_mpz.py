@@ -5,7 +5,7 @@ from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
-from gmpy2 import mpz, pack, unpack, cmp, cmp_abs
+from gmpy2 import mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary
 from supportclasses import a, b, c, d, z, q
 
 
@@ -211,3 +211,14 @@ def test_mpz_conversion():
     raises(TypeError, lambda: mpz(b))
     raises(TypeError, lambda: mpz(c))
     raises(TypeError, lambda: mpz(d))
+
+
+@settings(max_examples=1000)
+@given(integers())
+@example(0)
+@example(1)
+@example(-1)
+@example(123456789123456789)
+def test_mpz_to_from_binary(n):
+    x = mpz(n)
+    assert x == from_binary(to_binary(x))
