@@ -176,9 +176,34 @@ def test_mpz_arithmetics(i, z):
 @settings(max_examples=1000)
 @given(integers(min_value=0),
        integers(min_value=1, max_value=100000))
-def test_mpz_pack_unpack(x, n):
+def test_mpz_pack_unpack_bulk(x, n):
     lst = unpack(x, n)
     assert pack(lst, n) == x
+
+
+def test_mpz_pack_unpack():
+    x = mpz(0)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(1)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(2)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(3141592635)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(1234567891234567890000000000000000000000000000000000000123)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(1) << 500
+    assert all((x == pack(unpack(x,i),i) for i in range(1,200)))
+    x -= 1
+    assert all((x == pack(unpack(x,i),i) for i in range(1,200)))
+
+    raises(TypeError, lambda: pack(x))
+    raises(TypeError, lambda: pack(1, 1))
+    raises(TypeError, lambda: pack([mpz(1), mpz(-1)], 2))
+
+    raises(TypeError, lambda: unpack(x))
+    raises(TypeError, lambda: unpack([], 1))
+    raises(ValueError, lambda: unpack(-1, 1))
 
 
 def test_mpz_cmp():
