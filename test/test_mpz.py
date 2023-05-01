@@ -1,3 +1,4 @@
+import math
 import numbers
 import pickle
 from decimal import Decimal
@@ -227,3 +228,32 @@ def test_mpz_to_from_binary(n):
 
 def test_mpz_hash():
     assert hash(mpz(123)) == hash(Decimal(123))
+
+
+def test_mpz_ceil():
+    a = mpz(123)
+    assert math.ceil(a) == a
+    assert math.ceil(a) is a
+
+
+def test_mpz_floor():
+    a = mpz(123)
+    assert math.floor(a) == a
+    assert math.floor(a) is a
+
+
+def test_mpz_trunc():
+    a = mpz(123)
+    assert math.trunc(a) == a
+    assert math.trunc(a) is a
+
+
+def test_mpz_round():
+    assert round(mpz(123456), 2) == mpz(123456)
+    assert round(mpz(123456), -22) == mpz(0)
+    assert round(mpz(123456), -2) == mpz(123500)
+    assert round(mpz(123456), -1) == mpz(123460)
+    assert round(mpz(123455), -1) == mpz(123460)
+    assert round(mpz(123454), -1) == mpz(123450)
+    assert round(mpz(123445), -1) == mpz(123440)
+    assert round(mpz(123445)) == mpz(123445)
