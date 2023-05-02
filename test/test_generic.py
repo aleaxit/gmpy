@@ -2,7 +2,7 @@ from fractions import Fraction
 
 import pytest
 
-from gmpy2 import mpz, mpq, mpfr, mpc, get_context
+from gmpy2 import mpz, mpq, mpfr, mpc, get_context, square
 
 
 def test_minus():
@@ -38,3 +38,27 @@ def test_plus():
     assert + mpq('4/5') == mpq(4,5)
     assert + mpfr('inf') == mpfr('inf')
     assert + mpc(65.0, 45) == mpc('65.0+45.0j')
+
+
+def test_square():
+    z = mpz(2)
+    assert square(z) == mpz(4)
+    assert square(z) == z * z
+
+    q = mpq(2,3)
+    assert square(q) == mpq(4,9)
+    assert square(q) == q * q
+
+    r = mpfr(5.3)
+    assert square(r) == mpfr('28.09')
+    assert square(r) == r * r
+
+    c = mpc(2,3)
+    assert square(c) == mpc('-5.0+12.0j')
+    assert square(c) == c * c
+    assert square(2) == square(z)
+    assert square(Fraction(2,3)) == square(q)
+    assert square(5.3) == square(r)
+    assert square(complex(2,3)) == square(c)
+
+    pytest.raises(TypeError, lambda: square('invalid'))
