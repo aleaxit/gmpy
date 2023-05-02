@@ -2,7 +2,8 @@ from fractions import Fraction
 
 import pytest
 
-from gmpy2 import mpz, mpq, mpfr, mpc, get_context, square
+from gmpy2 import mpz, mpq, mpfr, mpc, get_context, square, add
+from supportclasses import z, q, r, cx
 
 
 def test_minus():
@@ -62,3 +63,94 @@ def test_square():
     assert square(complex(2,3)) == square(c)
 
     pytest.raises(TypeError, lambda: square('invalid'))
+
+
+def test_add():
+    a = mpz(123)
+    b = mpz(456)
+    c = 12345678901234567890
+
+    assert a+1 == mpz(124)
+    assert a+(-1) == mpz(122)
+    assert 1+a == mpz(124)
+    assert (-1)+a == mpz(122)
+
+    assert a+c == mpz(12345678901234568013)
+    assert c+a == mpz(12345678901234568013)
+    assert a+(-c) == mpz(-12345678901234567767)
+    assert (-c)+a == mpz(-12345678901234567767)
+
+    assert a+b == mpz(579)
+    assert b+a == mpz(579)
+    assert a+(-b) == mpz(-333)
+    assert (-b)+a == mpz(-333)
+    assert a+z == mpz(125)
+
+    assert add(a,b) == a+b
+    assert add(c,c) == c+c
+    assert add(1, 1) == mpz(2)
+    assert add(mpfr(1), mpfr(1)) == mpfr('2.0')
+    assert add(a, 1) == mpz(124)
+    assert add(1, a) == mpz(124)
+    assert add(a, mpq(0)) == mpq(123,1)
+    assert add(a, mpfr(0)) == mpfr('123.0')
+    assert add(a, mpc(0)) == mpc('123.0+0.0j')
+
+    pytest.raises(TypeError, lambda: add(1))
+    pytest.raises(TypeError, lambda: add(1,2,3))
+
+    assert add(1,1) == mpz(2)
+
+    pytest.raises(TypeError, lambda: a+'b')
+    pytest.raises(TypeError, lambda: 'b'+a)
+
+    assert mpq(1,2) + Fraction(3,2) == mpq(2,1)
+    assert Fraction(1,2) + mpq(3,2) == mpq(2,1)
+    assert mpq(1,2) + mpq(3,2) == mpq(2,1)
+    assert mpq(1,2) + 0 == mpq(1,2)
+    assert mpq(1,2) + mpz(1) == mpq(3,2)
+    assert mpq(1,2) + (-1) == mpq(-1,2)
+    assert 1 + mpq(1,2) == mpq(3,2)
+    assert mpz(1) + mpq(1,2) == mpq(3,2)
+    assert mpq(1,2) + mpz(1) == mpq(3,2)
+    assert mpq(1,1) + mpc(0) == mpc('1.0+0.0j')
+    assert mpc(0) + mpq(1,1) == mpc('1.0+0.0j')
+    assert mpq(1,2) + z == mpq(5,2)
+    assert mpq(1,2) + q == mpq(2,1)
+
+    assert add(mpq(1,2), mpq(3,2)) == mpq(2,1)
+    assert add(mpq(1,2), Fraction(3,2)) == mpq(2,1)
+    assert add(Fraction(1,2), mpq(3,2)) == mpq(2,1)
+    assert add(Fraction(1,2), Fraction(3,2)) == mpq(2,1)
+
+    pytest.raises(TypeError, lambda: add(1, 'a'))
+    pytest.raises(TypeError, lambda: mpq(1,2) + 'a')
+    pytest.raises(TypeError, lambda: 'a' + mpq(1,2))
+
+    assert mpfr(1) + 1 == mpfr('2.0')
+    assert 1 + mpfr(1) == mpfr('2.0')
+    assert mpfr(1) + mpz(1) == mpfr('2.0')
+    assert mpz(1) + mpfr(1) == mpfr('2.0')
+    assert mpfr(1) + mpfr(1) == mpfr('2.0')
+    assert mpfr(1) + mpq(1,1) == mpfr('2.0')
+    assert mpq(1,1) + mpfr(1) == mpfr('2.0')
+    assert mpfr(1) + Fraction(1,1) == mpfr('2.0')
+    assert Fraction(1,1) + mpfr(1) == mpfr('2.0')
+    assert mpfr(1) + 1.0 == mpfr('2.0')
+    assert 1.0 + mpfr(1) == mpfr('2.0')
+    assert mpfr(0) + (1 << 100) == mpfr('1p100', base=2)
+    assert (1 << 100) + mpfr(0) == mpfr('1p100', base=2)
+    assert mpfr(1) + z == mpfr('3.0')
+    assert mpfr(0.5) + q == mpfr('2.0')
+    assert mpfr(1.5) + r == mpfr('3.0')
+
+    pytest.raises(TypeError, lambda: mpc(1,2) + 'a')
+
+    assert mpfr(1) + mpc(1,2) == mpc('2.0+2.0j')
+    assert mpc(1,2) + mpfr(1) == mpc('2.0+2.0j')
+    assert mpc(1,2) + 1+0j == mpc('2.0+2.0j')
+    assert 1+0j + mpc(1,2) == mpc('2.0+2.0j')
+    assert mpc(1,2) + cx == mpc('43.0+69.0j')
+    assert mpc(1,2) + r == mpc('2.5+2.0j')
+    assert mpc(1,2) + q == mpc('2.5+2.0j')
+    assert mpc(1,2) + z == mpc('3.0+2.0j')
