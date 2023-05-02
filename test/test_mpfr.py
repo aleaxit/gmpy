@@ -108,6 +108,10 @@ def test_mpfr_to_from_binary():
         assert x.precision == 200
 
 
+def test_mpfr_random():
+    assert gmpy2.mpfr_random(random_state(42)) == mpfr('0.93002690534702315')
+
+
 def test_mpfr_grandom():
     assert mpfr_grandom(random_state(42)) == (mpfr('-0.32898912492644183'),
                                               mpfr('0.03656576719642516'))
