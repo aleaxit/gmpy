@@ -71,13 +71,12 @@ print("  Floating-point library:         {0}".format(gmpy2.mpfr_version()))
 print("  Complex library:                {0}".format(gmpy2.mpc_version()))
 print()
 
-mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt",
-                "test_mpz_pack_unpack.txt", "test_misc.txt"]
+mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt"]
 
 mpq_doctests = ["test_mpq.txt"]
 
 mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
-                 "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
+                 "test_mpfr_trig.txt",
                  "test_context.txt", "test_mpfr_subnormalize.txt"]
 
 # Some tests may differ between MPFR3 and MPFR4.
@@ -86,14 +85,11 @@ mpfr_version_tests = [os.path.basename(i)
                       for i in glob.glob(os.path.join(os.path.dirname(__file__),
                                          "test_mpfr" + mpfr_major_version + "*.txt"))]
 
-mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt", "test_mpc_trig.txt"]
+mpc_doctests = ["test_mpc.txt", "test_mpc_trig.txt"]
 
 gmpy2_tests = [os.path.basename(i)
                for i in glob.glob(os.path.join(os.path.dirname(__file__),
                                   "test_gmpy2*.txt"))]
-
-# The following tests will only pass on Python 3.2+.
-py32_doctests = ["test_py32_hash.txt"]
 
 failed = 0
 attempted = 0
@@ -103,8 +99,6 @@ all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
 all_doctests += mpfr_doctests + mpfr_version_tests
 
 all_doctests += mpc_doctests
-
-all_doctests += py32_doctests
 
 for test in sorted(all_doctests):
     for r in range(repeat):

@@ -1,11 +1,15 @@
+import math
 import numbers
 import pickle
+from decimal import Decimal
 
 from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
-from gmpy2 import mpz, pack, unpack
+from gmpy2 import (mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary,
+                   random_state, mpz_random, mpz_urandomb, mpz_rrandomb)
+from supportclasses import a, b, c, d, z, q
 
 
 def test_mpz_to_bytes_interface():
@@ -173,6 +177,129 @@ def test_mpz_arithmetics(i, z):
 @settings(max_examples=1000)
 @given(integers(min_value=0),
        integers(min_value=1, max_value=100000))
-def test_mpz_pack_unpack(x, n):
+def test_mpz_pack_unpack_bulk(x, n):
     lst = unpack(x, n)
     assert pack(lst, n) == x
+
+
+def test_mpz_pack_unpack():
+    x = mpz(0)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(1)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(2)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(3141592635)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(1234567891234567890000000000000000000000000000000000000123)
+    assert all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    x = mpz(1) << 500
+    assert all((x == pack(unpack(x,i),i) for i in range(1,200)))
+    x -= 1
+    assert all((x == pack(unpack(x,i),i) for i in range(1,200)))
+
+    raises(TypeError, lambda: pack(x))
+    raises(TypeError, lambda: pack(1, 1))
+    raises(TypeError, lambda: pack([mpz(1), mpz(-1)], 2))
+
+    raises(TypeError, lambda: unpack(x))
+    raises(TypeError, lambda: unpack([], 1))
+    raises(ValueError, lambda: unpack(-1, 1))
+
+
+def test_mpz_cmp():
+    assert cmp(0, mpz(0)) == 0
+    assert cmp(1, mpz(0)) == 1
+    assert cmp(0, mpz(1)) == -1
+    assert cmp(-1, mpz(0)) == -1
+    assert cmp(0, mpz(-1)) == 1
+
+    assert cmp_abs(mpz(0), 0) == 0
+    assert cmp_abs(mpz(1), 0) == 1
+    assert cmp_abs(mpz(0), 1) == -1
+    assert cmp_abs(mpz(-1), 0) == 1
+    assert cmp_abs(mpz(0), -1) == -1
+
+    a = mpz(-10)
+    assert cmp_abs(a, 0) == 1
+    assert a == mpz(-10)
+    assert cmp_abs(100, a) == 1
+    assert a == mpz(-10)
+
+    assert cmp(mpz(2), z) == 0
+    assert cmp(z, mpz(3)) == -1
+    assert cmp(mpz(1), q) == -1
+    assert cmp(mpz(1), mpz(q)) == 0
+
+
+def test_mpz_conversion():
+    x = mpz(a)
+    assert isinstance(x, mpz)
+    assert x == 1
+    raises(TypeError, lambda: mpz(b))
+    raises(TypeError, lambda: mpz(c))
+    raises(TypeError, lambda: mpz(d))
+
+
+@settings(max_examples=1000)
+@given(integers())
+@example(0)
+@example(1)
+@example(-1)
+@example(123456789123456789)
+def test_mpz_to_from_binary(n):
+    x = mpz(n)
+    assert x == from_binary(to_binary(x))
+
+
+def test_mpz_hash():
+    assert hash(mpz(123)) == hash(Decimal(123))
+
+
+def test_mpz_ceil():
+    a = mpz(123)
+    assert math.ceil(a) == a
+    assert math.ceil(a) is a
+
+
+def test_mpz_floor():
+    a = mpz(123)
+    assert math.floor(a) == a
+    assert math.floor(a) is a
+
+
+def test_mpz_trunc():
+    a = mpz(123)
+    assert math.trunc(a) == a
+    assert math.trunc(a) is a
+
+
+def test_mpz_round():
+    assert round(mpz(123456), 2) == mpz(123456)
+    assert round(mpz(123456), -22) == mpz(0)
+    assert round(mpz(123456), -2) == mpz(123500)
+    assert round(mpz(123456), -1) == mpz(123460)
+    assert round(mpz(123455), -1) == mpz(123460)
+    assert round(mpz(123454), -1) == mpz(123450)
+    assert round(mpz(123445), -1) == mpz(123440)
+    assert round(mpz(123445)) == mpz(123445)
+
+
+def test_mpz_random():
+    r1 = random_state(42)
+    r2 = random_state(42)
+
+    assert mpz_random(r1, 2**88) == mpz(171378365038768291737094841)
+    assert mpz_random(r2, 2**88) == mpz(171378365038768291737094841)
+    assert mpz_random(r1, 2**88) == mpz(62749575961297098445301393)
+    assert mpz_random(r2, 2**88) == mpz(62749575961297098445301393)
+
+
+def test_mpz_urandomb():
+    assert (mpz_urandomb(random_state(42), 64).digits(2) ==
+            '1100100011011011101100101001100100111110010111011100101010111001')
+
+
+def test_mpz_rrandomb():
+    assert (mpz_rrandomb(random_state(42), 64).digits(2) ==
+            '1111111111111111111111111100000000111111111111111111000000000000')
