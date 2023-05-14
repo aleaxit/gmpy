@@ -79,9 +79,9 @@ mpmath_get_sign(PyObject *x)
             return 0;
         }
     }
-       
+
     TYPE_ERROR("could not convert object to integer");
-    return (long)-1; 
+    return (long)-1;
 }
 
 PyDoc_STRVAR(doc_mpmath_normalizeg,
@@ -117,11 +117,11 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
     }
 
     if (!MPZ_Check(man)) {
-  		/* Try to convert to an mpz... */
-  		if (!(man = GMPy_MPZ_From_Integer((PyObject*)man, NULL))) {
-  			TYPE_ERROR("argument is not an mpz");
-  			return NULL;
-  		}
+        /* Try to convert to an mpz... */
+        if (!(man = GMPy_MPZ_From_Integer((PyObject*)man, NULL))) {
+            TYPE_ERROR("argument is not an mpz");
+            return NULL;
+        }
     }
 
     /* If rndstr really is a string, extract the first character. */
@@ -249,7 +249,7 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
     return mpmath_build_mpf(sign, upper, newexp2, bc);
 }
 
-PyDoc_STRVAR(doc_mpmath_createg,
+PyDoc_STRVAR(doc_mpmath_create,
 "_mpmath_create(...): helper function for mpmath.");
 
 static PyObject *
@@ -262,7 +262,7 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
     MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
 
     Py_UCS4 rnd = (Py_UCS4)'f';
-    
+
     n = PyVectorcall_NARGS(nargs);
 
     if (n < 2) {
