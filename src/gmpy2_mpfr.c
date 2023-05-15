@@ -141,6 +141,7 @@ static PyGetSetDef Pympfr_getseters[] =
     {"rc", (getter)GMPy_MPFR_GetRc_Attrib, NULL, "return code", NULL},
     {"imag", (getter)GMPy_MPFR_GetImag_Attrib, NULL, "imaginary component", NULL},
     {"real", (getter)GMPy_MPFR_GetReal_Attrib, NULL, "real component", NULL},
+    {"_mpf_", (getter)GMPy_MPFR_Get_Mpmath_MPF_Tuple, NULL, "return raw mpf tuple", NULL},
     {NULL}
 };
 

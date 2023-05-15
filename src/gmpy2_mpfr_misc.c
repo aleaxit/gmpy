@@ -586,6 +586,50 @@ GMPy_MPFR_GetReal_Attrib(MPFR_Object *self, void *closure)
     return (PyObject*)self;
 }
 
+static PyObject *
+GMPy_MPFR_Get_Mpmath_MPF_Tuple(MPFR_Object *self, void *closure)
+{
+    long sign, bc;
+    MPZ_Object *mantissa;
+    MPZ_Object *exponent;
+    mpfr_exp_t temp;
+    PyObject *tuple;
+
+    if (!(tuple = PyTuple_New(4))) {
+        return NULL;
+    }
+
+    mantissa = GMPy_MPZ_New(NULL);
+    exponent = GMPy_MPZ_New(NULL);
+    if (!mantissa || !exponent) {
+        /* LCOV_EXCL_START */
+        Py_XDECREF((PyObject*)mantissa);
+        Py_XDECREF((PyObject*)exponent);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    if (mpfr_zero_p(MPFR(self))) {
+        mpz_set_ui(MPZ(mantissa), 0);
+        mpz_set_ui(MPZ(exponent), 1);
+    }
+    else {
+        temp = mpfr_get_z_2exp(MPZ(mantissa), MPFR(self));
+        mpz_set_si(MPZ(exponent), temp);
+    }
+
+    sign = mpz_sgn(MPZ(mantissa)) < 0;
+    mpz_abs(MPZ(mantissa), MPZ(mantissa));
+    bc = mpz_sizeinbase(MPZ(mantissa), 2);
+
+    PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(sign));
+    PyTuple_SET_ITEM(tuple, 1, (PyObject*)mantissa);
+    PyTuple_SET_ITEM(tuple, 2, GMPy_PyLong_From_MPZ(exponent, NULL));
+    PyTuple_SET_ITEM(tuple, 3, PyLong_FromLong(bc));
+
+    return tuple;
+}
+
 /* Implement the nb_bool slot. */
 
 static int
