@@ -239,6 +239,7 @@ def test_mpz_conversion():
     raises(TypeError, lambda: mpz(b))
     raises(TypeError, lambda: mpz(c))
     raises(TypeError, lambda: mpz(d))
+    assert int(mpz(0)) == 0
 
 
 @settings(max_examples=1000)
