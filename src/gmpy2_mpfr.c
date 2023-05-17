@@ -103,8 +103,12 @@ PyDoc_STRVAR(GMPy_doc_mpfr,
 "Return a floating-point number after converting a numeric value n or\n"
 "a string s made of digits in the given base.\n\n"
 "A string can be with fraction-part (with a period as a separator)\n"
-"and/or exponent-part (with an exponent marker 'e' for base<=10,\n"
-"else '@'), where digits are parsed the same as the `mpz` type constructor\n"
+"and/or exponent-part with an exponent marker 'e' or 'E' for bases up to\n"
+"10, else '@' in any base.  In bases 2 and 16, the exponent prefix can also\n"
+"be 'p' or 'P', in which case the exponent indicates\n"
+"a multiplication by a power of 2 instead of the base.  The value of\n"
+"an exponent is always written in base 10.  The fractional-part digits\n"
+"are parsed the same as the `mpz` type constructor\n"
 "does and both the whole number and exponent-part optionally can be\n"
 "preceded by ‘+’ or ‘-’.\n\n"
 "If a precision greater than or equal to 2 is specified, then it\n"
@@ -119,18 +123,18 @@ PyDoc_STRVAR(GMPy_doc_mpfr,
 
 static PyNumberMethods mpfr_number_methods =
 {
-    .nb_add = (binaryfunc) GMPy_Number_Add_Slot, 
-    .nb_subtract = (binaryfunc) GMPy_Number_Sub_Slot, 
-    .nb_multiply = (binaryfunc) GMPy_Number_Mul_Slot, 
+    .nb_add = (binaryfunc) GMPy_Number_Add_Slot,
+    .nb_subtract = (binaryfunc) GMPy_Number_Sub_Slot,
+    .nb_multiply = (binaryfunc) GMPy_Number_Mul_Slot,
     .nb_remainder = (binaryfunc) GMPy_Number_Mod_Slot,
     .nb_divmod = (binaryfunc) GMPy_Number_DivMod_Slot,
-    .nb_power = (ternaryfunc) GMPy_Number_Pow_Slot,   
-    .nb_negative = (unaryfunc) GMPy_MPFR_Minus_Slot,  
-    .nb_positive = (unaryfunc) GMPy_MPFR_Plus_Slot,   
-    .nb_absolute = (unaryfunc) GMPy_MPFR_Abs_Slot,    
-    .nb_bool = (inquiry) GMPy_MPFR_NonZero_Slot,      
-    .nb_int = (unaryfunc) GMPy_MPFR_Int_Slot,         
-    .nb_float = (unaryfunc) GMPy_MPFR_Float_Slot,     
+    .nb_power = (ternaryfunc) GMPy_Number_Pow_Slot,
+    .nb_negative = (unaryfunc) GMPy_MPFR_Minus_Slot,
+    .nb_positive = (unaryfunc) GMPy_MPFR_Plus_Slot,
+    .nb_absolute = (unaryfunc) GMPy_MPFR_Abs_Slot,
+    .nb_bool = (inquiry) GMPy_MPFR_NonZero_Slot,
+    .nb_int = (unaryfunc) GMPy_MPFR_Int_Slot,
+    .nb_float = (unaryfunc) GMPy_MPFR_Float_Slot,
     .nb_floor_divide = (binaryfunc) GMPy_Number_FloorDiv_Slot,
     .nb_true_divide = (binaryfunc) GMPy_Number_TrueDiv_Slot,
 };
@@ -171,18 +175,17 @@ static PyMethodDef Pympfr_methods [] =
 static PyTypeObject MPFR_Type =
 {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "gmpy2.mpfr",                     
-    .tp_basicsize = sizeof(MPFR_Object),         
+    .tp_name = "gmpy2.mpfr",
+    .tp_basicsize = sizeof(MPFR_Object),
     .tp_dealloc = (destructor) GMPy_MPFR_Dealloc,
-    .tp_repr = (reprfunc) GMPy_MPFR_Repr_Slot,   
-    .tp_as_number = &mpfr_number_methods,        
-    .tp_hash = (hashfunc) GMPy_MPFR_Hash_Slot,   
-    .tp_str = (reprfunc) GMPy_MPFR_Str_Slot,     
-    .tp_flags = Py_TPFLAGS_DEFAULT,              
-    .tp_doc = GMPy_doc_mpfr,                     
+    .tp_repr = (reprfunc) GMPy_MPFR_Repr_Slot,
+    .tp_as_number = &mpfr_number_methods,
+    .tp_hash = (hashfunc) GMPy_MPFR_Hash_Slot,
+    .tp_str = (reprfunc) GMPy_MPFR_Str_Slot,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = GMPy_doc_mpfr,
     .tp_richcompare = (richcmpfunc)&GMPy_RichCompare_Slot,
-    .tp_methods = Pympfr_methods,       
-    .tp_getset = Pympfr_getseters,      
-    .tp_new = GMPy_MPFR_NewInit,        
+    .tp_methods = Pympfr_methods,
+    .tp_getset = Pympfr_getseters,
+    .tp_new = GMPy_MPFR_NewInit,
 };
-
