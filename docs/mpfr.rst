@@ -109,6 +109,7 @@ mpfr Functions
 .. autofunction:: modf
 .. autofunction:: mpfr_from_old_binary
 .. autofunction:: mpfr_grandom
+.. autofunction:: mpfr_nrandom
 .. autofunction:: mpfr_random
 .. autofunction:: nan
 .. autofunction:: next_above
