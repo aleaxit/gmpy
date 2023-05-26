@@ -23,10 +23,7 @@ The following libraries are supported:
 gmpy2 Versions
 --------------
 
-gmpy2 2.1.3 is the last planned release that will support Python 2.7 and the
-early Python 3 releases. Bugfixes may be released.
-
-Development will shift to gmpy2 2.2.x
+gmpy2 2.1.x are --- last releases that will support Python versions <= 3.7.
 
 Installation
 ============
