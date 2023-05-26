@@ -2,31 +2,23 @@ Introduction to gmpy2
 =====================
 
 gmpy2 is a C-coded Python extension module that supports multiple-precision
-arithmetic. gmpy2 is the successor to the original gmpy module. The gmpy module
-only supported the GMP multiple-precision library. gmpy2 adds support for the
-MPFR (correctly rounded real floating-point arithmetic) and MPC (correctly
-rounded complex floating-point arithmetic) libraries. gmpy2 also updates the
-API and naming conventions to be more consistent and support the additional
-functionality.
+arithmetic.  It is the successor to the original gmpy module (supported only
+the GMP library). gmpy2 adds support for the MPFR (correctly rounded real
+floating-point arithmetic) and MPC (correctly rounded complex floating-point
+arithmetic) libraries.
 
 The following libraries are supported:
 
-* GMP for integer and rational arithmetic
-
-  Home page: http://gmplib.org
-
+* GMP for integer and rational arithmetic (https://gmplib.org).
 * MPFR for correctly rounded real floating-point arithmetic
-
-  Home page: http://www.mpfr.org
+  (https://www.mpfr.org).
 * MPC for correctly rounded complex floating-point arithmetic
-
-  Home page: http://mpc.multiprecision.org
+  (https://mpc.multiprecision.org).
 * Generalized Lucas sequences and primality tests are based on the following
   code:
 
-  mpz_lucas: http://sourceforge.net/projects/mpzlucas/
-
-  mpz_prp: http://sourceforge.net/projects/mpzprp/
+      - mpz_lucas: https://sourceforge.net/projects/mpzlucas/
+      - mpz_prp: https://sourceforge.net/projects/mpzprp/
 
 gmpy2 Versions
 --------------
@@ -34,10 +26,16 @@ gmpy2 Versions
 gmpy2 2.1.3 is the last planned release that will support Python 2.7 and the
 early Python 3 releases. Bugfixes may be released.
 
-Development will shift to gmpy2 2.2.x 
+Development will shift to gmpy2 2.2.x
 
 Installation
 ============
 
-Pre-compiled binary wheels are available on PyPI for Linux, MacOS, and Windows.
+Pre-compiled binary wheels are available on PyPI for Linux, MacOS, and Windows,
+you can install latest release of the gmpy2 with pip::
 
+    pip install gmpy2
+
+or some specific version with::
+
+    pip install gmpy2==2.1.5
