@@ -1,5 +1,5 @@
-Overview of gmpy2
-=================
+Overview
+========
 
 .. currentmodule:: gmpy2
 

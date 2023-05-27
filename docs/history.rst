@@ -1,5 +1,5 @@
-Changes for gmpy2 releases
-==========================
+Release Notes
+=============
 
 .. currentmodule:: gmpy2
 

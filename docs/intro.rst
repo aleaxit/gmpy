@@ -1,5 +1,5 @@
-Introduction to gmpy2
-=====================
+Introduction
+============
 
 gmpy2 is a C-coded Python extension module that supports multiple-precision
 arithmetic.  It is the successor to the original gmpy module (supported only
