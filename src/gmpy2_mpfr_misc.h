@@ -52,6 +52,7 @@ static PyObject * GMPy_MPFR_GetPrec_Attrib(MPFR_Object *self, void *closure);
 static PyObject * GMPy_MPFR_GetRc_Attrib(MPFR_Object *self, void *closure);
 static PyObject * GMPy_MPFR_GetImag_Attrib(MPFR_Object *self, void *closure);
 static PyObject * GMPy_MPFR_GetReal_Attrib(MPFR_Object *self, void *closure);
+static PyObject * GMPy_MPFR_Get_Mpmath_MPF_Tuple(MPFR_Object *self, void *closure);
 static int        GMPy_MPFR_NonZero_Slot(MPFR_Object *self);
 static PyObject * GMPy_MPFR_SizeOf_Method(PyObject *self, PyObject *other);
 

@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytest
 from hypothesis import given, example, settings
 from hypothesis.strategies import floats
+import mpmath
 
 import gmpy2
 from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
@@ -119,3 +120,14 @@ def test_mpfr_grandom():
 
 def test_mpfr_nrandom():
     assert mpfr_nrandom(random_state(42)) == mpfr('-0.32898912492644183')
+
+
+def test_mpfr_mpmath():
+    a, b, c, d = '1.1', '-1.1', '-3.14', '0'
+    assert mpfr(a)._mpf_ == (0, mpz(4953959590107546), -52, 53)
+    assert mpmath.mpf(mpfr(a)) == mpmath.mpf(a)
+    assert mpfr(b)._mpf_ == (1, mpz(4953959590107546), -52, 53)
+    assert mpmath.mpf(mpfr(b)) == mpmath.mpf(b)
+    assert mpfr(c, precision=10)._mpf_ == (1, mpz(804), -8, 10)
+    assert mpmath.mpf(mpfr(c, precision=10), prec=10) == mpmath.mpf(c, prec=10)
+    assert mpfr(d)._mpf_ == (0, mpz(0), 1, 1)
