@@ -99,6 +99,7 @@ mpz Functions
 .. autofunction:: multi_fac
 .. autofunction:: next_prime
 .. autofunction:: num_digits
+.. autofunction:: pack
 .. autofunction:: popcount
 .. autofunction:: powmod
 .. autofunction:: powmod_exp_list
@@ -112,3 +113,4 @@ mpz Functions
 .. autofunction:: t_divmod_2exp
 .. autofunction:: t_mod
 .. autofunction:: t_mod_2exp
+.. autofunction:: unpack

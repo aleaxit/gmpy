@@ -1,10 +1,7 @@
 .. currentmodule:: gmpy2
 
-Conversion methods and gmpy2's numbers
-======================================
-
-Conversion methods
-------------------
+Conversion Methods
+==================
 
 A python object could interact with gmpy2 if it implements one of the following methods:
 
