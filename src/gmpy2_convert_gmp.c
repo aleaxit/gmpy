@@ -907,6 +907,14 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
     if (IS_FRACTION(obj))
         return GMPy_MPQ_From_Fraction(obj, context);
 
+    PyObject *pair = PyObject_CallMethod(obj, "as_integer_ratio", NULL);
+    if (pair != NULL) {
+         MPQ_Object *res = (MPQ_Object*)GMPy_MPQ_NewInit(&MPQ_Type, pair, NULL);
+         Py_DECREF(pair);
+         return res;
+    }
+    PyErr_Clear();
+
     if (HAS_MPQ_CONVERSION(obj)) {
         MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
 

@@ -29,6 +29,9 @@ def test_mpq_from_float():
 
 
 def test_mpq_from_Decimal():
+    assert mpq(Decimal("5e-3")) == mpq(5, 1000)
+    assert mpq(Decimal(1)) == mpq(1)  # issue 327
+    assert mpq(Decimal('0.6')) == mpq(3, 5)
     assert mpq.from_decimal(Decimal("5e-3")) == mpq(5, 1000)
 
 
