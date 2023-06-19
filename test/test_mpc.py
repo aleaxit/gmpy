@@ -33,6 +33,16 @@ def test_mpc_creation():
     a = mpc("1.2")
     assert a.rc == (-1, 0)
     assert ctx.inexact
+    ctx.clear_flags()
+    a = mpc("(1 2)")
+    assert a == 1 + 2j
+    assert a.rc == (0, 0)
+    assert ctx.inexact is False
+    ctx.clear_flags()
+    a = mpc("1   + 2.1  j")
+    assert a == 1 + 2.1j
+    assert a.rc == (0, 1)
+    assert ctx.inexact
 
 
 def test_mpc_random():

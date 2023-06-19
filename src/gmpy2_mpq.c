@@ -35,8 +35,10 @@ PyDoc_STRVAR(GMPy_doc_mpq,
 "constructor is also accepted.\n\n"
 "A string may be made up to two integers in the same base separated\n"
 "by a '/' character, both parsed the same as the `mpz` type constructor\n"
-"does.  If base=10, any string that represents a finite value and is\n"
-"accepted by the `float` constructor is also accepted.");
+"does.  If base is 0 then the leading characters are used to recognize the\n"
+"base, this is done separately for the numerator and denominator.  If\n"
+"base=10, any string that represents a finite value and is accepted by\n"
+"the `float` constructor is also accepted.");
 
 /* Since `gmpy2.mpq` is now a type and no longer a factory function, see
  * gmpy2_cache.c/GMPy_MPQ_NewInit for details on creation.
@@ -44,20 +46,20 @@ PyDoc_STRVAR(GMPy_doc_mpq,
 
 static PyNumberMethods mpq_number_methods =
 {
-    .nb_add = (binaryfunc) GMPy_Number_Add_Slot,      
-    .nb_subtract = (binaryfunc) GMPy_Number_Sub_Slot, 
-    .nb_multiply = (binaryfunc) GMPy_Number_Mul_Slot, 
+    .nb_add = (binaryfunc) GMPy_Number_Add_Slot,
+    .nb_subtract = (binaryfunc) GMPy_Number_Sub_Slot,
+    .nb_multiply = (binaryfunc) GMPy_Number_Mul_Slot,
     .nb_remainder = (binaryfunc) GMPy_Number_Mod_Slot,
     .nb_divmod = (binaryfunc) GMPy_Number_DivMod_Slot,
-    .nb_power = (ternaryfunc) GMPy_Number_Pow_Slot,   
-    .nb_negative = (unaryfunc) GMPy_MPQ_Minus_Slot,   
-    .nb_positive = (unaryfunc) GMPy_MPQ_Plus_Slot,    
-    .nb_absolute = (unaryfunc) GMPy_MPQ_Abs_Slot,     
-    .nb_bool = (inquiry) GMPy_MPQ_NonZero_Slot,       
-    .nb_int =   (unaryfunc) GMPy_MPQ_Int_Slot,        
-    .nb_float = (unaryfunc) GMPy_MPQ_Float_Slot,      
-    .nb_floor_divide = (binaryfunc) GMPy_Number_FloorDiv_Slot, 
-    .nb_true_divide = (binaryfunc) GMPy_Number_TrueDiv_Slot,   
+    .nb_power = (ternaryfunc) GMPy_Number_Pow_Slot,
+    .nb_negative = (unaryfunc) GMPy_MPQ_Minus_Slot,
+    .nb_positive = (unaryfunc) GMPy_MPQ_Plus_Slot,
+    .nb_absolute = (unaryfunc) GMPy_MPQ_Abs_Slot,
+    .nb_bool = (inquiry) GMPy_MPQ_NonZero_Slot,
+    .nb_int =   (unaryfunc) GMPy_MPQ_Int_Slot,
+    .nb_float = (unaryfunc) GMPy_MPQ_Float_Slot,
+    .nb_floor_divide = (binaryfunc) GMPy_Number_FloorDiv_Slot,
+    .nb_true_divide = (binaryfunc) GMPy_Number_TrueDiv_Slot,
 };
 
 static PyGetSetDef GMPy_MPQ_getseters[] =
@@ -91,18 +93,18 @@ static PyMethodDef GMPy_MPQ_methods [] =
 static PyTypeObject MPQ_Type =
 {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "gmpy2.mpq",                     
-    .tp_basicsize = sizeof(MPQ_Object),         
+    .tp_name = "gmpy2.mpq",
+    .tp_basicsize = sizeof(MPQ_Object),
     .tp_dealloc = (destructor) GMPy_MPQ_Dealloc,
-    .tp_repr = (reprfunc) GMPy_MPQ_Repr_Slot,   
-    .tp_as_number = &mpq_number_methods,        
-    .tp_hash = (hashfunc) GMPy_MPQ_Hash_Slot,   
-    .tp_str = (reprfunc) GMPy_MPQ_Str_Slot,     
-    .tp_flags = Py_TPFLAGS_DEFAULT,             
-    .tp_doc = GMPy_doc_mpq,                     
+    .tp_repr = (reprfunc) GMPy_MPQ_Repr_Slot,
+    .tp_as_number = &mpq_number_methods,
+    .tp_hash = (hashfunc) GMPy_MPQ_Hash_Slot,
+    .tp_str = (reprfunc) GMPy_MPQ_Str_Slot,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = GMPy_doc_mpq,
     .tp_richcompare = (richcmpfunc)&GMPy_RichCompare_Slot,
-    .tp_methods = GMPy_MPQ_methods, 
+    .tp_methods = GMPy_MPQ_methods,
     .tp_getset = GMPy_MPQ_getseters,
-    .tp_new =GMPy_MPQ_NewInit,      
+    .tp_new =GMPy_MPQ_NewInit,
 };
 

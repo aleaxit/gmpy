@@ -38,7 +38,7 @@ GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     /* Optimize the critical case when prec==1 or obj is NaN or Inf. */
 
     if ((rprec == 1 && iprec == 1) ||
-        (!mpfr_number_p(mpc_realref(obj->c)) && 
+        (!mpfr_number_p(mpc_realref(obj->c)) &&
         !mpfr_number_p(mpc_imagref(obj->c)))) {
         Py_INCREF((PyObject*)obj);
         return obj;
@@ -273,27 +273,36 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
 {
     MPC_Object *result;
     Py_ssize_t len;
-    char *cp, *unwind, *tempchar, *lastchar;
-    int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0;
-    PyObject *ascii_str = ascii_str = GMPy_RemoveIgnoredASCII(s);
+    char *cp = NULL, *unwind, *tempchar, *lastchar;
+    int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0, rc = 0;
+    PyObject *ascii_str = NULL;
 
-    if (!ascii_str) return NULL;
+    if (PyUnicode_Check(s))
+        cp  = PyUnicode_AsUTF8AndSize(s, &len);
 
-    len = PyBytes_Size(ascii_str);
-    cp = (char*)PyBytes_AsString(ascii_str);
- 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPC_New(rprec, iprec, context))) {
-        Py_XDECREF(ascii_str);
+    if (!(result = GMPy_MPC_New(rprec, iprec, context)))
         return NULL;
+
+    if (cp && *cp == '(') {
+        rc = mpc_strtoc(result->c, cp, &tempchar, base, GET_MPC_ROUND(context));
+        if (tempchar > cp + len - 1) {
+            result->rc = MPC_INEX1(rc);
+            return result;
+        }
     }
 
-    /* Get a pointer to the last valid character (ignoring trailing
-     * whitespace.) */
+    ascii_str = GMPy_RemoveIgnoredASCII(s);
+
+    if (!ascii_str)
+        return NULL;
+
+    cp = (char*)PyBytes_AsString(ascii_str);
+    len = PyBytes_Size(ascii_str);
+
+    /* Get a pointer to the last valid character */
     lastchar = cp + len - 1;
-    while (isspace(*lastchar))
-        lastchar--;
 
     /* Skip trailing ). */
     if (*lastchar == ')') {
@@ -304,10 +313,6 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
     /* Skip trailing j. */
     if (*lastchar == 'j')
         lastchar--;
-
-    /* Skip leading whitespace. */
-    while (isspace(*cp))
-        cp++;
 
     /* Skip a leading (. */
     if (*cp == '(') {
@@ -633,6 +638,3 @@ GMPy_MPC_Repr_Slot(MPC_Object *self)
     Py_DECREF(temp);
     return result;
 }
-
-
-
