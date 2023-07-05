@@ -14,56 +14,9 @@ import gmpy2
 #      basic functionality for all functions/types.
 #   2) The 'py' files contain Python code that perform extensive tests, but
 #      may not test every function.
-#
-# If run by a debug build of Python, the test suite can be repeated multiple
-# times to search for memory leaks.
-#
-# NOTE: IF THE LAST TEST IN A BLOCK OF TESTS GENERATES AN EXCEPTION, THE
-#       REFERENCE COUNTING IN A DEBUG BUILD GETS CONFUSED. ALWAYS ENSURE THAT
-#       AT LEAST ONE VALID TEST IS PERFORMED AFTER AN EXCEPTION IS RAISED!
-#
 # *****************************************************************************
 
-# Check if this is a debug build of Python.
-try:
-    sys.gettotalrefcount()
-    debug = True
-except AttributeError:
-    debug = False
-
-# Change repeat to the number of times to repeat each test. Combined with a
-# debug build, this can help identify memory leaks.
-if debug:
-    try:
-        repeat = abs(int(sys.argv[1]))
-    except:
-        repeat = 1
-else:
-    repeat = 1
-
-# If mpc version < 1.1.0 gmpy2.root_of_unity is defined and gmpy2.cmp_abs
-# doesn't manage complex parameters.
-# We create a doctest flag to skip a doctest when mpc version is < 1.1.0
-SKIP_MPC_LESS_THAN_110 = doctest.register_optionflag("SKIP_MPC_LESS_THAN_110")
-mpc_version_110 = 'root_of_unity' in dir(gmpy2) # True if mpc version >= 1.1.0
-
-SKIP_IN_DEBUG_MODE = doctest.register_optionflag("SKIP_IN_DEBUG_MODE")
-
-class Gmpy2DocTestParser(DocTestParser):
-    def parse(self, *args, **kwargs):
-        examples = DocTestParser.parse(self, *args, **kwargs)
-        for example in examples:
-            if not isinstance(example, Example):
-                continue
-            if not mpc_version_110 and SKIP_MPC_LESS_THAN_110 in example.options:
-                example.options[SKIP] = True
-            if debug and SKIP_IN_DEBUG_MODE in example.options:
-                example.options[SKIP] = True
-
-        return examples
-
-parser = Gmpy2DocTestParser()
-
+test_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 print()
 print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.version.split()[0]))
 print("  Mutliple-precision library:     {0}".format(gmpy2.mp_version()))
@@ -82,13 +35,13 @@ mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
 # Some tests may differ between MPFR3 and MPFR4.
 mpfr_major_version = gmpy2.mpfr_version().split()[1].split('.')[0]
 mpfr_version_tests = [os.path.basename(i)
-                      for i in glob.glob(os.path.join(os.path.dirname(__file__),
+                      for i in glob.glob(os.path.join(test_dir,
                                          "test_mpfr" + mpfr_major_version + "*.txt"))]
 
 mpc_doctests = ["test_mpc.txt", "test_mpc_trig.txt"]
 
 gmpy2_tests = [os.path.basename(i)
-               for i in glob.glob(os.path.join(os.path.dirname(__file__),
+               for i in glob.glob(os.path.join(test_dir,
                                   "test_gmpy2*.txt"))]
 
 failed = 0
@@ -101,22 +54,15 @@ all_doctests += mpfr_doctests + mpfr_version_tests
 all_doctests += mpc_doctests
 
 for test in sorted(all_doctests):
-    for r in range(repeat):
-        result = doctest.testfile(test, globs=globals(),
-                                  optionflags=doctest.IGNORE_EXCEPTION_DETAIL |
-                                              doctest.NORMALIZE_WHITESPACE |
-                                              doctest.REPORT_NDIFF,
-                                  parser=parser)
-        print("Results for:  {0:25}".format(test.split(".")[0]), end="")
-        print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
-        if debug:
-            print(" RefCount: {0:6d}".format(sys.gettotalrefcount()))
-        else:
-            print()
-        failed += result[0]
-        attempted += result[1]
-    if repeat > 1:
-        print()
+    result = doctest.testfile(test, globs=globals(),
+                                optionflags=doctest.IGNORE_EXCEPTION_DETAIL |
+                                            doctest.NORMALIZE_WHITESPACE |
+                                            doctest.REPORT_NDIFF)
+    print("Results for:  {0:25}".format(test.split(".")[0]), end="")
+    print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
+    print()
+    failed += result[0]
+    attempted += result[1]
 
 
 print()
@@ -125,7 +71,7 @@ print()
 print("Running external test programs.")
 
 print("Running {0:30}  ".format("pytest"), end="")
-if os.system(sys.executable + " -m pytest " + " ".join(glob.glob(os.path.dirname(__file__) + "/test_*.py"))) == 0:
+if os.system(sys.executable + " -m pytest " + " ".join(glob.glob(test_dir + "/test_*.py"))) == 0:
     print("successful")
     attempted += 1
 else:
