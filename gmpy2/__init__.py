@@ -7,4 +7,3 @@ try:
     from .gmpy2 import _C_API, _mpmath_normalize, _mpmath_create
 except ImportError:
     from .gmpy2 import _mpmath_normalize, _mpmath_create
-import gmpy2.vector

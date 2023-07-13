@@ -1,2 +1,0 @@
-def hi():
-    return "hi"
