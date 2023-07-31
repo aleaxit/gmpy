@@ -1,15 +1,15 @@
-PATH="/d/mingw64/bin:"$PATH
+PATH="/c/mingw64/bin:"$PATH
 
 GMP_VERSION=6.2.1
 MPFR_VERSION=4.2.0
 MPC_VERSION=1.3.1
 
-cd /d/64
+cd /c/64
 
 mkdir src
 mkdir shared
 
-cd /d/64/src
+cd /c/64/src
 
 if [ ! -f gmp-${GMP_VERSION}.tar.lz ]; then
     wget https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.lz
@@ -32,7 +32,7 @@ tar xf mpc-${MPC_VERSION}.tar.gz
 
 cd gmp-${GMP_VERSION}/
 make distclean
-./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/d/64/shared --enable-shared --disable-static --enable-fat --with-pic
+./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/c/64/shared --enable-shared --disable-static --enable-fat --with-pic
 mv gmp.h gmp.original
 sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t\n/g' gmp.original > gmp.h
 make -j8
@@ -42,7 +42,7 @@ cd ..
 
 cd mpfr-${MPFR_VERSION}/
 make distclean
-./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/d/64/shared --enable-shared --disable-static --disable-decimal-float --disable-float128 --with-pic --with-gmp=/d/64/shared
+./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/c/64/shared --enable-shared --disable-static --disable-decimal-float --disable-float128 --with-pic --with-gmp=/c/64/shared
 make -j8
 make check
 make install
@@ -50,7 +50,7 @@ cd ..
 
 cd mpc-${MPC_VERSION}/
 make distclean
-./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/d/64/shared --enable-shared --disable-static --with-pic --with-gmp=/d/64/shared --with-mpfr=/d/64/shared
+./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/c/64/shared --enable-shared --disable-static --with-pic --with-gmp=/c/64/shared --with-mpfr=/c/64/shared
 make -j8
 make check
 make install

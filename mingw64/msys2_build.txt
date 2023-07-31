@@ -35,7 +35,7 @@ Installing MSYS2
 ================
 
 Note: The following instructions assume MSYS2 and MinGW-w64 are installed as
-      D:\msys2 and D:\mingw64, respectively. 
+      C:\msys2 and C:\mingw64, respectively. 
 
 Detailed MSYS2 installation instructions can be found at:
 
@@ -56,10 +56,10 @@ release cycles makeit difficult to provide a reproducible compliler. We will
 be using MinGW-w64 as distributed by http://winlibs.com/. This documentation
 was based on the following version:
 
-https://github.com/brechtsanders/winlibs_mingw/releases/download/12.2.0-15.0.7-10.0.0-ucrt-r4/winlibs-x86_64-posix-seh-gcc-12.2.0-mingw-w64ucrt-10.0.0-r4.7z
+https://github.com/brechtsanders/winlibs_mingw/releases/download/winlibs-x86_64-posix-seh-gcc-13.1.0-llvm-16.0.5-mingw-w64msvcrt-11.0.0-r5
 
 Unzip the downloaded file and copy the "mingw64" to the desired location.
-The following documentation assumes the files are copied to D:\mingw64.
+The following documentation assumes the files are copied to C:\mingw64.
 
 The build environment
 =====================
@@ -100,7 +100,7 @@ The Windows build environment
   Note: The following command is automatically run by the 64bit.bat file
         documented below.
 
-  > set Path=D:\mingw64\bin;%Path%
+  > set Path=C:\mingw64\bin;%Path%
 
   To verfiy the MinGW toolchain is accessible, the command "gcc -v" should
   return information about the gcc compiler.
@@ -110,21 +110,11 @@ The Windows build environment
 
 # Configure Windows command prompt - Python
 
-  The Python interpreter does not need to be accessible via the path. You can
-  specify the full path name to start a particular version. To simplify the
-  compilation of multiple versions of gmpy2, I have adopted the following
-  approach:
-
-  # 64-bit versions of Python are installed in D:\64
-  # Aliases are defined to create shortcuts for invoking a Python interpreter
-
   I use the following batch file to configure a command prompt for 64-bit builds:
 
   @echo off
-  doskey py35=D:\64\Python35\python.exe $*
-  doskey py36=D:\64\Python36\python.exe $*
-  doskey py37=D:\64\Python37\python.exe $*
-  doskey py38=D:\64\Python38\python.exe $*
+  doskey py37=py -3.7 $*
+  doskey py38=py -3.8 $*
   doskey py39=D:\64\Python39\python.exe $*
   doskey py310=D:\64\Python310\python.exe $*
   set Path=D:\mingw64\bin;%Path%
@@ -135,66 +125,60 @@ The Windows build environment
 
   Repeat as needed for different versions of Python
 
-  py36 -m pip install --upgrade pip
-  py36 -m pip install --upgrade setuptools
-  py36 -m pip install pytest wheel
+  py -3.7 -m pip install --upgrade pip setuptools pytest wheel
 
 # Replace Python's cygwinccompiler.py with the numpy.distutils verion
 # located in the <<gmpy2 source>>\ming64\distutils directory.
 
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python35\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python36\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python37\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python38\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python39\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python310\Lib\site-packages\setuptools\_distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python311\Lib\site-packages\setuptools\_distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py %LOCALAPPDATA%\Programs\Python\Python37\Lib\site-packages\setuptools\_distutils\.
 
 # Create the appropriate libpythonNN.a files. See gendef64.bat
 
-cd D:\64\Python35\libs
-gendef D:\64\Python35\python35.dll
-dlltool --dllname D:\64\Python35\python35.dll --def python35.def --output-lib libpython35.a
+cd %LOCALAPPDATA%\Programs\Python\Python37\libs
+gendef ..\python37.dll
+dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python37\python37.dll --def python37.def --output-lib libpython37.a
 
-cd D:\64\Python36\libs
-gendef D:\64\Python36\python36.dll
-dlltool --dllname D:\64\Python36\python36.dll --def python36.def --output-lib libpython36.a
+cd %LOCALAPPDATA%\Programs\Python\Python38\libs
+gendef ..\python38.dll
+dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python38\python38.dll --def python38.def --output-lib libpython38.a
 
-cd D:\64\Python37\libs
-gendef D:\64\Python37\python37.dll
-dlltool --dllname D:\64\Python37\python37.dll --def python37.def --output-lib libpython37.a
+cd %LOCALAPPDATA%\Programs\Python\Python39\libs
+gendef ..\python39.dll
+dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python39\python39.dll --def python39.def --output-lib libpython39.a
 
-cd D:\64\Python38\libs
-gendef D:\64\Python38\python38.dll
-dlltool --dllname D:\64\Python38\python38.dll --def python38.def --output-lib libpython38.a
+cd %LOCALAPPDATA%\Programs\Python\python310\libs
+gendef ..\python310.dll
+dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python310\python310.dll --def python310.def --output-lib libpython310.a
 
-cd D:\64\Python39\libs
-gendef D:\64\Python39\python39.dll
-dlltool --dllname D:\64\Python39\python39.dll --def python39.def --output-lib libpython39.a
+cd %LOCALAPPDATA%\Programs\Python\python311\libs
+gendef ..\python311.dll
+dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python311\python311.dll --def python311.def --output-lib libpython311.a
 
-cd D:\64\Python310\libs
-gendef D:\64\Python310\python310.dll
-dlltool --dllname D:\64\Python310\python310.dll --def python310.def --output-lib libpython310.a
+cd %LOCALAPPDATA%\Programs\Python\python312\libs
+gendef ..\python312.dll
+dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python312\python312.dll --def python312.def --output-lib libpython312.a
 
 # Copy the result of the compilation to the <<gmpy2 source>>\mingw64\shared directory
 
-xcopy /s /y D:\64\shared D:\64\gmpy2\mingw64\shared
+xcopy /s /y C:\64\shared\bin C:\64\gmpy\mingw64\shared\bin\.
+xcopy /s /y C:\64\shared\lib C:\64\gmpy\mingw64\shared\lib\.
+xcopy /s /y C:\64\shared\include C:\64\gmpy\mingw64\shared\include\.
 
 # Copy the libgcc_s_seh-1.dll file from the mingw64 distribution to the
 # <<gmpy2 source>>\mingw64\shared\bin directory.
 
-copy /y D:\mingw64\bin\libgcc_s_seh-1.dll D:\64\gmpy2\mingw64\shared\bin
+copy /y C:\mingw64\bin\libgcc_s_seh-1.dll C:\64\gmpy\mingw64\shared\bin
 
 # Copy the libwinpthread-1.dll file from the mingw64 distribution to the 
 # <<gmpy2 source>>\mingw64\shared\bin directory.
 
-copy /y D:\mingw64\bin\libwinpthread-1.dll D:\64\gmpy2\mingw64\shared\bin
+copy /y C:\mingw64\bin\libwinpthread-1.dll C:\64\gmpy\mingw64\shared\bin
 
 # To compile gmpy2
 
 # Copy the additional DLL files to <<gmpy2 source>>\gmpy2
 
-xcopy /y D:\64\gmpy2\mingw64\shared\bin\. D:\64\gmpy2\gmpy2\
+xcopy /y C:\64\gmpy\mingw64\shared\bin\. C:\64\gmpy\gmpy2\
 
 The contents should be similar to:
 
@@ -212,10 +196,7 @@ The contents should be similar to:
 
 # Complile and create a binary wheel.
 
-py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
-py35 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
-py36 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
-py37 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py -3.7 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
 py38 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
 py39 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
 py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel

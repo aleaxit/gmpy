@@ -142,7 +142,8 @@ typedef unsigned long int	mp_limb_t;
 typedef long int		mp_limb_signed_t;
 #endif
 #endif
-typedef unsigned long int	mp_bitcnt_t;
+typedef unsigned long long int  mp_bitcnt_t
+;
 
 /* For reference, note that the name __mpz_struct gets into C++ mangled
    function names, which means although the "__" suggests an internal, we
