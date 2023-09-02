@@ -1,7 +1,7 @@
 set -e -x
 
 GMP_VERSION=6.2.1
-MPFR_VERSION=4.1.1
+MPFR_VERSION=4.2.1
 MPC_VERSION=1.2.1
 export CPPFLAGS=" --target=arm64-apple-macos11"
 export LDFLAGS=" -arch arm64"

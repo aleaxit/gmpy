@@ -1,7 +1,7 @@
 set -e -x
 
 GMP_VERSION=6.2.1
-MPFR_VERSION=4.1.1
+MPFR_VERSION=4.2.1
 MPC_VERSION=1.2.1
 if [ ! -f finish_before_ci_build ]; then
   if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux-musl" || "$OSTYPE" == "darwin"* ]]; then
