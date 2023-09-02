@@ -592,12 +592,14 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
     if (mpcstyle)
         strcat(tempbuf, " ");
     else {
+#if MPFR_VERSION < MPFR_VERSION_NUM(4,2,1)
         /* Need to insert + if imag is nan or +inf. */
         if (mpfr_nan_p(mpc_imagref(MPC(self))) ||
             (mpfr_inf_p(mpc_imagref(MPC(self))) &&
              mpfr_sgn(mpc_imagref(MPC(self))) > 0)) {
             strcat(tempbuf, "+");
         }
+#endif
     }
     strcat(tempbuf, imagbuf);
     if (strlen(imagbuf) < 50 &&
