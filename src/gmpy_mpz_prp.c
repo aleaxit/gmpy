@@ -1574,7 +1574,7 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
     temp = Py_BuildValue("(O)", n);
     if (!temp)
         goto cleanup;
-    result = GMPY_mpz_is_selfridge_prp(NULL, temp);
+    result = GMPY_mpz_is_strong_selfridge_prp(NULL, temp);
     Py_DECREF(temp);
     goto return_result;
 

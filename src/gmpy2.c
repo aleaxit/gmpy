@@ -471,8 +471,9 @@
  *    Add mpz.as_integer_ratio()/to_bytes()/from_bytes(). (skirpichev)
  *    Add mpz_probab_prime_p() to directly expose the GMP behavior.
  *      (skirpichev)
- *    gcd()/lcm() now uses vectorcoll protocol. (skirpichev)
+ *    gcd()/lcm() now uses vectorcall protocol. (skirpichev)
  *    Expose context type. (skirpichev)
+ *    Correct error in is_strong_bpsw_prp. (casevh)
  *    
  ************************************************************************
  *
