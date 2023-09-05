@@ -2,7 +2,7 @@ set -e -x
 
 GMP_VERSION=6.2.1
 MPFR_VERSION=4.2.1
-MPC_VERSION=1.2.1
+MPC_VERSION=1.3.1
 export CPPFLAGS=" --target=arm64-apple-macos11"
 export LDFLAGS=" -arch arm64"
 EXTRA="--build=x86_64-apple-darwin --host=aarch64-apple-darwin --target=aarch64-apple-darwin"
