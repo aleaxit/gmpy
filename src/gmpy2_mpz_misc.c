@@ -1342,7 +1342,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 
     if (mpz_sgn(tempx->z) == -1) {
         Py_DECREF((PyObject*)tempx);
-        Py_RETURN_FALSE;        
+        Py_RETURN_FALSE;
     }
 
     i = mpz_probab_prime_p(tempx->z, (int)reps);
@@ -1386,7 +1386,7 @@ GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args)
     }
 
     if (mpz_sgn(MPZ(self)) == -1) {
-        Py_RETURN_FALSE;        
+        Py_RETURN_FALSE;
     }
 
     i = mpz_probab_prime_p(MPZ(self), (int)reps);
@@ -1502,6 +1502,46 @@ GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other)
     }
     return (PyObject*)result;
 }
+
+PyDoc_STRVAR(GMPy_doc_mpz_function_prev_prime,
+"prev_prime(x, /) -> mpz\n\n"
+"Return the previous *probable* prime number < x.");
+
+static PyObject *
+GMPy_MPZ_Function_PrevPrime(PyObject *self, PyObject *other)
+{
+    #if (__GNU_MP_VERSION > 6) || (__GNU_MP_VERSION == 6 &&  __GNU_MP_VERSION_MINOR >= 3)
+        MPZ_Object *result;
+
+        if(MPZ_Check(other)) {
+            if(!(result = GMPy_MPZ_New(NULL))) {
+                /* LCOV_EXCL_START */
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
+            if (!mpz_prevprime(result->z, MPZ(other))) {
+                /* no previous prime, default to 2 in this case */
+                mpz_set_ui(result->z, 2);
+            }
+        }
+        else {
+            if (!(result = GMPy_MPZ_From_Integer(other, NULL))) {
+                TYPE_ERROR("prev_prime() requires 'mpz' argument");
+                return NULL;
+            }
+            else {
+                if (!mpz_prevprime(result->z, result->z)) {
+                    /* no previous prime, default to 2 in this case */
+                    mpz_set_ui(result->z, 2);
+                }
+            }
+        }
+        return (PyObject*)result;
+    #endif
+
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_jacobi,
 "jacobi(x, y, /) -> mpz\n\n"

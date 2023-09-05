@@ -523,6 +523,9 @@ Test gmpy2.mul_2exp
 Test gmpy2.next_prime
 ---------------------
 
+Test gmpy2.prev_prime
+---------------------
+
 Test gmpy2.numdigits
 --------------------
 

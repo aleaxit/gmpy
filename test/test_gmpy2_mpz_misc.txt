@@ -652,8 +652,31 @@ TypeError:
 mpz(3)
 >>> gmpy2.next_prime(2)
 mpz(3)
+>>> gmpy2.next_prime(1000000)
+mpz(1000003)
 >>> gmpy2.next_prime(2357*7069-1) == 2357*7069
 False
+
+Test prev_prime
+---------------
+>>> gmpy2.prev_prime('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.prev_prime(2)
+mpz(2)
+>>> gmpy2.prev_prime(mpz(3))
+mpz(2)
+>>> gmpy2.prev_prime(3)
+mpz(2)
+>>> gmpy2.prev_prime(1000004)
+mpz(1000003)
+>>> gmpy2.prev_prime(1000033)
+mpz(1000003)
+>>> gmpy2.prev_prime(-100)
+mpz(2)
+>>> gmpy2.prev_prime(1)
+mpz(2)
 
 Test iroot
 ----------

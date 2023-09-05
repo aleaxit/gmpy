@@ -3,6 +3,11 @@ Release Notes
 
 .. currentmodule:: gmpy2
 
+Changes in gmpy2 2.2.0
+------------------------
+
+* Added prev_prime() when GMP >= 6.3
+
 Changes in gmpy2 2.1.0rc2
 -------------------------
 

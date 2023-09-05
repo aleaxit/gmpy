@@ -105,6 +105,7 @@ mpz Functions
 .. autofunction:: powmod_exp_list
 .. autofunction:: powmod_base_list
 .. autofunction:: powmod_sec
+.. autofunction:: prev_prime
 .. autofunction:: primorial
 .. autofunction:: remove
 .. autofunction:: t_div
