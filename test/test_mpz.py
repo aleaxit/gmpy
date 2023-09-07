@@ -9,7 +9,7 @@ from pytest import raises, mark
 
 from gmpy2 import (mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary,
                    random_state, mpz_random, mpz_urandomb, mpz_rrandomb,
-                   prev_prime, mp_version)
+                   mp_version)
 from supportclasses import a, b, c, d, z, q
 
 
@@ -313,6 +313,8 @@ def test_mpz_rrandomb():
 
 @mark.skipif(mp_version() < "GMP 6.3.0", reason="requires GMP 6.3.0 or higher")
 def test_prev_prime():
+    # Imported here as symbol won't exist if mp_version() < 6.3.0
+    from gmpy2 import prev_prime
     assert prev_prime(3) == mpz(2)
     assert prev_prime(4) == mpz(3)
     assert prev_prime(5) == mpz(3)
