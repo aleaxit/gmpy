@@ -781,7 +781,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_function_mul },
     { "multi_fac", GMPy_MPZ_Function_MultiFac, METH_VARARGS, GMPy_doc_mpz_function_multi_fac },
     { "next_prime", GMPy_MPZ_Function_NextPrime, METH_O, GMPy_doc_mpz_function_next_prime },
+#if (__GNU_MP_VERSION > 6) || (__GNU_MP_VERSION == 6 &&  __GNU_MP_VERSION_MINOR >= 3)
     { "prev_prime", GMPy_MPZ_Function_PrevPrime, METH_O, GMPy_doc_mpz_function_prev_prime },
+#endif
     { "numer", GMPy_MPQ_Function_Numer, METH_O, GMPy_doc_mpq_function_numer },
     { "num_digits", GMPy_MPZ_Function_NumDigits, METH_VARARGS, GMPy_doc_mpz_function_num_digits },
     { "pack", GMPy_MPZ_pack, METH_VARARGS, doc_pack },
