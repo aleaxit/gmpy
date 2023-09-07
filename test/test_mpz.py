@@ -8,7 +8,8 @@ from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises
 
 from gmpy2 import (mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary,
-                   random_state, mpz_random, mpz_urandomb, mpz_rrandomb)
+                   random_state, mpz_random, mpz_urandomb, mpz_rrandomb,
+                   prev_prime)
 from supportclasses import a, b, c, d, z, q
 
 
@@ -309,3 +310,24 @@ def test_mpz_urandomb():
 def test_mpz_rrandomb():
     assert (mpz_rrandomb(random_state(42), 64).digits(2) ==
             '1111111111111111111111111100000000111111111111111111000000000000')
+
+
+def test_prev_prime():
+    assert prev_prime(3) == mpz(2)
+    assert prev_prime(4) == mpz(3)
+    assert prev_prime(5) == mpz(3)
+    assert prev_prime(6) == mpz(5)
+    assert prev_prime(1000004) == mpz(1000003)
+    assert prev_prime(1000033) == mpz(1000003)
+
+    with raises(ValueError):
+        prev_prime(-100)
+
+    with raises(ValueError):
+        prev_prime(2)
+
+    with raises(TypeError):
+        prev_prime('a')
+
+    with raises(TypeError):
+        prev_prime(4.5)

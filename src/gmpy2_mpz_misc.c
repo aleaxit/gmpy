@@ -1505,12 +1505,13 @@ GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_prev_prime,
 "prev_prime(x, /) -> mpz\n\n"
-"Return the previous *probable* prime number < x.");
+"Return the previous *probable* prime number < x.\n"
+"Only present when compiled with GMP 6.3.0 or later.");
 
+#if (__GNU_MP_VERSION > 6) || (__GNU_MP_VERSION == 6 &&  __GNU_MP_VERSION_MINOR >= 3)
 static PyObject *
 GMPy_MPZ_Function_PrevPrime(PyObject *self, PyObject *other)
 {
-    #if (__GNU_MP_VERSION > 6) || (__GNU_MP_VERSION == 6 &&  __GNU_MP_VERSION_MINOR >= 3)
         MPZ_Object *result;
 
         if(MPZ_Check(other)) {
@@ -1520,8 +1521,9 @@ GMPy_MPZ_Function_PrevPrime(PyObject *self, PyObject *other)
                 /* LCOV_EXCL_STOP */
             }
             if (!mpz_prevprime(result->z, MPZ(other))) {
-                /* no previous prime, default to 2 in this case */
-                mpz_set_ui(result->z, 2);
+                /* no previous prime, raise value error. */
+                VALUE_ERROR("x must be >= 3");
+                return NULL;
             }
         }
         else {
@@ -1531,16 +1533,15 @@ GMPy_MPZ_Function_PrevPrime(PyObject *self, PyObject *other)
             }
             else {
                 if (!mpz_prevprime(result->z, result->z)) {
-                    /* no previous prime, default to 2 in this case */
-                    mpz_set_ui(result->z, 2);
+                    /* no previous prime, raise value error. */
+                    VALUE_ERROR("x must be >= 3");
+                    return NULL;
                 }
             }
         }
         return (PyObject*)result;
-    #endif
-
-    Py_RETURN_NOTIMPLEMENTED;
 }
+#endif
 
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_jacobi,
