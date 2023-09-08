@@ -132,7 +132,8 @@ PyDoc_STRVAR(doc_mpz_is_euler_prp,
 "    gcd(n,a) == 1\n"
 "    n is odd\n\n"
 "Then an Euler probable prime requires:\n\n"
-"    a**((n-1)/2) == 1 (mod n)");
+"    a**((n-1)/2) == (a/n) (mod n)\n\n"
+"where (a/n) is the Jacobi symbol.");
 
 static PyObject *
 GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
