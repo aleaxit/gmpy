@@ -105,7 +105,19 @@ mpz Functions
 .. autofunction:: powmod_exp_list
 .. autofunction:: powmod_base_list
 .. autofunction:: powmod_sec
-.. autofunction:: prev_prime
+.. only:: has_prev_prime
+
+   ..
+       Can't use autofunction:: prev_prime as sphinx tries to import
+       regardless of has_prev_prime conditional.
+
+
+   .. function:: prev_prime(x, /) -> mpz
+
+      Return the previous *probable* prime number < x.
+
+      Only present when compiled with GMP 6.3.0 or later.
+
 .. autofunction:: primorial
 .. autofunction:: remove
 .. autofunction:: t_div
