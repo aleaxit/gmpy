@@ -64,12 +64,6 @@ Test tan
 >>> gmpy2.tan(mpc(4,5))
 mpc('8.9834776469715613e-05+1.0000132074347847j')
 
-Test acosh
-----------
-
-Test asinh
-----------
-
 Test atanh
 ----------
 
@@ -77,15 +71,6 @@ Test atanh
 mpc('0.14694666622552977+1.3389725222944935j')
 >>> gmpy2.atanh(mpc(2.0, 3.0)) == gmpy2.atanh(complex(2, 3))
 True
-
-Test cosh
----------
-
-Test sinh
----------
-
-Test sinh_cosh
---------------
 
 Test tanh
 ---------
