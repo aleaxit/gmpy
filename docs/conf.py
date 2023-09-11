@@ -75,3 +75,9 @@ man_pages = [
     ('index', 'gmpy2', 'gmpy2 Documentation',
      ['Case Van Horsen'], 3)
 ]
+
+import gmpy2
+if gmpy2.mp_version() >= "GMP 6.3.0":
+    tags.add('has_prev_prime')
+
+print(tags.tags)

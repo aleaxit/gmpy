@@ -652,6 +652,8 @@ TypeError:
 mpz(3)
 >>> gmpy2.next_prime(2)
 mpz(3)
+>>> gmpy2.next_prime(1000000)
+mpz(1000003)
 >>> gmpy2.next_prime(2357*7069-1) == 2357*7069
 False
 

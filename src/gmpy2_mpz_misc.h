@@ -88,6 +88,9 @@ static PyObject * GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_IsProbabPrime(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other);
+#if (__GNU_MP_VERSION > 6) || (__GNU_MP_VERSION == 6 &&  __GNU_MP_VERSION_MINOR >= 3)
+static PyObject * GMPy_MPZ_Function_PrevPrime(PyObject *self, PyObject *other);
+#endif
 static PyObject * GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args);
