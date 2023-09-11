@@ -15,10 +15,6 @@ Testing of mpq functionality is split into multiple files.
 Test elementary operations
 ==========================
 
-Test addition
--------------
-
-
 Test subtraction
 ----------------
 

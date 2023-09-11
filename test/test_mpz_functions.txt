@@ -217,12 +217,6 @@ Test gmpy2.divm
     >>> G.divm(4,8,20)
     mpz(3)
 
-Test gmpy2.f_div
-----------------
-
-Test gmpy2.f_div_2exp
----------------------
-
 Test gmpy2.f_divmod
 -------------------
 
@@ -250,9 +244,6 @@ Test gmpy2.f_divmod_2exp
     (mpz(7), mpz(8))
     >>> G.f_divmod_2exp(-b,6)
     (mpz(-8), mpz(56))
-
-Test gmpy2.f_mod
-----------------
 
 Test gmpy2.f_mod_2exp
 ---------------------
@@ -508,21 +499,6 @@ Test gmpy2.legendre
       ...
     TypeError: legendre() requires 'mpz','mpz' arguments
 
-Test gmpy2.lucas
-----------------
-
-Test gmpy2.lucas2
------------------
-
-Test gmpy2.mul
---------------
-
-Test gmpy2.mul_2exp
--------------------
-
-Test gmpy2.next_prime
----------------------
-
 Test gmpy2.numdigits
 --------------------
 
@@ -534,9 +510,6 @@ Test gmpy2.numdigits
     Traceback (most recent call last):
       ...
     ValueError: base must be either 0 or in the interval 2 ... 62
-
-Test gmpy2.pack
----------------
 
 Test gmpy2.popcount
 -------------------
@@ -595,12 +568,6 @@ The factor must be greater than or equal to 2.
       ...
     TypeError: remove() requires 'mpz','mpz' arguments
 
-Test gmpy2.t_div
-----------------
-
-Test gmpy2.t_div_2exp
----------------------
-
 Test gmpy2.t_divmod
 -------------------
 
@@ -612,16 +579,3 @@ Test gmpy2.t_divmod
     (mpz(-3), mpz(2))
     >>> G.t_divmod(-17,-5)
     (mpz(3), mpz(-2))
-
-Test gmpy2.t_divmod_2exp
-------------------------
-
-Test gmpy2.t_mod
-----------------
-
-Test gmpy2.t_mod_2exp
----------------------
-
-
-
-

@@ -278,7 +278,7 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
     PyObject *ascii_str = NULL;
 
     if (PyUnicode_Check(s))
-        cp  = PyUnicode_AsUTF8AndSize(s, &len);
+        cp = (char*)PyUnicode_AsUTF8AndSize(s, &len);
 
     CHECK_CONTEXT(context);
 

@@ -6,6 +6,9 @@
 
 import sys, os
 
+if sys.version_info < (3, 9):
+    raise RuntimeError("Python version >= 3.9 required to build docs.")
+
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath',
