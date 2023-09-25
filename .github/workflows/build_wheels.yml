@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@2.16.0
+        uses: pypa/cibuildwheel@v2.16.0
         env:
           CIBW_PRERELEASE_PYTHONS: True
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build_apple_silicon.sh
