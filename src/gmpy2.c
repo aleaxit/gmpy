@@ -474,7 +474,9 @@
  *    gcd()/lcm() now uses vectorcall protocol. (skirpichev)
  *    Expose context type. (skirpichev)
  *    Correct error in is_strong_bpsw_prp. (casevh)
- *    Added prev_prime if part of loaded gmp
+ *    Added prev_prime if GMP version is >=6.3.0
+ *
+ *    2.2.0a2
  *
  ************************************************************************
  *
@@ -540,7 +542,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.2.0a1";
+char gmpy_version[] = "2.2.0a2";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
