@@ -4,7 +4,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'gmpy2'
-version = '2.2.0a1'
+version = '2.2.0a2'
 description = 'gmpy2 interface to GMP, MPFR, and MPC for Python 3.7+'
 keywords = ['gmp', 'mpfr', 'mpc', 'multiple-precision',
             'arbitrary-precision', 'precision', 'bignum']
@@ -26,6 +26,7 @@ classifiers = ['Development Status :: 3 - Alpha',
                'Programming Language :: Python :: 3.9',
                'Programming Language :: Python :: 3.10',
                'Programming Language :: Python :: 3.11',
+               'Programming Language :: Python :: 3.12',
                'Programming Language :: Python :: Implementation :: CPython',
                'Topic :: Scientific/Engineering :: Mathematics',
                'Topic :: Software Development :: Libraries :: Python Modules']

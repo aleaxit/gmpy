@@ -474,9 +474,10 @@
  *    gcd()/lcm() now uses vectorcall protocol. (skirpichev)
  *    Expose context type. (skirpichev)
  *    Correct error in is_strong_bpsw_prp. (casevh)
- *    Added prev_prime if GMP version is >=6.3.0
+ *    Added prev_prime if GMP version is >=6.3.0 (sethtroisi)
  *
  *    2.2.0a2
+ *    Change argument order of jn() and yn() to match MPFR. (casevh)
  *
  ************************************************************************
  *

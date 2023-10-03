@@ -591,6 +591,59 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 
 /*********************************************************************/
 
+/* Support standard calling convention for jn() and yn().*/
+
+#define GMPY_MPFR_BINOP_LONG_REALWT(NAME, FUNC) \
+static PyObject * \
+GMPy_RealWithType_##NAME(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context) \
+{ \
+    MPFR_Object *result = NULL, *temp = NULL; \
+    long n; \
+    result = GMPy_MPFR_New(0, context); \
+    temp = GMPy_MPFR_From_RealWithType(y, ytype, 1, context); \
+    n = GMPy_Integer_AsLongWithType(x, xtype); \
+    if (!result || !temp || (n == -1 && PyErr_Occurred())) { \
+        Py_XDECREF((PyObject*)temp); \
+        Py_XDECREF((PyObject*)result); \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, n, temp->f, GET_MPFR_ROUND(context)); \
+    Py_DECREF((PyObject*)temp); \
+    _GMPy_MPFR_Cleanup(&result, context); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
+{ \
+    int xtype = GMPy_ObjectType(x); \
+    int ytype = GMPy_ObjectType(y); \
+    CHECK_CONTEXT(context); \
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_REAL(ytype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, y, ytype, context); \
+    TYPE_ERROR(#FUNC"() argument types not supported. Note that the argument order " \
+                    "for jn() and yn() has changed to (int, mpfr) instead of (mpfr,int)."); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 2) { \
+        TYPE_ERROR(#FUNC"() requires 2 arguments"); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
+} \
+
+/*********************************************************************/
+
 #define GMPY_MPFR_BINOP_TEMPLATEWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \

@@ -1343,24 +1343,28 @@ GMPy_Context_Root(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_jn,
-"jn(x,n, /) -> mpfr\n\n"
-"Return the first kind Bessel function of order n of x.");
+"jn(n,x, /) -> mpfr\n\n"
+"Return the first kind Bessel function of order n of x.\n"
+"Note: the order of the arguments changed in gmpy2 2.2.0a2");
 
 PyDoc_STRVAR(GMPy_doc_context_jn,
-"context.jn(x,n, /) -> mpfr\n\n"
-"Return the first kind Bessel function of order n of x.");
+"context.jn(n,x, /) -> mpfr\n\n"
+"Return the first kind Bessel function of order n of x.\n"
+"Note: the order of the arguments changed in gmpy2 2.2.0a2");
 
-GMPY_MPFR_BINOP_REAL_LONGWT(Jn, jn)
+GMPY_MPFR_BINOP_LONG_REALWT(Jn, jn)
 
 PyDoc_STRVAR(GMPy_doc_function_yn,
-"yn(x,n, /) -> mpfr\n\n"
-"Return the second kind Bessel function of order n of x.");
+"yn(n,x, /) -> mpfr\n\n"
+"Return the second kind Bessel function of order n of x.\n"
+"Note: the order of the arguments changed in gmpy2 2.2.0a2");
 
 PyDoc_STRVAR(GMPy_doc_context_yn,
-"context.yn(x,n, /) -> mpfr\n\n"
-"Return the second kind Bessel function of order n of x.");
+"context.yn(n,x, /) -> mpfr\n\n"
+"Return the second kind Bessel function of order n of x.\n"
+"Note: the order of the arguments changed in gmpy2 2.2.0a2");
 
-GMPY_MPFR_BINOP_REAL_LONGWT(Yn, yn)
+GMPY_MPFR_BINOP_LONG_REALWT(Yn, yn)
 
 PyDoc_STRVAR(GMPy_doc_function_agm,
 "agm(x, y, /) -> mpfr\n\n"

@@ -66,13 +66,13 @@ TypeError: root() requires 2 arguments
 Tests other binary operations
 -----------------------------
 
->>> gmpy2.jn(43.2, 5)
+>>> gmpy2.jn(5, 43.2)
 mpfr('-0.11672089168206982')
->>> gmpy2.jn(43.2, 1.2)
+>>> gmpy2.jn(1.2,43.2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: jn() argument type not supported
->>> gmpy2.yn(43.2, 5)
+>>> gmpy2.yn(5,43.2)
 mpfr('-0.034805474763124698')
 >>> gmpy2.yn(43.2, 5.5)
 Traceback (most recent call last):
