@@ -59,7 +59,8 @@ static PyObject *
 GMPy_MPZ_Format(PyObject *self, PyObject *args)
 {
     PyObject *result = NULL, *mpzstr = NULL;
-    char *fmtcode = 0, *p1, *p2;
+    char *fmtcode = 0;
+    unsigned char *p1, *p2;
     char fmt[30];
     int base = 10, option = 16;
     int seensign = 0, seenindicator = 0, seenalign = 0, seendigits = 0;
@@ -72,8 +73,8 @@ GMPy_MPZ_Format(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "s", &fmtcode))
         return NULL;
 
-    p2 = fmt;
-    for (p1 = fmtcode; *p1 != '\00'; p1++) {
+    p2 = (unsigned char*)fmt;
+    for (p1 = (unsigned char*)fmtcode; *p1 != '\00'; p1++) {
         if (*p1 == '<' || *p1 == '>' || *p1 == '^') {
             if (seenalign || seensign || seenindicator || seendigits) {
                 VALUE_ERROR("Invalid conversion specification");
@@ -201,7 +202,8 @@ static PyObject *
 GMPy_MPFR_Format(PyObject *self, PyObject *args)
 {
     PyObject *result = NULL, *mpfrstr = NULL;
-    char *buffer = 0, *newbuf = 0, *fmtcode = 0, *p1, *p2, *p3;
+    char *buffer = 0, *newbuf = 0, *fmtcode = 0, *p2, *p3;
+    unsigned char *p1;
     char mpfrfmt[100], fmt[30];
     int buflen;
     int seensign = 0, seenalign = 0, seendecimal = 0, seendigits = 0;
@@ -219,7 +221,7 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
     p3 = fmt;
     *(p2++) = '%';
 
-    for (p1 = fmtcode; *p1 != '\00'; p1++) {
+    for (p1 = (unsigned char*)fmtcode; *p1 != '\00'; p1++) {
         if (*p1 == '<' || *p1 == '>' || *p1 == '^') {
             if (seenalign || seensign || seendecimal || seendigits || seenround) {
                 VALUE_ERROR("Invalid conversion specification");
@@ -380,7 +382,8 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
 {
     PyObject *result = NULL, *tempstr = NULL;
     char *realbuf = 0, *imagbuf = 0, *tempbuf = 0, *fmtcode = 0;
-    char *p, *rfmtptr, *ifmtptr, *fmtptr;
+    char *rfmtptr, *fmtptr;
+    unsigned char *p, *ifmtptr;
     char rfmt[100], ifmt[100], fmt[30];
     int rbuflen, ibuflen;
     int seensign = 0, seenalign = 0, seendecimal = 0, seendigits = 0;
@@ -396,12 +399,12 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
     }
 
     rfmtptr = rfmt;
-    ifmtptr = ifmt;
+    ifmtptr = (unsigned char*)ifmt;
     fmtptr = fmt;
     *(rfmtptr++) = '%';
     *(ifmtptr++) = '%';
 
-    for (p = fmtcode; *p != '\00'; p++) {
+    for (p = (unsigned char*)fmtcode; *p != '\00'; p++) {
         if (*p == '<' || *p == '>' || *p == '^') {
             if (seenalign || seensign || seendecimal || seendigits ||
                 seenround || seenstyle) {
