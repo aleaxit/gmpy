@@ -131,3 +131,43 @@ def test_mpfr_mpmath():
     assert mpfr(c, precision=10)._mpf_ == (1, mpz(804), -8, 10)
     assert mpmath.mpf(mpfr(c, precision=10), prec=10) == mpmath.mpf(c, prec=10)
     assert mpfr(d)._mpf_ == (0, mpz(0), 1, 1)
+
+
+def test_mpfr_format():
+    r, r1, r2 = mpfr(5.6), mpfr(-3), mpfr(5)
+
+    assert '{:<30}'.format(r1) == '-3.000000                     '
+    assert '{:>+20}'.format(r2) == '           +5.000000'
+    assert '{:>-15}'.format(r2) == '       5.000000'
+    assert '{:>-15}'.format(r1) == '      -3.000000'
+    assert '{:U}'.format(r) == '5.600000'
+
+    pytest.raises(ValueError, lambda: '{:U-}'.format(r))
+
+    assert '{:Z}'.format(r) == '5.599999'
+
+    pytest.raises(ValueError, lambda: '{:Z+}'.format(r))
+
+    assert '{:+Z}'.format(r) == '+5.599999'
+
+    pytest.raises(ValueError, lambda: '{:Z }'.format(r))
+
+    assert '{:.10f}'.format(r) == '5.6000000000'
+    assert '{:.10f.}'.format(r) == '5.6000000000'
+
+    pytest.raises(ValueError, lambda: '{:Z.}'.format(r))
+    pytest.raises(ValueError, lambda: '{:->}'.format(r))
+    pytest.raises(ValueError, lambda: '{:YZ}'.format(r))
+
+
+def test_mpfr_digits():
+    r, r2 = mpfr(5.6), mpfr(5)
+
+    assert r.digits() == ('55999999999999996', 1, 53)
+    assert r.digits(2) == ('10110011001100110011001100110011001100110011001100110', 3, 53)
+    assert r.digits(2,54) == ('101100110011001100110011001100110011001100110011001100', 3, 53)
+    assert r.digits(10,54) == ('559999999999999964472863211994990706443786621093750000', 1, 53)
+    assert r2.digits(2) == ('10100000000000000000000000000000000000000000000000000', 3, 53)
+
+    pytest.raises(TypeError, lambda: r2.digits(2, 5, 6))
+    pytest.raises(ValueError, lambda: r.digits(0))

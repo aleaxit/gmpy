@@ -86,3 +86,13 @@ def test_mpq_to_from_binary(p, q):
 
 def test_mpq_hash():
     hash(mpq(123456,1000)) == hash(Decimal('123.456'))
+
+
+def test_mpq_digits():
+    q = mpq(2/3)
+
+    assert q.digits() == '6004799503160661/9007199254740992'
+    assert q.digits(16) == '0x15555555555555/0x20000000000000'
+
+    pytest.raises(TypeError, lambda: q.digits(16, 5))
+    pytest.raises(ValueError, lambda: q.digits(0))

@@ -2,7 +2,7 @@ from fractions import Fraction
 
 import pytest
 
-from gmpy2 import mpz, mpq, mpfr, mpc, get_context, square, add
+from gmpy2 import mpz, mpq, mpfr, mpc, get_context, square, add, digits
 from supportclasses import z, q, r, cx
 
 
@@ -154,3 +154,23 @@ def test_add():
     assert mpc(1,2) + r == mpc('2.5+2.0j')
     assert mpc(1,2) + q == mpc('2.5+2.0j')
     assert mpc(1,2) + z == mpc('3.0+2.0j')
+
+
+def test_digits():
+    z2 = mpz(5)
+
+    pytest.raises(TypeError, lambda: digits())
+    pytest.raises(TypeError, lambda: digits(5, 5, 4, 5))
+
+    assert digits(z2) == '5'
+    assert digits(z2, 2) == '101'
+
+    pytest.raises(TypeError, lambda: digits(z2, 2, 5))
+
+    assert digits(mpq(3,5)) == '3/5'
+    assert digits(mpq(3,5), 4) == '3/11'
+    assert digits(mpfr(3,5), 4) == ('300', 1, 5)
+    assert digits(mpfr(3,5), 4, 5) == ('30000', 1, 5)
+    assert digits(complex(5,5), 4, 5) == (('11000', 2, 53), ('11000', 2, 53))
+
+    pytest.raises(TypeError, lambda: digits('string', 4, 5))

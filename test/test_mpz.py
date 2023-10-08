@@ -333,3 +333,36 @@ def test_prev_prime():
 
     with raises(TypeError):
         prev_prime(4.5)
+
+
+def test_mpz_format():
+    z1, z2 = mpz(-3), mpz(5)
+
+    assert '{:<5}'.format(z1) == '-3   '
+    assert '{:>+5}'.format(z2) == '   +5'
+
+    raises(ValueError, lambda: '{:5+}'.format(z1))
+
+    assert '{:>-4}'.format(z2) == '   5'
+    assert '{:<-4}'.format(z1) == '-3  '
+
+    raises(ValueError, lambda: '{:>4-}'.format(z1))
+    raises(ValueError, lambda: '{:<4 }'.format(z1))
+
+    assert '{:#x}'.format(z1) == '-0x3'
+    assert '{:#o}'.format(z1) == '-0o3'
+
+    raises(ValueError, lambda: '{:>5#}'.format(z1))
+    raises(ValueError, lambda: '{:~}'.format(z1))
+
+
+def test_mpz_digits():
+    z1, z2 = mpz(-3), mpz(15)
+
+    assert z1.digits() == '-3'
+    assert z1.digits(2) == '-11'
+    assert z1.digits(8) == '-3'
+    assert z2.digits(16) == 'f'
+
+    raises(ValueError, lambda: z1.digits(0))
+    raises(ValueError, lambda: z1.digits(1))
