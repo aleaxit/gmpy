@@ -191,3 +191,32 @@ def test_mpfr_sub():
     assert mpfr(10) - z == mpfr('8.0')
     assert mpfr(10) - q == mpfr('8.5')
     assert mpfr(10) - r == mpfr('8.5')
+
+
+def test_mpfr_subnormalize():
+    gmpy2.set_context(gmpy2.ieee(64))
+
+    zeroes = '0.' + '0' * 323
+
+    assert mpfr(zeroes + '2470328229206232720') == mpfr('0.0')
+    assert mpfr(zeroes + '2470328229206232721') == mpfr('4.9406564584124654e-324')
+    assert mpfr(zeroes + '247032822920623272088') == mpfr('0.0')
+    assert mpfr(zeroes + '247032822920623272089') == mpfr('4.9406564584124654e-324')
+
+    gmpy2.set_context(gmpy2.ieee(32))
+
+    def fmt(v):
+        return '{:.23b}'.format(v)
+
+
+    a = mpfr('0x1p-126')
+
+    assert fmt(a) == '1.00000000000000000000000p-126'
+    assert fmt(gmpy2.next_below(a)) == '1.11111111111111111111110p-127'
+    assert fmt(gmpy2.next_above(a)) == '1.00000000000000000000001p-126'
+    assert fmt(gmpy2.next_below(0)) == '-1.00000000000000000000000p-149'
+    assert fmt(gmpy2.next_above(0)) == '1.00000000000000000000000p-149'
+    assert fmt(gmpy2.next_toward(a, -10)) == '1.11111111111111111111110p-127'
+    assert fmt(gmpy2.next_toward(a, 10)) == '1.00000000000000000000001p-126'
+
+    gmpy2.set_context(gmpy2.context())

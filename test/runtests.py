@@ -29,8 +29,7 @@ mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt"]
 mpq_doctests = ["test_mpq.txt"]
 
 mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
-                 "test_mpfr_trig.txt",
-                 "test_context.txt", "test_mpfr_subnormalize.txt"]
+                 "test_mpfr_trig.txt", "test_context.txt"]
 
 # Some tests may differ between MPFR3 and MPFR4.
 mpfr_major_version = gmpy2.mpfr_version().split()[1].split('.')[0]
