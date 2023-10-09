@@ -1,4 +1,5 @@
 from decimal import Decimal
+from fractions import Fraction
 
 import pytest
 from hypothesis import given, example, settings
@@ -8,7 +9,7 @@ import gmpy2
 from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
                    to_binary, from_binary, is_nan, random_state,
                    mpfr_grandom, mpfr_nrandom)
-from supportclasses import a, b, c, d, q, r
+from supportclasses import a, b, c, d, q, r, z
 
 
 def test_mpfr_gamma_inc():
@@ -171,3 +172,22 @@ def test_mpfr_digits():
 
     pytest.raises(TypeError, lambda: r2.digits(2, 5, 6))
     pytest.raises(ValueError, lambda: r.digits(0))
+
+
+def test_mpfr_sub():
+    assert mpfr(10) - 1 == mpfr('9.0')
+    assert 10 - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - mpz(1) == mpfr('9.0')
+    assert mpz(10) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - mpq(1,1) == mpfr('9.0')
+    assert mpq(10,1) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - Fraction(1,1) == mpfr('9.0')
+    assert Fraction(10,1) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - 1.0 == mpfr('9.0')
+    assert 10.0 - mpfr(1) == mpfr('9.0')
+    assert mpfr(0) - (1 << 100) == mpfr('-1p100', base=2)
+    assert (1 << 100) - mpfr(0) == mpfr('1p100', base=2)
+    assert mpfr(10) - z == mpfr('8.0')
+    assert mpfr(10) - q == mpfr('8.5')
+    assert mpfr(10) - r == mpfr('8.5')

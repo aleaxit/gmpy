@@ -2,8 +2,8 @@ import pytest
 
 import gmpy2
 from gmpy2 import (mpc, cmp, cmp_abs, nan, random_state, mpc_random,
-                   to_binary, from_binary, get_context, is_nan, mpq)
-from supportclasses import a, b, c, d
+                   to_binary, from_binary, get_context, is_nan, mpq, mpfr)
+from supportclasses import a, b, c, d, cx, z, q, r
 
 
 def test_mpc_cmp():
@@ -149,3 +149,16 @@ def test_mpc_digits():
 
     pytest.raises(ValueError, lambda: c.digits(8, -2))
     pytest.raises(ValueError, lambda: c.digits(0))
+
+
+def test_mpc_sub():
+    pytest.raises(TypeError, lambda: mpc(1,2) - 'a')
+
+    assert mpfr(1) - mpc(1,2) == mpc('0.0-2.0j')
+    assert mpc(1,2) - mpfr(1) == mpc('0.0+2.0j')
+    assert mpc(1,2) - 1+0j == mpc('0.0+2.0j')
+    assert 1+0j - mpc(1,2) == mpc('0.0-2.0j')
+    assert mpc(1,2) - z == mpc('-1.0+2.0j')
+    assert mpc(1,2) - q == mpc('-0.5+2.0j')
+    assert mpc(1,2) - r == mpc('-0.5+2.0j')
+    assert mpc(1,2) - cx == mpc('-41.0-65.0j')

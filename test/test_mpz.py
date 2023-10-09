@@ -7,9 +7,10 @@ from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises, mark
 
+import gmpy2
 from gmpy2 import (mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary,
                    random_state, mpz_random, mpz_urandomb, mpz_rrandomb,
-                   mp_version)
+                   mp_version, mpq, mpfr, mpc)
 from supportclasses import a, b, c, d, z, q
 
 
@@ -366,3 +367,39 @@ def test_mpz_digits():
 
     raises(ValueError, lambda: z1.digits(0))
     raises(ValueError, lambda: z1.digits(1))
+
+
+def test_mpz_sub():
+    a, b = mpz(123), mpz(456)
+    c = 12345678901234567890
+
+    assert a-1 == mpz(122)
+    assert a-(-1) == mpz(124)
+    assert 1-a == mpz(-122)
+    assert (-1)-a == mpz(-124)
+    assert a-c == -12345678901234567767
+    assert c-a == 12345678901234567767
+    assert a-(-c) == 12345678901234568013
+    assert (-c)-a == -12345678901234568013
+    assert a-b == mpz(-333)
+    assert b-a == mpz(333)
+    assert a-(-b) == mpz(579)
+    assert (-b)-a == mpz(-579)
+    assert a-z == mpz(121)
+    assert gmpy2.sub(2,1) == mpz(1)
+
+    ctx = gmpy2.context()
+
+    assert ctx.sub(a,b) == a-b
+    assert ctx.sub(c,c) == c-c
+    assert ctx.sub(1, 1) == mpz(0)
+    assert ctx.sub(a, 1) == mpz(122)
+    assert ctx.sub(1, a) == mpz(-122)
+    assert ctx.sub(a, mpq(0)) == mpq(123,1)
+    assert ctx.sub(a, mpfr(0)) == mpfr('123.0')
+    assert ctx.sub(a, mpc(0)) == mpc('123.0+0.0j')
+
+    raises(TypeError, lambda: ctx.sub(1))
+    raises(TypeError, lambda: ctx.sub(1,2,3))
+    raises(TypeError, lambda: a-'b')
+    raises(TypeError, lambda: 'b'-a)

@@ -1,12 +1,14 @@
 import numbers
 import pickle
 from decimal import Decimal
+from fractions import Fraction
 
 import pytest
 from hypothesis import given, example, settings
 from hypothesis.strategies import integers
 
-from gmpy2 import mpq, mpz, cmp, cmp_abs, from_binary, to_binary
+import gmpy2
+from gmpy2 import mpq, mpz, cmp, cmp_abs, from_binary, to_binary, mpc
 from supportclasses import a, b, c, d, q, z
 
 
@@ -96,3 +98,30 @@ def test_mpq_digits():
 
     pytest.raises(TypeError, lambda: q.digits(16, 5))
     pytest.raises(ValueError, lambda: q.digits(0))
+
+
+def test_mpq_sub():
+    assert mpq(1,2) - Fraction(3,2) == mpq(-1,1)
+    assert Fraction(1,2) - mpq(3,2) == mpq(-1,1)
+    assert mpq(1,2) - mpq(3,2) == mpq(-1,1)
+    assert mpq(1,2) - 0 == mpq(1,2)
+    assert mpq(1,2) - mpz(1) == mpq(-1,2)
+    assert mpq(1,2) + (-1) == mpq(-1,2)
+    assert 1 - mpq(1,2) == mpq(1,2)
+    assert mpz(1) - mpq(1,2) == mpq(1,2)
+    assert mpq(1,2) - mpz(1) == mpq(-1,2)
+    assert mpq(1,1) - mpc(0) == mpc('1.0+0.0j')
+    assert mpc(0) - mpq(1,1) == mpc('-1.0+0.0j')
+    assert mpq(1,2) - z == mpq(-3,2)
+    assert mpq(1,2) - q ==mpq(-1,1)
+
+    ctx = gmpy2.context()
+
+    assert ctx.sub(mpq(1,2), mpq(3,2)) == mpq(-1,1)
+    assert ctx.sub(mpq(1,2), Fraction(3,2)) == mpq(-1,1)
+    assert ctx.sub(Fraction(1,2), mpq(3,2)) == mpq(-1,1)
+    assert ctx.sub(Fraction(1,2), Fraction(3,2)) == mpq(-1,1)
+
+    pytest.raises(TypeError, lambda: ctx.sub(1,'a'))
+    pytest.raises(TypeError, lambda: mpq(1,2) - 'a')
+    pytest.raises(TypeError, lambda: 'a' - mpq(1,2))
