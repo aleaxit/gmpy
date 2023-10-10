@@ -2,7 +2,8 @@ from fractions import Fraction
 
 import pytest
 
-from gmpy2 import mpz, mpq, mpfr, mpc, get_context, square, add, digits
+import gmpy2
+from gmpy2 import mpz, mpq, mpfr, mpc, get_context, square, add, digits, xmpz
 from supportclasses import z, q, r, cx
 
 
@@ -174,3 +175,124 @@ def test_digits():
     assert digits(complex(5,5), 4, 5) == (('11000', 2, 53), ('11000', 2, 53))
 
     pytest.raises(TypeError, lambda: digits('string', 4, 5))
+
+
+def test_abs():
+    a = mpz(123)
+    b = abs(a)
+
+    assert a is b
+
+    a = xmpz(123)
+    b = abs(a)
+
+    assert a is not b
+
+    a = mpz(-123)
+    b = abs(a)
+
+    assert b == mpz(123)
+    assert a is not b
+    assert a == mpz(-123)
+
+    a = mpq(12,7)
+    b = abs(a)
+
+    assert a is b
+
+    a = mpq(-12,7)
+    b = abs(a)
+
+    assert b == mpq(12,7)
+    assert a == mpq(-12,7)
+
+    a = xmpz(-123)
+    b = abs(a)
+
+    assert a == xmpz(123)
+    assert b is None
+
+    b = abs(a)
+
+    assert b is None
+
+    a = mpfr(1.0)
+    b = abs(a)
+
+    assert a is not b
+    assert abs(mpfr(1, precision=100)) == mpfr('1.0')
+
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+
+    assert gmpy2.is_nan(abs(mpfr('nan')))
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert abs(mpfr('inf')) == mpfr('inf')
+    assert ctx.overflow is False
+
+    ctx.clear_flags()
+
+    assert abs(mpfr('-inf')) == mpfr('inf')
+    assert ctx.overflow is False
+
+    assert abs(mpc(-1,0)) == mpfr('1.0')
+    assert abs(-1+0j) == 1.0
+    assert abs(mpc(1,1)) == mpfr('1.4142135623730951')
+
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+
+    c = mpc('nan+0j')
+
+    assert gmpy2.is_nan(c.real) and c.imag == 0.0
+    assert ctx.invalid
+    assert gmpy2.is_nan(abs(c))
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert gmpy2.is_nan(abs(mpc('nanj')))
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert abs(mpc('inf+10j')) == mpfr('inf')
+    assert ctx.overflow is False
+
+    ctx.clear_flags()
+
+    assert abs(mpc('-infj')) == mpfr('inf')
+    assert ctx.overflow is False
+
+    a = mpc('nan+infj')
+    ctx.clear_flags()
+
+    assert abs(a) == mpfr('inf')
+    assert ctx.overflow is False
+    assert ctx.invalid is False
+
+    a=mpc('-inf+nanj')
+    ctx.clear_flags()
+
+    assert abs(a) == mpfr('inf')
+    assert ctx.overflow is False
+    assert ctx.invalid is False
+
+    ctx = gmpy2.context()
+
+    pytest.raises(TypeError, lambda: ctx.abs('a'))
+
+    assert ctx.abs(-1) == mpz(1)
+    assert ctx.abs(0) == mpz(0)
+    assert ctx.abs(1) == mpz(1)
+    assert ctx.abs(mpz(8)) == mpz(8)
+    assert ctx.abs(mpz(-8)) == mpz(8)
+    assert ctx.abs(-1.0) == mpfr('1.0')
+    assert ctx.abs(mpfr(-2)) == mpfr('2.0')
+    assert ctx.abs(2+3j) == mpfr('3.6055512754639891')
+    assert ctx.abs(mpc(2+3j)) == mpfr('3.6055512754639891')
+    assert ctx.abs(Fraction(1,2)) == mpq(1,2)
+    assert ctx.abs(Fraction(-1,2)) == mpq(1,2)
