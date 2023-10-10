@@ -2,8 +2,8 @@ import pytest
 
 import gmpy2
 from gmpy2 import (mpc, cmp, cmp_abs, nan, random_state, mpc_random,
-                   to_binary, from_binary, get_context, is_nan)
-from supportclasses import a, b, c, d
+                   to_binary, from_binary, get_context, is_nan, mpq, mpfr)
+from supportclasses import a, b, c, d, cx, z, q, r
 
 
 def test_mpc_cmp():
@@ -102,3 +102,63 @@ def test_mpc_to_from_binary():
     assert (from_binary(to_binary(mpc("1.3-4.7j"))) ==
             mpc('1.2999999999999999999999999999994-4.7000000000000000000000000000000025j',
                 (100,110)))
+
+
+def test_mpc_format():
+    gmpy2.set_context(gmpy2.context())
+
+    c, c1 = mpc(mpq(1/3), 5), mpc(-1, -2)
+
+    assert '{:>20}'.format(c) == '  0.333333+5.000000j'
+    assert '{:<20}'.format(c) == '0.333333+5.000000j  '
+    assert '{:^20}'.format(c) == ' 0.333333+5.000000j '
+
+    pytest.raises(ValueError, lambda: '{:<<20}'.format(c))
+
+    assert '{:>+20}'.format(c) == ' +0.333333+5.000000j'
+
+    pytest.raises(ValueError, lambda: '{:+^20}'.format(c))
+
+    assert '{:.10f}'.format(c) == '0.3333333333+5.0000000000j'
+
+    pytest.raises(ValueError, lambda: '{:Z.10f}'.format(c))
+    pytest.raises(ValueError, lambda: '{:Z 10}'.format(c))
+
+    assert '{:Z}'.format(c) == '0.333333+5.000000j'
+    assert '{:U}'.format(c) == '0.333334+5.000000j'
+
+    pytest.raises(ValueError, lambda: '{:PU}'.format(c))
+
+    assert '{:UP}'.format(c) == '0.333334+5.000000j'
+
+    pytest.raises(ValueError, lambda: '{:PP}'.format(c))
+
+    assert '{:G}'.format(c) == '0.333333+5.0j'
+    assert '{:M}'.format(c) == '(0.333333 5.000000)'
+    assert '{:b}'.format(c) == '1.0101010101010101010101010101010101010101010101010101p-2+1.01p+2j'
+    assert '{:a}'.format(c) == '0x5.5555555555554p-4+0x5p+0j'
+    assert '{:e}'.format(c) in ('3.3333333333333331e-01+5e+00j', '3.3333333333333331e-01+5.0000000000000000e+00j')
+    assert '{:M}'.format(c1) == '(-1.000000 -2.000000)'
+
+
+def test_mpc_digits():
+    c = mpc(mpq(1/3), 5)
+
+    assert c.digits(8) == (('2525252525252525250', 0, 53), ('5000000000000000000', 1, 53))
+    assert c.digits(8, 2) == (('25', 0, 53), ('50', 1, 53))
+
+    pytest.raises(ValueError, lambda: c.digits(8, -2))
+    pytest.raises(ValueError, lambda: c.digits(0))
+
+
+def test_mpc_sub():
+    pytest.raises(TypeError, lambda: mpc(1,2) - 'a')
+
+    assert mpfr(1) - mpc(1,2) == mpc('0.0-2.0j')
+    assert mpc(1,2) - mpfr(1) == mpc('0.0+2.0j')
+    assert mpc(1,2) - 1+0j == mpc('0.0+2.0j')
+    assert 1+0j - mpc(1,2) == mpc('0.0-2.0j')
+    assert mpc(1,2) - z == mpc('-1.0+2.0j')
+    assert mpc(1,2) - q == mpc('-0.5+2.0j')
+    assert mpc(1,2) - r == mpc('-0.5+2.0j')
+    assert mpc(1,2) - cx == mpc('-41.0-65.0j')

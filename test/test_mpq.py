@@ -1,13 +1,21 @@
 import numbers
+import math
 import pickle
 from decimal import Decimal
+from fractions import Fraction
 
 import pytest
 from hypothesis import given, example, settings
 from hypothesis.strategies import integers
 
-from gmpy2 import mpq, mpz, cmp, cmp_abs, from_binary, to_binary
+import gmpy2
+from gmpy2 import mpq, mpz, cmp, cmp_abs, from_binary, to_binary, mpc, mpfr
 from supportclasses import a, b, c, d, q, z
+
+
+def test_mpz_constructor():
+    assert mpq('1/1') == mpq(1,1)
+    assert mpq('1_/_1') == mpq(1,1)
 
 
 def test_mpq_as_integer_ratio():
@@ -86,3 +94,111 @@ def test_mpq_to_from_binary(p, q):
 
 def test_mpq_hash():
     hash(mpq(123456,1000)) == hash(Decimal('123.456'))
+
+
+def test_mpq_digits():
+    q = mpq(2/3)
+
+    assert q.digits() == '6004799503160661/9007199254740992'
+    assert q.digits(16) == '0x15555555555555/0x20000000000000'
+
+    pytest.raises(TypeError, lambda: q.digits(16, 5))
+    pytest.raises(ValueError, lambda: q.digits(0))
+
+
+def test_mpq_sub():
+    assert mpq(1,2) - Fraction(3,2) == mpq(-1,1)
+    assert Fraction(1,2) - mpq(3,2) == mpq(-1,1)
+    assert mpq(1,2) - mpq(3,2) == mpq(-1,1)
+    assert mpq(1,2) - 0 == mpq(1,2)
+    assert mpq(1,2) - mpz(1) == mpq(-1,2)
+    assert mpq(1,2) + (-1) == mpq(-1,2)
+    assert 1 - mpq(1,2) == mpq(1,2)
+    assert mpz(1) - mpq(1,2) == mpq(1,2)
+    assert mpq(1,2) - mpz(1) == mpq(-1,2)
+    assert mpq(1,1) - mpc(0) == mpc('1.0+0.0j')
+    assert mpc(0) - mpq(1,1) == mpc('-1.0+0.0j')
+    assert mpq(1,2) - z == mpq(-3,2)
+    assert mpq(1,2) - q ==mpq(-1,1)
+
+    ctx = gmpy2.context()
+
+    assert ctx.sub(mpq(1,2), mpq(3,2)) == mpq(-1,1)
+    assert ctx.sub(mpq(1,2), Fraction(3,2)) == mpq(-1,1)
+    assert ctx.sub(Fraction(1,2), mpq(3,2)) == mpq(-1,1)
+    assert ctx.sub(Fraction(1,2), Fraction(3,2)) == mpq(-1,1)
+
+    pytest.raises(TypeError, lambda: ctx.sub(1,'a'))
+    pytest.raises(TypeError, lambda: mpq(1,2) - 'a')
+    pytest.raises(TypeError, lambda: 'a' - mpq(1,2))
+
+
+def test_mpq_attributes():
+    q = mpq('4/5')
+    pyq = Fraction(4, 5)
+
+    assert q.numerator == mpz(4)
+    assert q.denominator == mpz(5)
+    assert gmpy2.numer(q) == mpz(4)
+    assert gmpy2.denom(q) == mpz(5)
+
+    pytest.raises(TypeError, lambda: gmpy2.numer(6.2))
+    pytest.raises(TypeError, lambda: gmpy2.denom(5.6))
+    pytest.raises(TypeError, lambda: gmpy2.denom(mpfr(5)))
+
+    assert gmpy2.numer(pyq) == mpz(4)
+    assert gmpy2.denom(pyq) == mpz(5)
+
+
+def test_mpq_floor():
+    assert math.floor(mpq('7/2')) == mpz(3)
+
+
+def test_mpq_ceil():
+    assert math.ceil(mpq('7/2')) == mpz(4)
+
+
+def test_mpq_trunc():
+    assert math.trunc(mpq('7/2')) == mpz(3)
+
+
+def test_mpq_round():
+    q = mpq('4/5')
+
+    assert round(mpq('7/2')) == mpz(4)
+    assert round(q, 4) == mpq(4,5)
+
+    pytest.raises(TypeError, lambda: round(q, 4, 2))
+
+
+def test_mpq_not():
+    q = mpq('4/5')
+
+    assert q
+    assert not mpq('0/5')
+
+
+def test_mpq_qdiv():
+    q = mpq('4/5')
+    pyq = Fraction(4, 5)
+
+    assert gmpy2.qdiv(q) == mpq(4,5)
+    assert gmpy2.qdiv(pyq) == mpq(4,5)
+    assert gmpy2.qdiv(5) == mpz(5)
+
+    pytest.raises(TypeError, lambda: gmpy2.qdiv(mpc(4, 5)))
+    pytest.raises(TypeError, lambda: gmpy2.qdiv(4, 5, 4))
+    pytest.raises(TypeError, lambda: gmpy2.qdiv(4, 5.6))
+
+    assert gmpy2.qdiv(q, 2) == mpq(2,5)
+    assert gmpy2.qdiv(10, q) == mpq(25,2)
+    assert gmpy2.qdiv(1) == mpz(1)
+
+
+def test_issue_334():
+    x = mpq(3,2)
+    y = mpq(x,2)
+
+    assert x == mpq(3,2)
+    assert y == mpq(3,4)
+    assert id(x) is not id(y)

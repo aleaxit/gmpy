@@ -7,9 +7,10 @@ from hypothesis import assume, given, example, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import raises, mark
 
+import gmpy2
 from gmpy2 import (mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary,
                    random_state, mpz_random, mpz_urandomb, mpz_rrandomb,
-                   mp_version)
+                   mp_version, mpq, mpfr, mpc)
 from supportclasses import a, b, c, d, z, q
 
 
@@ -333,3 +334,102 @@ def test_prev_prime():
 
     with raises(TypeError):
         prev_prime(4.5)
+
+
+def test_mpz_format():
+    z1, z2 = mpz(-3), mpz(5)
+
+    assert '{:<5}'.format(z1) == '-3   '
+    assert '{:>+5}'.format(z2) == '   +5'
+
+    raises(ValueError, lambda: '{:5+}'.format(z1))
+
+    assert '{:>-4}'.format(z2) == '   5'
+    assert '{:<-4}'.format(z1) == '-3  '
+
+    raises(ValueError, lambda: '{:>4-}'.format(z1))
+    raises(ValueError, lambda: '{:<4 }'.format(z1))
+
+    assert '{:#x}'.format(z1) == '-0x3'
+    assert '{:#o}'.format(z1) == '-0o3'
+
+    raises(ValueError, lambda: '{:>5#}'.format(z1))
+    raises(ValueError, lambda: '{:~}'.format(z1))
+
+
+def test_mpz_digits():
+    z1, z2 = mpz(-3), mpz(15)
+
+    assert z1.digits() == '-3'
+    assert z1.digits(2) == '-11'
+    assert z1.digits(8) == '-3'
+    assert z2.digits(16) == 'f'
+
+    raises(ValueError, lambda: z1.digits(0))
+    raises(ValueError, lambda: z1.digits(1))
+
+
+def test_mpz_sub():
+    a, b = mpz(123), mpz(456)
+    c = 12345678901234567890
+
+    assert a-1 == mpz(122)
+    assert a-(-1) == mpz(124)
+    assert 1-a == mpz(-122)
+    assert (-1)-a == mpz(-124)
+    assert a-c == -12345678901234567767
+    assert c-a == 12345678901234567767
+    assert a-(-c) == 12345678901234568013
+    assert (-c)-a == -12345678901234568013
+    assert a-b == mpz(-333)
+    assert b-a == mpz(333)
+    assert a-(-b) == mpz(579)
+    assert (-b)-a == mpz(-579)
+    assert a-z == mpz(121)
+    assert gmpy2.sub(2,1) == mpz(1)
+
+    ctx = gmpy2.context()
+
+    assert ctx.sub(a,b) == a-b
+    assert ctx.sub(c,c) == c-c
+    assert ctx.sub(1, 1) == mpz(0)
+    assert ctx.sub(a, 1) == mpz(122)
+    assert ctx.sub(1, a) == mpz(-122)
+    assert ctx.sub(a, mpq(0)) == mpq(123,1)
+    assert ctx.sub(a, mpfr(0)) == mpfr('123.0')
+    assert ctx.sub(a, mpc(0)) == mpc('123.0+0.0j')
+
+    raises(TypeError, lambda: ctx.sub(1))
+    raises(TypeError, lambda: ctx.sub(1,2,3))
+    raises(TypeError, lambda: a-'b')
+    raises(TypeError, lambda: 'b'-a)
+
+
+def test_lucasu():
+    assert gmpy2.lucasu(2,4,1) == mpz(1)
+
+    raises(ValueError, lambda: gmpy2.lucasu(2,1,1))
+
+    assert gmpy2.lucasu(2,4,8) == mpz(128)
+
+    raises(TypeError, lambda: gmpy2.lucasu('a',4,8))
+    raises(TypeError, lambda: gmpy2.lucasu(2,'b',8))
+    raises(TypeError, lambda: gmpy2.lucasu(2,4,None))
+    raises(ValueError, lambda: gmpy2.lucasu(mpz(2), mpz(1), mpz(7)))
+
+    assert gmpy2.lucasu_mod(3,2,5,7) == mpz(3)
+    assert gmpy2.lucasu_mod(3,2,555,777777777) == mpz(387104641)
+
+    raises(ValueError, lambda: gmpy2.lucasu_mod(2,1,555,777777777))
+
+    raises(ValueError, lambda: gmpy2.lucasv(2,1,4))
+    raises(TypeError, lambda: gmpy2.lucasv('a',1,2))
+    raises(TypeError, lambda: gmpy2.lucasv(4,'b',2))
+    raises(TypeError, lambda: gmpy2.lucasv(4,3,'c'))
+
+    assert gmpy2.lucasv(4,3,7) == mpz(2188)
+    assert gmpy2.lucasv(4,3,8) == mpz(6562)
+
+    assert gmpy2.lucasv_mod(4,3,55,123456) == mpz(35788)
+    assert gmpy2.lucasv_mod(4,3,56,123456) == mpz(107362)
+    assert gmpy2.lucasv_mod(4,3,57,123456) == mpz(75172)
