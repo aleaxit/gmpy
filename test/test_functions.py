@@ -1,7 +1,7 @@
 import pytest
 
 from gmpy2 import (root, rootn, zero, mpz, mpq, mpfr, mpc, is_nan, maxnum,
-                   minnum, fma, fms, ieee)
+                   minnum, fma, fms, ieee, fmma, fmms)
 
 
 def test_root():
@@ -86,3 +86,20 @@ def test_fused():
     assert fms(1,2,mpq(3,4)) == mpq(5,4)
     assert fms(1,mpfr(2),3) == mpfr('-1.0')
     assert fms(1,mpc(2),3) == mpc('-1.0+0.0j')
+
+    assert fmma(2,3,4,5) == mpz(26)
+    assert fmma(2,3,-4,5) == mpz(-14)
+    assert fmma(2.0,3,-4, mpq(5)) == mpfr('-14.0')
+    assert fmma(2,3.0,-4,5) == mpfr('-14.0')
+    assert fmma(2,3,-4.0,5) == mpfr('-14.0')
+    assert fmma(2,mpfr(3),-4.0,5) == mpfr('-14.0')
+
+    pytest.raises(TypeError, lambda: fmma(mpc(2),mpfr(3),-4.0,5))
+
+    assert fmms(2,3,4,5) == mpz(-14)
+    assert fmms(2,3,-4,5) == mpz(26)
+    assert fmms(2, 3, mpq(1, 2), 5) == mpq(7,2)
+    assert fmms(2, 3, mpfr(1.2), 1) == mpfr('4.7999999999999998')
+
+    assert ieee(128).fmma(7,1/7,-1,3/11) == mpfr('0.727272727272727237401994671017746441',113)
+    assert ieee(128).fmma(7,mpq(1,7),-1,mpq(3,11)) == mpq(8,11)
