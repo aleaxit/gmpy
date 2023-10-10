@@ -1,5 +1,6 @@
 import pytest
 
+import gmpy2
 from gmpy2 import (root, rootn, zero, mpz, mpq, mpfr, mpc, is_nan, maxnum,
                    minnum, fma, fms, ieee, fmma, fmms)
 
@@ -103,3 +104,32 @@ def test_fused():
 
     assert ieee(128).fmma(7,1/7,-1,3/11) == mpfr('0.727272727272727237401994671017746441',113)
     assert ieee(128).fmma(7,mpq(1,7),-1,mpq(3,11)) == mpq(8,11)
+
+
+def test_trigonometric():
+    assert gmpy2.acos(mpc(0.2, 0.2)) == mpc('1.3735541886535356-0.20256635782456389j')
+    assert gmpy2.acos(mpc(0.2, 0.2)) == gmpy2.acos(complex(0.2, 0.2))
+
+    assert gmpy2.asin(mpc(0.2,0.2)) == mpc('0.1972421381413611+0.20256635782456389j')
+    assert gmpy2.asin(mpc(2.0,0.2)) == mpc('1.4560834209500821+1.3245636864399635j')
+    assert gmpy2.asin(mpc(0.2,0.2)) == gmpy2.asin(complex(0.2,0.2))
+
+    assert gmpy2.atan(mpc(2.0, 2.0)) == mpc('1.311223269671635+0.23887786125685909j')
+    assert gmpy2.atan(mpc(2.0, 2.0)) == gmpy2.atan(complex(2.0, 2.0))
+
+    c = mpc(2,3)
+
+    assert gmpy2.cos(c) == mpc('-4.189625690968807-9.109227893755337j')
+
+    assert gmpy2.sin(c) == mpc('9.1544991469114301-4.1689069599665647j')
+
+    assert gmpy2.sin_cos(c) == (mpc('9.1544991469114301-4.1689069599665647j'), mpc('-4.189625690968807-9.109227893755337j'))
+    assert gmpy2.sin_cos(c) == gmpy2.sin_cos(complex(2,3))
+    assert gmpy2.sin_cos(c) == (gmpy2.sin(c), gmpy2.cos(c))
+
+    assert gmpy2.tan(mpc(4,5)) == mpc('8.9834776469715613e-05+1.0000132074347847j')
+
+    assert gmpy2.atanh(mpc(2.0, 3.0)) == mpc('0.14694666622552977+1.3389725222944935j')
+    assert gmpy2.atanh(mpc(2.0, 3.0)) == gmpy2.atanh(complex(2, 3))
+
+    assert gmpy2.tanh(mpc(4,5)) == mpc('1.0005630461157933-0.00036520305451130409j')
