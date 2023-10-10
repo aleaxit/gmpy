@@ -403,3 +403,33 @@ def test_mpz_sub():
     raises(TypeError, lambda: ctx.sub(1,2,3))
     raises(TypeError, lambda: a-'b')
     raises(TypeError, lambda: 'b'-a)
+
+
+def test_lucasu():
+    assert gmpy2.lucasu(2,4,1) == mpz(1)
+
+    raises(ValueError, lambda: gmpy2.lucasu(2,1,1))
+
+    assert gmpy2.lucasu(2,4,8) == mpz(128)
+
+    raises(TypeError, lambda: gmpy2.lucasu('a',4,8))
+    raises(TypeError, lambda: gmpy2.lucasu(2,'b',8))
+    raises(TypeError, lambda: gmpy2.lucasu(2,4,None))
+    raises(ValueError, lambda: gmpy2.lucasu(mpz(2), mpz(1), mpz(7)))
+
+    assert gmpy2.lucasu_mod(3,2,5,7) == mpz(3)
+    assert gmpy2.lucasu_mod(3,2,555,777777777) == mpz(387104641)
+
+    raises(ValueError, lambda: gmpy2.lucasu_mod(2,1,555,777777777))
+
+    raises(ValueError, lambda: gmpy2.lucasv(2,1,4))
+    raises(TypeError, lambda: gmpy2.lucasv('a',1,2))
+    raises(TypeError, lambda: gmpy2.lucasv(4,'b',2))
+    raises(TypeError, lambda: gmpy2.lucasv(4,3,'c'))
+
+    assert gmpy2.lucasv(4,3,7) == mpz(2188)
+    assert gmpy2.lucasv(4,3,8) == mpz(6562)
+
+    assert gmpy2.lucasv_mod(4,3,55,123456) == mpz(35788)
+    assert gmpy2.lucasv_mod(4,3,56,123456) == mpz(107362)
+    assert gmpy2.lucasv_mod(4,3,57,123456) == mpz(75172)
