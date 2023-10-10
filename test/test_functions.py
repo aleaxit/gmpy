@@ -1,7 +1,7 @@
 import pytest
 
 from gmpy2 import (root, rootn, zero, mpz, mpq, mpfr, mpc, is_nan, maxnum,
-                   minnum)
+                   minnum, fma, fms, ieee)
 
 
 def test_root():
@@ -64,3 +64,25 @@ def test_minnum():
     assert minnum(minf, a) == mpfr('-inf')
     assert minnum(nan, inf) == mpfr('inf')
     assert is_nan(minnum(nan, nan))
+
+
+def test_fused():
+    assert fma(2,3,4) == mpz(10)
+    assert fma(2,3,-4) == mpz(2)
+    assert fma(2.0,3,-4) == mpfr('2.0')
+    assert fma(2,3.0,-4) == mpfr('2.0')
+    assert fma(2,3,-4.0) == mpfr('2.0')
+    assert fma(2,mpfr(3),-4.0) == mpfr('2.0')
+    assert fma(mpc(2),mpfr(3),-4.0) == mpc('2.0+0.0j')
+    assert fms(2,3,4) == mpz(2)
+    assert fms(2,3,-4) == mpz(10)
+
+    assert ieee(128).fma(7,1/7,-1) == mpfr('-5.55111512312578270211815834045410156e-17',113)
+    assert ieee(128).fma(7,mpq(1,7),-1) == mpq(0,1)
+
+    pytest.raises(TypeError, lambda: fma(1,2,"r"))
+
+    assert fma(1,2,mpq(3,4)) == mpq(11,4)
+    assert fms(1,2,mpq(3,4)) == mpq(5,4)
+    assert fms(1,mpfr(2),3) == mpfr('-1.0')
+    assert fms(1,mpc(2),3) == mpc('-1.0+0.0j')
