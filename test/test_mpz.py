@@ -405,6 +405,26 @@ def test_mpz_sub():
     raises(TypeError, lambda: 'b'-a)
 
 
+def test_mpz_mul():
+    a = mpz(123)
+    b = mpz(456)
+    c = 12345678901234567890
+
+    assert mpz(2)*z == mpz(4)
+    assert gmpy2.mul(2,1) == mpz(2)
+
+    ctx = gmpy2.context()
+
+    assert ctx.mul(a,b) == a*b
+    assert ctx.mul(c,c) == c*c
+    assert ctx.mul(a, mpq(1)) == mpq(123,1)
+    assert ctx.mul(a, mpfr(1)) == mpfr('123.0')
+    assert ctx.mul(a, mpc(1)) == mpc('123.0+0.0j')
+
+    raises(TypeError, lambda: ctx.mul(1))
+    raises(TypeError, lambda: ctx.mul(1,2,3))
+
+
 def test_lucasu():
     assert gmpy2.lucasu(2,4,1) == mpz(1)
 

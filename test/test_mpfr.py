@@ -193,6 +193,30 @@ def test_mpfr_sub():
     assert mpfr(10) - r == mpfr('8.5')
 
 
+def test_mpfr_mul():
+    c = 12345678901234567890
+
+    assert mpfr(10) * 1 == mpfr('10.0')
+    assert 10 * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpz(1) == mpfr('10.0')
+    assert mpz(10) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpq(1,1) == mpfr('10.0')
+    assert mpq(10,1) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * Fraction(1,1) == mpfr('10.0')
+    assert Fraction(10,1) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * 1.0 == mpfr('10.0')
+    assert 10.0 * mpfr(1) == mpfr('10.0')
+    assert mpfr(1) * c == mpfr(c)
+    assert c * mpfr(1) == mpfr(c)
+    assert mpfr(10) * z == mpfr('20.0')
+    assert mpfr(10) * q == mpfr('15.0')
+    assert mpfr(10) * r == mpfr('15.0')
+
+    pytest.raises(TypeError, lambda: mpfr(10) * 'a')
+    pytest.raises(TypeError, lambda: 'a' * mpfr(10))
+
+
 def test_mpfr_subnormalize():
     gmpy2.set_context(gmpy2.ieee(64))
 
