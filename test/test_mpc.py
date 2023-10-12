@@ -162,3 +162,27 @@ def test_mpc_sub():
     assert mpc(1,2) - q == mpc('-0.5+2.0j')
     assert mpc(1,2) - r == mpc('-0.5+2.0j')
     assert mpc(1,2) - cx == mpc('-41.0-65.0j')
+
+
+def test_mpc_mul():
+    pytest.raises(TypeError, lambda: mpc(1,2) * 'a')
+
+    assert mpfr(1) * mpc(1,2) == mpc('1.0+2.0j')
+    assert mpc(1,2) * mpfr(1) == mpc('1.0+2.0j')
+    assert mpc(1,2) * mpfr(-1) == mpc('-1.0-2.0j')
+    assert mpc(1,2) * (1+0j) == mpc('1.0+2.0j')
+    assert (1+0j) * mpc(1,2) == mpc('1.0+2.0j')
+    assert mpc(1,2) * z == mpc('2.0+4.0j')
+    assert mpc(1,2) * q == mpc('1.5+3.0j')
+    assert mpc(1,2) * r == mpc('1.5+3.0j')
+    assert mpc(1,2) * cx == mpc('-92.0+151.0j')
+
+
+def test_mpc_divmod():
+    pytest.raises(TypeError, lambda: divmod(mpc(1),'a'))
+
+    ctx = gmpy2.context()
+
+    pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
+    pytest.raises(TypeError, lambda: divmod(mpc(1,2), mpc(1,2)))
+    pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))

@@ -133,6 +133,41 @@ def test_mpq_sub():
     pytest.raises(TypeError, lambda: 'a' - mpq(1,2))
 
 
+def test_mpq_mul():
+    assert mpq(1,2) * Fraction(3,2) == mpq(3,4)
+    assert Fraction(1,2) * mpq(3,2) == mpq(3,4)
+    assert mpq(1,2) * mpq(3,2) == mpq(3,4)
+    assert mpq(1,2) * 0 == mpq(0,1)
+    assert mpq(1,2) * mpz(1) == mpq(1,2)
+    assert mpq(1,2) * (-1) == mpq(-1,2)
+    assert mpq(1,1) * mpc(1,0) == mpc('1.0+0.0j')
+    assert mpc(1,0) * mpq(1,1) == mpc('1.0+0.0j')
+    assert mpq(1,2) * z == mpq(1,1)
+    assert mpq(1,2) * q == mpq(3,4)
+
+    ctx = gmpy2.context()
+
+    assert ctx.mul(mpq(1,2), mpq(3,2)) == mpq(3,4)
+    assert ctx.mul(mpq(1,2), Fraction(3,2)) == mpq(3,4)
+    assert ctx.mul(Fraction(1,2), mpq(3,2)) == mpq(3,4)
+    assert ctx.mul(Fraction(1,2), Fraction(3,2)) == mpq(3,4)
+
+    pytest.raises(TypeError, lambda: ctx.mul(1,'a'))
+    pytest.raises(TypeError, lambda: mpq(1,2) * 'a')
+    pytest.raises(TypeError, lambda: 'a' * mpq(1,2))
+
+
+def test_mpq_divmod():
+    pytest.raises(TypeError, lambda: divmod(mpq(1,2),'a'))
+
+    ctx = gmpy2.ieee(64)
+    gmpy2.set_context(ctx)
+
+    assert ctx.divmod(mpq(3,2),mpq(3,7)) == (mpz(3), mpq(3,14))
+
+    pytest.raises(TypeError, lambda: divmod(mpq(1,2), mpc(1,2)))
+
+
 def test_mpq_attributes():
     q = mpq('4/5')
     pyq = Fraction(4, 5)

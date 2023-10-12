@@ -8,7 +8,7 @@ from hypothesis.strategies import floats
 import gmpy2
 from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
                    to_binary, from_binary, is_nan, random_state,
-                   mpfr_grandom, mpfr_nrandom)
+                   mpfr_grandom, mpfr_nrandom, mpc)
 from supportclasses import a, b, c, d, q, r, z
 
 
@@ -191,6 +191,58 @@ def test_mpfr_sub():
     assert mpfr(10) - z == mpfr('8.0')
     assert mpfr(10) - q == mpfr('8.5')
     assert mpfr(10) - r == mpfr('8.5')
+
+
+def test_mpfr_mul():
+    c = 12345678901234567890
+
+    assert mpfr(10) * 1 == mpfr('10.0')
+    assert 10 * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpz(1) == mpfr('10.0')
+    assert mpz(10) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpq(1,1) == mpfr('10.0')
+    assert mpq(10,1) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * Fraction(1,1) == mpfr('10.0')
+    assert Fraction(10,1) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * 1.0 == mpfr('10.0')
+    assert 10.0 * mpfr(1) == mpfr('10.0')
+    assert mpfr(1) * c == mpfr(c)
+    assert c * mpfr(1) == mpfr(c)
+    assert mpfr(10) * z == mpfr('20.0')
+    assert mpfr(10) * q == mpfr('15.0')
+    assert mpfr(10) * r == mpfr('15.0')
+
+    pytest.raises(TypeError, lambda: mpfr(10) * 'a')
+    pytest.raises(TypeError, lambda: 'a' * mpfr(10))
+
+
+def test_mpfr_divmod():
+    pytest.raises(TypeError, lambda: divmod(mpfr(1),'a'))
+
+    ctx = gmpy2.context()
+
+    assert ctx.divmod(mpfr(2),mpfr(1)) == (mpfr('2.0'), mpfr('0.0'))
+
+    pytest.raises(TypeError, lambda: divmod(mpfr(1), mpc(1,2)))
+
+    assert divmod(mpfr(1.2), mpfr(0.7)) == (mpfr('1.0'), mpfr('0.5'))
+
+    ctx = gmpy2.ieee(64)
+    gmpy2.set_context(ctx)
+
+    assert divmod(mpfr(1.2), mpfr(0.7)) == (mpfr('1.0'), mpfr('0.5'))
+    ctx.clear_flags()
+
+    assert ctx.divzero is False
+    assert all(map(ctx.is_nan, divmod(mpfr(1.2), mpfr(0))))
+
+    with gmpy2.local_context(trap_divzero=True):
+        pytest.raises(gmpy2.DivisionByZeroError, lambda: divmod(mpfr(1), mpfr(0)))
+    with gmpy2.local_context(trap_invalid=True):
+        pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(gmpy2.nan(), mpfr(1)))
+    with gmpy2.local_context(trap_invalid=True):
+        pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(mpfr(1), gmpy2.inf()))
 
 
 def test_mpfr_subnormalize():
