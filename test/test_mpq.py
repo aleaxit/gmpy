@@ -157,6 +157,17 @@ def test_mpq_mul():
     pytest.raises(TypeError, lambda: 'a' * mpq(1,2))
 
 
+def test_mpq_divmod():
+    pytest.raises(TypeError, lambda: divmod(mpq(1,2),'a'))
+
+    ctx = gmpy2.ieee(64)
+    gmpy2.set_context(ctx)
+
+    assert ctx.divmod(mpq(3,2),mpq(3,7)) == (mpz(3), mpq(3,14))
+
+    pytest.raises(TypeError, lambda: divmod(mpq(1,2), mpc(1,2)))
+
+
 def test_mpq_attributes():
     q = mpq('4/5')
     pyq = Fraction(4, 5)

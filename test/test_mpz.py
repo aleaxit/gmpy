@@ -425,6 +425,26 @@ def test_mpz_mul():
     raises(TypeError, lambda: ctx.mul(1,2,3))
 
 
+def test_mpz_divmod():
+    a = mpz(123)
+    b = mpz(456)
+
+    raises(TypeError, lambda: divmod(mpz(123),'a'))
+
+    ctx = gmpy2.context()
+
+    raises(TypeError, lambda: ctx.divmod('a',456))
+    raises(TypeError, lambda: ctx.divmod(1,2,3))
+    raises(ZeroDivisionError, lambda: ctx.divmod(456, 0))
+    raises(TypeError, lambda: ctx.divmod(a,mpc(456)))
+    raises(TypeError, lambda: divmod(mpz(1), mpc(1,2)))
+
+    assert ctx.divmod(a,b) == (mpz(0), mpz(123))
+    assert ctx.divmod(123,456) == (mpz(0), mpz(123))
+    assert divmod(mpz(3), z) == (mpz(1), mpz(1))
+    assert divmod(z, mpz(3)) == (mpz(0), mpz(2))
+
+
 def test_lucasu():
     assert gmpy2.lucasu(2,4,1) == mpz(1)
 

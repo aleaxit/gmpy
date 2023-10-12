@@ -176,3 +176,13 @@ def test_mpc_mul():
     assert mpc(1,2) * q == mpc('1.5+3.0j')
     assert mpc(1,2) * r == mpc('1.5+3.0j')
     assert mpc(1,2) * cx == mpc('-92.0+151.0j')
+
+
+def test_mpc_divmod():
+    pytest.raises(TypeError, lambda: divmod(mpc(1),'a'))
+
+    ctx = gmpy2.context()
+
+    pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
+    pytest.raises(TypeError, lambda: divmod(mpc(1,2), mpc(1,2)))
+    pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
