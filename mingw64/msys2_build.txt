@@ -1,3 +1,119 @@
+Building gmpy2 with MSYS2 / MinGW64 / Visual Studio
+===================================================
+
+A new build approach is being tested for the final gmpy2 v2.2.x release.
+
+The GMP, MPFR, and MPC DLLs are created using the MinGW64 compiler suite and
+are linked to MSCVRT. The final gmpy2 binaries are created using Visual Studio.
+
+MSYS2 Steps
+-----------
+
+1.  Install MSYS2
+
+    1. Upgrade the initial installation:
+
+        pacman -Syuu
+
+    2. Reboot and launch the "MSYS2 MINGW64" terminal window. Upgrade the user
+       system:
+
+        pacman -Syu
+
+    3. Install the MinGW64 compiler suite.
+
+        pacman -Sy mingw-w64-x86_64-gcc
+
+    4. Install rquired tools:
+
+        pacman -Sy patch m4 lzip wget tar make diffutils git
+
+2.  Create a temporary working directory for the build:
+
+      mkdir ~/temp
+
+3.  Clone (or download) the full gmpy2 source code from https://github.com/aleaxit/gmpy
+
+      cd ~/temp
+      git clone https://github.com/aleaxit/gmpy.git
+
+4.  Download and compile GMP, MPFR, and MPC 
+
+      bash ~/temp/gmpy/mingw64/msys2_64_shared.sh
+
+5.  Copy the required files to the gmpy2 installation
+
+      mkdir ~/temp/gmpy/mingw64/winlibs
+      cp ~/temp/shared/bin/*.*  ~/temp/gmpy/mingw64/winlibs
+      cp ~/temp/shared/lib/*.*  ~/temp/gmpy/mingw64/winlibs
+      cp ~/temp/shared/include/gmp.h  ~/temp/gmpy/mingw64/winlibs
+      cp ~/temp/shared/include/mpfr.h  ~/temp/gmpy/mingw64/winlibs
+      cp ~/temp/shared/include/mpc.h  ~/temp/gmpy/mingw64/winlibs
+      cp /mingw64/bin/libwinpthread-1.dll  ~/temp/gmpy/mingw64/winlibs
+      cp /mingw64/bin/libgcc_s_seh-1.dll  ~/temp/gmpy/mingw64/winlibs
+
+Visual Studio Steps
+-------------------
+
+1.  Launch the "Visual Studio x64 Native Tools Command Prompt" shell.
+
+2.  Change to location of the build directory.
+
+      cd c:\msys64\home\<username>\temp\gmpy
+
+3.  Run dll2lib.bat and delete unneeded files.
+
+      cd mingw64\winlibs
+      dll2lib 64 libgmp-10.dll
+      dll2lib 64 libmpfr-6.dll
+      dll2lib 64 libmpc-3.dll
+
+4.  Rename .lib files.
+
+      ren libgmp-10.lib gmp.lib
+      ren libmpfr-6.lib mpfr.lib
+      ren libmpc-3.lib mpc.lib
+
+5.  Delete unneeded files
+
+      del *.*a
+      cd ..\..
+
+
+5.  The winlibs directory should contain these files:
+
+      dir mingw64\winlibs
+
+      gmp.h
+      gmp.lib
+      libgcc_s_seh-1.dll
+      libgmp-10.dll
+      libmpc-3.dll
+      libmpfr-6.dll
+      libwinpthread-1.dll
+      mpc.h
+      mpc.lib
+      mpfr.h
+      mpfr.lib
+
+6.  Copy the contents of winlibs into gmpy2.
+
+      copy mingw64\winlibs\*.* gmpy2
+
+7.  Compile Windows binary wheels
+
+      py -3.12 setup.py build_ext -cmingw32 -Imingw64\gmpy2 -Lmingw64\gmpy2 -f bdist_wheel
+
+
+#############################################################################################
+
+The following for historical reference and will be deleted soon.
+
+#############################################################################################
+
+
+
+
 Building gmpy2 with MSYS2 and MinGW-w64
 =======================================
 

@@ -1,15 +1,13 @@
-PATH="/c/mingw64/bin:"$PATH
-
-GMP_VERSION=6.2.1
-MPFR_VERSION=4.2.0
+GMP_VERSION=6.3.0
+MPFR_VERSION=4.2.1
 MPC_VERSION=1.3.1
 
-cd /c/64
+cd $HOME/temp
 
 mkdir src
 mkdir shared
 
-cd /c/64/src
+cd $HOME/temp/src
 
 if [ ! -f gmp-${GMP_VERSION}.tar.lz ]; then
     wget https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.lz
@@ -32,26 +30,30 @@ tar xf mpc-${MPC_VERSION}.tar.gz
 
 cd gmp-${GMP_VERSION}/
 make distclean
-./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/c/64/shared --enable-shared --disable-static --enable-fat --with-pic
+./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/temp/shared --enable-shared --disable-static --enable-fat --with-pic
+
+# Uncomment the following lines to change the mp_bitcnt_t type to "unsigned long long int"
 mv gmp.h gmp.original
 sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t\n/g' gmp.original > gmp.h
-make -j8
-make check
+# Note: also need to fix mis-matched function signatures in millerrabin.c
+
+make -j32
+make -j16 check
 make install
 cd ..
 
 cd mpfr-${MPFR_VERSION}/
 make distclean
-./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/c/64/shared --enable-shared --disable-static --disable-decimal-float --disable-float128 --with-pic --with-gmp=/c/64/shared
-make -j8
+./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/temp/shared --enable-shared --disable-static --disable-decimal-float --disable-float128 --with-pic --with-gmp=$HOME/temp/shared
+make -j32
 make check
 make install
 cd ..
 
 cd mpc-${MPC_VERSION}/
 make distclean
-./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=/c/64/shared --enable-shared --disable-static --with-pic --with-gmp=/c/64/shared --with-mpfr=/c/64/shared
-make -j8
+./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/temp/shared --enable-shared --disable-static --with-pic --with-gmp=$HOME/temp/shared --with-mpfr=$HOME/temp/shared
+make -j16
 make check
 make install
 cd ..
