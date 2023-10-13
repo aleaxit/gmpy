@@ -29,16 +29,9 @@ mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt"]
 mpq_doctests = ["test_mpq.txt"]
 
 mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
-                 "test_mpfr_trig.txt",
-                 "test_context.txt", "test_mpfr_subnormalize.txt"]
+                 "test_mpfr_trig.txt", "test_context.txt"]
 
-# Some tests may differ between MPFR3 and MPFR4.
-mpfr_major_version = gmpy2.mpfr_version().split()[1].split('.')[0]
-mpfr_version_tests = [os.path.basename(i)
-                      for i in glob.glob(os.path.join(test_dir,
-                                         "test_mpfr" + mpfr_major_version + "*.txt"))]
-
-mpc_doctests = ["test_mpc.txt", "test_mpc_trig.txt"]
+mpc_doctests = ["test_mpc.txt"]
 
 gmpy2_tests = [os.path.basename(i)
                for i in glob.glob(os.path.join(test_dir,
@@ -49,7 +42,7 @@ attempted = 0
 
 all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
 
-all_doctests += mpfr_doctests + mpfr_version_tests
+all_doctests += mpfr_doctests
 
 all_doctests += mpc_doctests
 

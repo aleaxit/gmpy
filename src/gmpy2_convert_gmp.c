@@ -589,10 +589,10 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
          */
 
         if (wheredot) {
-            char *counter;
+            unsigned char *counter;
             long digits = 0;
 
-            counter = wheredot;
+            counter = (unsigned char*)wheredot;
             digits = 0;
             *wheredot = ' ';
             while (*++counter != '\0') {

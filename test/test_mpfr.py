@@ -1,4 +1,5 @@
 from decimal import Decimal
+from fractions import Fraction
 
 import pytest
 from hypothesis import given, example, settings
@@ -7,8 +8,8 @@ from hypothesis.strategies import floats
 import gmpy2
 from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
                    to_binary, from_binary, is_nan, random_state,
-                   mpfr_grandom, mpfr_nrandom)
-from supportclasses import a, b, c, d, q, r
+                   mpfr_grandom, mpfr_nrandom, mpc)
+from supportclasses import a, b, c, d, q, r, z
 
 
 def test_mpfr_gamma_inc():
@@ -131,3 +132,143 @@ def test_mpfr_mpmath():
     assert mpfr(c, precision=10)._mpf_ == (1, mpz(804), -8, 10)
     assert mpmath.mpf(mpfr(c, precision=10), prec=10) == mpmath.mpf(c, prec=10)
     assert mpfr(d)._mpf_ == (0, mpz(0), 1, 1)
+
+
+def test_mpfr_format():
+    r, r1, r2 = mpfr(5.6), mpfr(-3), mpfr(5)
+
+    assert '{:<30}'.format(r1) == '-3.000000                     '
+    assert '{:>+20}'.format(r2) == '           +5.000000'
+    assert '{:>-15}'.format(r2) == '       5.000000'
+    assert '{:>-15}'.format(r1) == '      -3.000000'
+    assert '{:U}'.format(r) == '5.600000'
+
+    pytest.raises(ValueError, lambda: '{:U-}'.format(r))
+
+    assert '{:Z}'.format(r) == '5.599999'
+
+    pytest.raises(ValueError, lambda: '{:Z+}'.format(r))
+
+    assert '{:+Z}'.format(r) == '+5.599999'
+
+    pytest.raises(ValueError, lambda: '{:Z }'.format(r))
+
+    assert '{:.10f}'.format(r) == '5.6000000000'
+    assert '{:.10f.}'.format(r) == '5.6000000000'
+
+    pytest.raises(ValueError, lambda: '{:Z.}'.format(r))
+    pytest.raises(ValueError, lambda: '{:->}'.format(r))
+    pytest.raises(ValueError, lambda: '{:YZ}'.format(r))
+
+
+def test_mpfr_digits():
+    r, r2 = mpfr(5.6), mpfr(5)
+
+    assert r.digits() == ('55999999999999996', 1, 53)
+    assert r.digits(2) == ('10110011001100110011001100110011001100110011001100110', 3, 53)
+    assert r.digits(2,54) == ('101100110011001100110011001100110011001100110011001100', 3, 53)
+    assert r.digits(10,54) == ('559999999999999964472863211994990706443786621093750000', 1, 53)
+    assert r2.digits(2) == ('10100000000000000000000000000000000000000000000000000', 3, 53)
+
+    pytest.raises(TypeError, lambda: r2.digits(2, 5, 6))
+    pytest.raises(ValueError, lambda: r.digits(0))
+
+
+def test_mpfr_sub():
+    assert mpfr(10) - 1 == mpfr('9.0')
+    assert 10 - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - mpz(1) == mpfr('9.0')
+    assert mpz(10) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - mpq(1,1) == mpfr('9.0')
+    assert mpq(10,1) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - Fraction(1,1) == mpfr('9.0')
+    assert Fraction(10,1) - mpfr(1) == mpfr('9.0')
+    assert mpfr(10) - 1.0 == mpfr('9.0')
+    assert 10.0 - mpfr(1) == mpfr('9.0')
+    assert mpfr(0) - (1 << 100) == mpfr('-1p100', base=2)
+    assert (1 << 100) - mpfr(0) == mpfr('1p100', base=2)
+    assert mpfr(10) - z == mpfr('8.0')
+    assert mpfr(10) - q == mpfr('8.5')
+    assert mpfr(10) - r == mpfr('8.5')
+
+
+def test_mpfr_mul():
+    c = 12345678901234567890
+
+    assert mpfr(10) * 1 == mpfr('10.0')
+    assert 10 * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpz(1) == mpfr('10.0')
+    assert mpz(10) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * mpq(1,1) == mpfr('10.0')
+    assert mpq(10,1) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * Fraction(1,1) == mpfr('10.0')
+    assert Fraction(10,1) * mpfr(1) == mpfr('10.0')
+    assert mpfr(10) * 1.0 == mpfr('10.0')
+    assert 10.0 * mpfr(1) == mpfr('10.0')
+    assert mpfr(1) * c == mpfr(c)
+    assert c * mpfr(1) == mpfr(c)
+    assert mpfr(10) * z == mpfr('20.0')
+    assert mpfr(10) * q == mpfr('15.0')
+    assert mpfr(10) * r == mpfr('15.0')
+
+    pytest.raises(TypeError, lambda: mpfr(10) * 'a')
+    pytest.raises(TypeError, lambda: 'a' * mpfr(10))
+
+
+def test_mpfr_divmod():
+    pytest.raises(TypeError, lambda: divmod(mpfr(1),'a'))
+
+    ctx = gmpy2.context()
+
+    assert ctx.divmod(mpfr(2),mpfr(1)) == (mpfr('2.0'), mpfr('0.0'))
+
+    pytest.raises(TypeError, lambda: divmod(mpfr(1), mpc(1,2)))
+
+    assert divmod(mpfr(1.2), mpfr(0.7)) == (mpfr('1.0'), mpfr('0.5'))
+
+    ctx = gmpy2.ieee(64)
+    gmpy2.set_context(ctx)
+
+    assert divmod(mpfr(1.2), mpfr(0.7)) == (mpfr('1.0'), mpfr('0.5'))
+    ctx.clear_flags()
+
+    assert ctx.divzero is False
+    assert all(map(ctx.is_nan, divmod(mpfr(1.2), mpfr(0))))
+
+    with gmpy2.local_context(trap_divzero=True):
+        pytest.raises(gmpy2.DivisionByZeroError, lambda: divmod(mpfr(1), mpfr(0)))
+    with gmpy2.local_context(trap_invalid=True):
+        pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(gmpy2.nan(), mpfr(1)))
+    with gmpy2.local_context(trap_invalid=True):
+        pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(mpfr(1), gmpy2.inf()))
+
+
+def test_mpfr_subnormalize():
+    gmpy2.set_context(gmpy2.ieee(64))
+
+    zeroes = '0.' + '0' * 323
+
+    assert mpfr(zeroes + '2470328229206232720') == mpfr('0.0')
+    assert mpfr(zeroes + '2470328229206232721') == mpfr('4.9406564584124654e-324')
+    assert mpfr(zeroes + '247032822920623272088') == mpfr('0.0')
+    assert mpfr(zeroes + '247032822920623272089') == mpfr('4.9406564584124654e-324')
+
+    gmpy2.set_context(gmpy2.ieee(32))
+
+    def fmt(v):
+        return '{:.23b}'.format(v)
+
+
+    a = mpfr('0x1p-126')
+
+    assert fmt(a) == '1.00000000000000000000000p-126'
+    assert fmt(gmpy2.next_below(a)) == '1.11111111111111111111110p-127'
+    assert fmt(gmpy2.next_above(a)) == '1.00000000000000000000001p-126'
+    assert fmt(gmpy2.next_below(0)) == '-1.00000000000000000000000p-149'
+    assert fmt(gmpy2.next_above(0)) == '1.00000000000000000000000p-149'
+    assert fmt(gmpy2.next_toward(a, -10)) == '1.11111111111111111111110p-127'
+    assert fmt(gmpy2.next_toward(a, 10)) == '1.00000000000000000000001p-126'
+
+    gmpy2.set_context(gmpy2.context())

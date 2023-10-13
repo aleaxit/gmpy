@@ -2,7 +2,7 @@ Tests for functions and methods of gmpy2_math.c
 ===============================================
 
 Note: tests for trigonometric operations are in
-files test_mpfr_trig.txt and test_mpc_trig.txt.
+files test_mpfr_trig.txt.
 
 >>> from gmpy2 import mpz, mpq, mpfr, mpc
 >>> import gmpy2
