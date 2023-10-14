@@ -589,7 +589,8 @@ GMPy_MPFR_GetReal_Attrib(MPFR_Object *self, void *closure)
 static PyObject *
 GMPy_MPFR_Get_Mpmath_MPF_Tuple(MPFR_Object *self, void *closure)
 {
-    long sign, bc;
+    long sign;
+    mp_bitcnt_t bc;
     MPZ_Object *mantissa;
     MPZ_Object *exponent;
     mpfr_exp_t temp;
@@ -625,7 +626,7 @@ GMPy_MPFR_Get_Mpmath_MPF_Tuple(MPFR_Object *self, void *closure)
     PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(sign));
     PyTuple_SET_ITEM(tuple, 1, (PyObject*)mantissa);
     PyTuple_SET_ITEM(tuple, 2, GMPy_PyLong_From_MPZ(exponent, NULL));
-    PyTuple_SET_ITEM(tuple, 3, PyLong_FromLong(bc));
+    PyTuple_SET_ITEM(tuple, 3, GMPy_PyLong_FromMpBitCnt(bc));
 
     return tuple;
 }

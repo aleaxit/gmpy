@@ -319,8 +319,8 @@ GMPy_XMPZ_ILshift_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
 {
-    mp_bitcnt_t exp = GMPy_Integer_AsMpBitCnt(other);
-    if (exp == (mp_bitcnt_t)(-1) && PyErr_Occurred())
+    unsigned long exp = GMPy_Integer_AsUnsignedLong(other);
+    if (exp == (unsigned long)(-1) && PyErr_Occurred())
         return NULL;
 
     mpz_pow_ui(MPZ(self), MPZ(self), exp);

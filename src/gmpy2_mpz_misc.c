@@ -273,7 +273,7 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
         else {
             mpz_init(temp);
             mpz_init(rem);
-            mpz_ui_pow_ui(temp, 10, round_digits);
+            mpz_ui_pow_ui(temp, 10, (unsigned long)round_digits);
             mpz_fdiv_qr(result->z, rem, MPZ(self), temp);
             mpz_mul_2exp(rem, rem, 1);
             if (mpz_cmp(rem, temp) > 0) {
@@ -1889,7 +1889,7 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
         }
         else if (strcmp(kwname, "length") == 0) {
             if (nargs == 0) {
-                argidx[0] = nargs + i;
+                argidx[0] = (int)(nargs + i);
             }
             else {
                 TYPE_ERROR("argument for to_bytes() given by name ('length') and position (1)");
@@ -1898,7 +1898,7 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
         }
         else if (strcmp(kwname, "byteorder") == 0) {
             if (nargs <= 1) {
-                argidx[1] = nargs + i;
+                argidx[1] = (int)(nargs + i);
             }
             else {
                 TYPE_ERROR("argument for to_bytes() given by name ('byteorder') and position (2)");
@@ -2049,7 +2049,7 @@ GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t
         }
         else if (strcmp(kwname, "bytes") == 0) {
             if (nargs == 0) {
-                argidx[0] = nargs + i;
+                argidx[0] = (int)(nargs + i);
             }
             else {
                 TYPE_ERROR("argument for from_bytes() given by name ('bytes') and position (1)");
@@ -2058,7 +2058,7 @@ GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t
         }
         else if (strcmp(kwname, "byteorder") == 0) {
             if (nargs <= 1) {
-                argidx[1] = nargs + i;
+                argidx[1] = (int)(nargs + i);
             }
             else {
                 TYPE_ERROR("argument for from_bytes() given by name ('byteorder') and position (2)");
@@ -2110,7 +2110,7 @@ GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t
 
     if (is_signed && mpz_tstbit(MPZ(result), 8*length - 1)) {
         mpz_init(tmp);
-        mpz_ui_pow_ui(tmp, 256, length);
+        mpz_ui_pow_ui(tmp, 256, (mp_size_t)length);
         mpz_sub(MPZ(result), tmp, MPZ(result));
         mpz_clear(tmp);
         mpz_neg(MPZ(result), MPZ(result));

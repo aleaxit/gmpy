@@ -42,33 +42,19 @@ static unsigned long   GMPy_Integer_AsUnsignedLong(PyObject *x);
 static unsigned long   GMPy_Integer_AsUnsignedLongWithType_v2(PyObject *x, int xtype);
 static unsigned long   GMPy_Integer_AsUnsignedLong_v2(PyObject *x);
 
-#ifdef _WIN64
-static PY_LONG_LONG          GMPy_Integer_AsLongLongWithType(PyObject *x, int xtype);
-static PY_LONG_LONG          GMPy_Integer_AsLongLong(PyObject *x);
+static PY_LONG_LONG    GMPy_Integer_AsLongLongWithType(PyObject *x, int xtype);
+static PY_LONG_LONG    GMPy_Integer_AsLongLong(PyObject *x);
+
+static mp_bitcnt_t     GMPy_Integer_AsMpBitCnt(PyObject *x);
+static mp_bitcnt_t     GMPy_PyLong_AsMpBitCnt(PyObject *x);
+static PyObject *      GMPy_PyLong_FromMpBitCnt(mp_bitcnt_t n);
+
 static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype);
 static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLong(PyObject *x);
-#endif
-
-/* This just requires that sizeof(mp_bitcnt_t) <= sizeof(size_t) */
-
-/* A custom version of GMP for Windows may be modified to support mp_bitcnt_t
- * as an unsigned long long. The following define will need updating.
- */
-
-#ifdef _WIN64
 
 #define GMPy_Integer_AsSsize_t (Py_ssize_t)GMPy_Integer_AsLongLong
-/* #define GMPy_Integer_AsSize_t (size_t)GMPy_Integer_AsUnsignedLongLong */
 
 static mp_bitcnt_t GMPy_Integer_AsMpBitCnt(PyObject *x);
-
-#else
-#define GMPy_Integer_AsSsize_t (Py_ssize_t)GMPy_Integer_AsLong
-#define GMPy_Integer_AsSize_t (size_t)GMPy_Integer_AsUnsignedLong
-#define GMPy_Integer_AsMpBitCnt (mp_bitcnt_t)GMPy_Integer_AsUnsignedLong
-#endif
-
-#define PyLong_FromMpBitCnt PyLong_FromSize_t
 
 #ifdef __cplusplus
 }

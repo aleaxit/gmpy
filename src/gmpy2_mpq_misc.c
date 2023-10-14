@@ -365,7 +365,7 @@ GMPy_MPQ_Method_Round(PyObject *self, PyObject *args)
     }
 
     mpz_init(temp);
-    mpz_ui_pow_ui(temp, 10, round_digits > 0 ? round_digits : -round_digits);
+    mpz_ui_pow_ui(temp, 10, round_digits > 0 ? (unsigned long)round_digits : (unsigned long)-round_digits);
 
     mpq_set(resultq->q, MPQ(self));
     if (round_digits > 0) {

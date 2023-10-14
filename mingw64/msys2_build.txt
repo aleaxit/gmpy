@@ -44,8 +44,7 @@ MSYS2 Steps
 5.  Copy the required files to the gmpy2 installation
 
       mkdir ~/temp/gmpy/mingw64/winlibs
-      cp ~/temp/shared/bin/*.*  ~/temp/gmpy/mingw64/winlibs
-      cp ~/temp/shared/lib/*.*  ~/temp/gmpy/mingw64/winlibs
+      cp ~/temp/shared/bin/*.dll  ~/temp/gmpy/mingw64/winlibs
       cp ~/temp/shared/include/gmp.h  ~/temp/gmpy/mingw64/winlibs
       cp ~/temp/shared/include/mpfr.h  ~/temp/gmpy/mingw64/winlibs
       cp ~/temp/shared/include/mpc.h  ~/temp/gmpy/mingw64/winlibs
@@ -64,9 +63,9 @@ Visual Studio Steps
 3.  Run dll2lib.bat and delete unneeded files.
 
       cd mingw64\winlibs
-      dll2lib 64 libgmp-10.dll
-      dll2lib 64 libmpfr-6.dll
-      dll2lib 64 libmpc-3.dll
+      ..\dll2lib 64 libgmp-10.dll
+      ..\dll2lib 64 libmpfr-6.dll
+      ..\dll2lib 64 libmpc-3.dll
 
 4.  Rename .lib files.
 
@@ -102,218 +101,16 @@ Visual Studio Steps
 
 7.  Compile Windows binary wheels
 
-      py -3.12 setup.py build_ext -cmingw32 -Imingw64\gmpy2 -Lmingw64\gmpy2 -f bdist_wheel
+      py -3.12 -m pip install setuptools wheel
+      py -3.12 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
+      py -3.11 -m pip install setuptools wheel
+      py -3.11 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
+      py -3.10 -m pip install setuptools wheel
+      py -3.10 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
+      py -3.9 -m pip install setuptools wheel
+      py -3.9 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
+      py -3.8 -m pip install setuptools wheel
+      py -3.8 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
+      py -3.7 -m pip install setuptools wheel
+      py -3.7 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
 
-
-#############################################################################################
-
-The following for historical reference and will be deleted soon.
-
-#############################################################################################
-
-
-
-
-Building gmpy2 with MSYS2 and MinGW-w64
-=======================================
-
-High-level overview
--------------------
-
-1.  Compile the GMP, MPFR, and MPC libraries
-    1.  Install the MSYS2 environment
-    2.  Install the MinGW-w64 compiler tools
-
-        To get a reproducible compiler, I use one winlibs.com.
-
-    3.  Dowload and compile GMP, MPFR, and MPC
-
-2.  Prepare Windows environment
-    1.  Install Python versions as needed
-    2.  Update pip, setuptools, wheel, and (optionally) pytest
-    3.  Replace cygwincompiler.py with patched version
-    4.  Create def files for Python version that are installed
-
-3.  Update build environment and compile gmpy2
-
-Note: These instructions are a work in progress!
-
-From the MSYS2 home page:
-
-https://www.msys2.org/
-
-MSYS2 is a Cygwin-derived Posix-like environment for Windows. The name is a
-contraction of Minimal SYStem 2, and aims to provide support to facilitate
-using the bash shell, Autotools, revision control systems and the like for
-building native Windows applications using MinGW-w64 toolchains.
-
-Installing MSYS2
-================
-
-Note: The following instructions assume MSYS2 and MinGW-w64 are installed as
-      C:\msys2 and C:\mingw64, respectively. 
-
-Detailed MSYS2 installation instructions can be found at:
-
-https://www.msys2.org/wiki/MSYS2-installation/
-
-The examples assume the 64-bit version of MSYS2 is installed.
-
-The following additional packages should also be installed:
-
-pacman -S patch m4 lzip wget tar make diffutils
-
-Installing MinGW-w64
-====================
-
-MSYS2 follows a "rolling-release" model. New versions of applications,
-including the MinGW-w64 compiler suite, are released frequently. The continual
-release cycles makeit difficult to provide a reproducible compliler. We will 
-be using MinGW-w64 as distributed by http://winlibs.com/. This documentation
-was based on the following version:
-
-https://github.com/brechtsanders/winlibs_mingw/releases/download/winlibs-x86_64-posix-seh-gcc-13.1.0-llvm-16.0.5-mingw-w64msvcrt-11.0.0-r5
-
-Unzip the downloaded file and copy the "mingw64" to the desired location.
-The following documentation assumes the files are copied to C:\mingw64.
-
-The build environment
-=====================
-
-The build process is split into two phases. During phase 1 we use the MSYS2
-shell environment and winlibs.com MinGW-w64 compiler suite to build GMP, MPFR,
-and MPC. Once those libraries are built, we will use the Windows command prompt
-and the same compiler to build the actual gmpy2 extension (DLL). 
-
-Commands that must be executed from an MSYS2 shell are preceded by "$".
-Commands that must be executed from a Windows command prompt are preceded
-by ">". You will need to run the commands *after* "$" or ">".
-
-The MSYS2 environment provides different command line operating
-environments. We will just use the generic "MSYS2 MSYS" environment.
-
- * MSYS2 MSYS
-   This is the general-purpose MSYS shell but it does not provide
-   access to the MinGW compiler suite. We will use this shell and
-   manually add the location of the winlibs.com version.
-
-MSYS2 does include versions of GMP, MPFR, and MPC but we will compile our
-own version directly from the source. We do this so we can create reproducible
-builds.
-
-Compiling GMP, MPFR, and MPC
-============================
-
-# Start the appropriate shell: MSYS2 MSYS
-
-# Execute <<source>>/mingw64/msys2_64_shared.sh
-
-The Windows build environment
-=============================
-
-# Configure Windows command prompt - GCC
-
-  Note: The following command is automatically run by the 64bit.bat file
-        documented below.
-
-  > set Path=C:\mingw64\bin;%Path%
-
-  To verfiy the MinGW toolchain is accessible, the command "gcc -v" should
-  return information about the gcc compiler.
-
-  Note: All the remaining instructions assume this step has been completed and
-        that "gcc -v" returns information for the correct version of gcc.
-
-# Configure Windows command prompt - Python
-
-  I use the following batch file to configure a command prompt for 64-bit builds:
-
-  @echo off
-  doskey py37=py -3.7 $*
-  doskey py38=py -3.8 $*
-  doskey py39=D:\64\Python39\python.exe $*
-  doskey py310=D:\64\Python310\python.exe $*
-  set Path=D:\mingw64\bin;%Path%
-
-  A copy of the batch file can be found in <<gmpy2 source>>\mingw64\64bit.bat
-
-# Upgrade pip and setuptools
-
-  Repeat as needed for different versions of Python
-
-  py -3.7 -m pip install --upgrade pip setuptools pytest wheel
-
-# Replace Python's cygwinccompiler.py with the numpy.distutils verion
-# located in the <<gmpy2 source>>\ming64\distutils directory.
-
-  copy /y mingw64\distutils\cygwinccompiler.py %LOCALAPPDATA%\Programs\Python\Python37\Lib\site-packages\setuptools\_distutils\.
-
-# Create the appropriate libpythonNN.a files. See gendef64.bat
-
-cd %LOCALAPPDATA%\Programs\Python\Python37\libs
-gendef ..\python37.dll
-dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python37\python37.dll --def python37.def --output-lib libpython37.a
-
-cd %LOCALAPPDATA%\Programs\Python\Python38\libs
-gendef ..\python38.dll
-dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python38\python38.dll --def python38.def --output-lib libpython38.a
-
-cd %LOCALAPPDATA%\Programs\Python\Python39\libs
-gendef ..\python39.dll
-dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python39\python39.dll --def python39.def --output-lib libpython39.a
-
-cd %LOCALAPPDATA%\Programs\Python\python310\libs
-gendef ..\python310.dll
-dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python310\python310.dll --def python310.def --output-lib libpython310.a
-
-cd %LOCALAPPDATA%\Programs\Python\python311\libs
-gendef ..\python311.dll
-dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python311\python311.dll --def python311.def --output-lib libpython311.a
-
-cd %LOCALAPPDATA%\Programs\Python\python312\libs
-gendef ..\python312.dll
-dlltool --dllname %LOCALAPPDATA%\Programs\Python\Python312\python312.dll --def python312.def --output-lib libpython312.a
-
-# Copy the result of the compilation to the <<gmpy2 source>>\mingw64\shared directory
-
-xcopy /s /y C:\64\shared\bin C:\64\gmpy\mingw64\shared\bin\.
-xcopy /s /y C:\64\shared\lib C:\64\gmpy\mingw64\shared\lib\.
-xcopy /s /y C:\64\shared\include C:\64\gmpy\mingw64\shared\include\.
-
-# Copy the libgcc_s_seh-1.dll file from the mingw64 distribution to the
-# <<gmpy2 source>>\mingw64\shared\bin directory.
-
-copy /y C:\mingw64\bin\libgcc_s_seh-1.dll C:\64\gmpy\mingw64\shared\bin
-
-# Copy the libwinpthread-1.dll file from the mingw64 distribution to the 
-# <<gmpy2 source>>\mingw64\shared\bin directory.
-
-copy /y C:\mingw64\bin\libwinpthread-1.dll C:\64\gmpy\mingw64\shared\bin
-
-# To compile gmpy2
-
-# Copy the additional DLL files to <<gmpy2 source>>\gmpy2
-
-xcopy /y C:\64\gmpy\mingw64\shared\bin\. C:\64\gmpy\gmpy2\
-
-The contents should be similar to:
-
-03/20/2023  10:19 PM            83,947 gmp.h
-03/12/2023  08:57 PM            19,159 gmpy2.h
-09/23/2022  09:12 PM             4,681 gmpy2.pxd
-01/17/2023  03:23 PM           634,184 libgcc_s_seh-1.dll
-03/20/2023  10:39 PM           923,565 libgmp-10.dll
-03/20/2023  11:13 PM           212,180 libmpc-3.dll
-03/20/2023  11:04 PM           634,883 libmpfr-6.dll
-01/17/2023  03:23 PM            92,865 libwinpthread-1.dll
-12/15/2022  02:57 AM            16,949 mpc.h
-03/20/2023  11:04 PM            57,443 mpfr.h
-12/30/2022  07:48 AM                26 vector.py
-
-# Complile and create a binary wheel.
-
-py -3.7 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
-py38 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
-py39 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
-py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
-py311 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel

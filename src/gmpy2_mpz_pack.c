@@ -47,7 +47,8 @@ static PyObject *
 GMPy_MPZ_pack(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits, total_bits, tempx_bits;
-    Py_ssize_t index, lst_count, i, temp_bits, limb_count;
+    mp_size_t i;
+    Py_ssize_t index, lst_count, temp_bits, limb_count;
     PyObject *lst;
     mpz_t temp, temp1;
     MPZ_Object *result, *tempx = 0;
@@ -114,7 +115,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
             temp_bits -= mp_bits_per_limb;
         }
         if (temp_bits > 0) {
-            mpz_tdiv_q_2exp(temp, temp, mp_bits_per_limb * i);
+            mpz_tdiv_q_2exp(temp, temp, mp_bits_per_limb * (mp_bitcnt_t)i);
         }
         else {
             mpz_set_ui(temp, 0);
@@ -137,7 +138,8 @@ static PyObject *
 GMPy_MPZ_unpack(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits, total_bits, guard_bit, extra_bits, temp_bits;
-    Py_ssize_t index = 0, lst_count, i, lst_ptr = 0;
+    mp_size_t index = 0;
+    Py_ssize_t lst_count, i, lst_ptr = 0;
     PyObject *result;
     mpz_t temp;
     mp_limb_t extra = 0;
@@ -218,7 +220,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
             temp->_mp_d[0] = extra;
         }
         else {
-           mpn_add_1(temp->_mp_d, temp->_mp_d, mpz_size(temp), extra);
+           mpn_add_1(temp->_mp_d, temp->_mp_d, (mp_size_t)mpz_size(temp), extra);
         }
         temp_bits += extra_bits;
 

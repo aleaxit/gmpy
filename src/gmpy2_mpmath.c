@@ -45,7 +45,7 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
         return NULL;
     }
 
-    if (!(tbc = PyLong_FromMpBitCnt(bc))) {
+    if (!(tbc = GMPy_PyLong_FromMpBitCnt(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -90,8 +90,9 @@ PyDoc_STRVAR(doc_mpmath_normalizeg,
 static PyObject *
 Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
 {
-    Py_ssize_t sign = 0, zbits, bc = 0, prec = 0, carry = 0;
-    mp_bitcnt_t shift = 0;
+    long sign = 0;
+    long carry = 0;
+    mp_bitcnt_t zbits, shift = 0, bc = 0, prec = 0;
     PyObject *exp = NULL, *newexp = NULL, *newexp2 = NULL, *tmp = NULL, *rndstr = NULL;
     MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
     Py_UCS4 rnd = 0;
@@ -102,11 +103,11 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
         sign = mpmath_get_sign(args[0]);
         man = (MPZ_Object*)args[1];
         exp = args[2];
-        bc = PyLong_AsSsize_t(args[3]);
-        prec = PyLong_AsSsize_t(args[4]);
+        bc = GMPy_PyLong_AsMpBitCnt(args[3]);
+        prec = GMPy_PyLong_AsMpBitCnt(args[4]);
         rndstr = args[5];
 
-        if ((sign == -1) || (bc == -1) || (prec == -1)) {
+        if ((sign == -1) || (bc == (mp_bitcnt_t)(-1)) || (prec == (mp_bitcnt_t)(-1))) {
             TYPE_ERROR("arguments long, MPZ_Object*, PyObject*, long, long, char needed");
             return NULL;
         }
@@ -224,7 +225,7 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyLong_FromLong(zbits))) {
+    if (!(tmp = GMPy_PyLong_FromMpBitCnt(zbits))) {
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
@@ -255,8 +256,8 @@ PyDoc_STRVAR(doc_mpmath_create,
 static PyObject *
 Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
 {
-    long sign, zbits, bc = 0, prec = 0, carry = 0;
-    mp_bitcnt_t shift = 0;
+    long sign, carry = 0;
+    mp_bitcnt_t zbits, bc = 0, prec = 0, shift = 0;
     Py_ssize_t n = 0;
     PyObject *exp = NULL, *newexp = NULL, *newexp2 = NULL, *tmp = NULL;
     MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
@@ -275,7 +276,7 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
             rnd = PyString_1Char(args[3]);
         case 3:
             prec = GMPy_Integer_AsLong(args[2]);
-            if (prec == -1) {
+            if (prec == (mp_bitcnt_t)(-1)) {
                 VALUE_ERROR("could not convert prec to positive int");
                 return NULL;
             }
@@ -384,7 +385,7 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyLong_FromLong(zbits))) {
+    if (!(tmp = GMPy_PyLong_FromMpBitCnt(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

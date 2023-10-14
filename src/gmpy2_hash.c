@@ -34,7 +34,7 @@ GMPy_MPZ_Hash_Slot(MPZ_Object *self)
         return self->hash_cache;
     }
 
-    hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, mpz_size(self->z), _PyHASH_MODULUS);
+    hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, (mp_size_t)mpz_size(self->z), _PyHASH_MODULUS);
     if (mpz_sgn(self->z) < 0) {
         hash = -hash;
     }
@@ -95,7 +95,7 @@ GMPy_MPQ_Hash_Slot(MPQ_Object *self)
 
     mpz_tdiv_r(temp1, mpq_numref(self->q), mask);
     mpz_mul(temp, temp, temp1);
-    hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, mpz_size(temp), _PyHASH_MODULUS);
+    hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, (mp_size_t)mpz_size(temp), _PyHASH_MODULUS);
 
     if (mpz_sgn(mpq_numref(self->q)) < 0) {
         hash = -hash;
@@ -159,11 +159,11 @@ _mpfr_hash(mpfr_t f)
 
     /* Calculate the hash of the mantissa. */
     if (mpfr_sgn(f) > 0) {
-        hash = mpn_mod_1(f->_mpfr_d, msize, _PyHASH_MODULUS);
+        hash = mpn_mod_1(f->_mpfr_d, (mp_size_t)msize, _PyHASH_MODULUS);
         sign = 1;
     }
     else if (mpfr_sgn(f) < 0) {
-        hash = mpn_mod_1(f->_mpfr_d, msize, _PyHASH_MODULUS);
+        hash = mpn_mod_1(f->_mpfr_d, (mp_size_t)msize, _PyHASH_MODULUS);
         sign = -1;
     }
     else {
