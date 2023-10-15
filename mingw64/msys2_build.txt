@@ -4,7 +4,7 @@ Building gmpy2 with MSYS2 / MinGW64 / Visual Studio
 A new build approach is being tested for the final gmpy2 v2.2.x release.
 
 The GMP, MPFR, and MPC DLLs are created using the MinGW64 compiler suite and
-are linked to MSCVRT. The final gmpy2 binaries are created using Visual Studio.
+are linked to UCRT. The final gmpy2 binaries are created using Visual Studio.
 
 MSYS2 Steps
 -----------
@@ -15,14 +15,14 @@ MSYS2 Steps
 
         pacman -Syuu
 
-    2. Reboot and launch the "MSYS2 MINGW64" terminal window. Upgrade the user
+    2. Reboot and launch the "MSYS2 UCRT" terminal window. Upgrade the user
        system:
 
         pacman -Syu
 
-    3. Install the MinGW64 compiler suite.
+    3. Install the MinGW64 compiler suite that links with ucrt..
 
-        pacman -Sy mingw-w64-x86_64-gcc
+        pacman -Sy mingw-w64-ucrt-x86_64-gcc
 
     4. Install rquired tools:
 
@@ -43,13 +43,13 @@ MSYS2 Steps
 
 5.  Copy the required files to the gmpy2 installation
 
-      mkdir ~/temp/gmpy/mingw64/winlibs
-      cp ~/temp/shared/bin/*.dll  ~/temp/gmpy/mingw64/winlibs
-      cp ~/temp/shared/include/gmp.h  ~/temp/gmpy/mingw64/winlibs
-      cp ~/temp/shared/include/mpfr.h  ~/temp/gmpy/mingw64/winlibs
-      cp ~/temp/shared/include/mpc.h  ~/temp/gmpy/mingw64/winlibs
-      cp /mingw64/bin/libwinpthread-1.dll  ~/temp/gmpy/mingw64/winlibs
-      cp /mingw64/bin/libgcc_s_seh-1.dll  ~/temp/gmpy/mingw64/winlibs
+      mkdir ~/temp/gmpy/mingw64/winlibs-ucrt
+      cp ~/temp/shared/bin/*.dll  ~/github/gmpy/mingw64/winlibs-ucrt
+      cp ~/temp/shared/include/gmp.h  ~/github/gmpy/mingw64/winlibs-ucrt
+      cp ~/temp/shared/include/mpfr.h  ~/github/gmpy/mingw64/winlibs-ucrt
+      cp ~/temp/shared/include/mpc.h  ~/github/gmpy/mingw64/winlibs-ucrt
+      cp /mingw64/bin/libwinpthread-1.dll  ~/github/gmpy/mingw64/winlibs-ucrt
+      cp /mingw64/bin/libgcc_s_seh-1.dll  ~/github/gmpy/mingw64/winlibs-ucrt
 
 Visual Studio Steps
 -------------------
@@ -62,7 +62,7 @@ Visual Studio Steps
 
 3.  Run dll2lib.bat and delete unneeded files.
 
-      cd mingw64\winlibs
+      cd mingw64\winlibs-ucrt
       ..\dll2lib 64 libgmp-10.dll
       ..\dll2lib 64 libmpfr-6.dll
       ..\dll2lib 64 libmpc-3.dll
@@ -81,7 +81,7 @@ Visual Studio Steps
 
 5.  The winlibs directory should contain these files:
 
-      dir mingw64\winlibs
+      dir mingw64\winlibs-ucrt
 
       gmp.h
       gmp.lib
@@ -95,22 +95,32 @@ Visual Studio Steps
       mpfr.h
       mpfr.lib
 
-6.  Copy the contents of winlibs into gmpy2.
+6.  Copy the contents of winlibs-ucrt into gmpy2.
 
-      copy mingw64\winlibs\*.* gmpy2
+      copy mingw64\winlibs-ucrt\*.* gmpy2
 
 7.  Compile Windows binary wheels
 
-      py -3.12 -m pip install setuptools wheel
-      py -3.12 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
-      py -3.11 -m pip install setuptools wheel
-      py -3.11 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
-      py -3.10 -m pip install setuptools wheel
-      py -3.10 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
-      py -3.9 -m pip install setuptools wheel
-      py -3.9 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
-      py -3.8 -m pip install setuptools wheel
-      py -3.8 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
-      py -3.7 -m pip install setuptools wheel
-      py -3.7 setup.py build_ext -Igmpy2 -Lgmpy2 -f bdist_wheel
+      py -3.12 -m pip install --upgrade pip setuptools wheel pytest hypothesis cython
+      py -3.12 setup.py build_ext -f bdist_wheel
+      py -3.12 -m pip install dist\gmpy2-2.2.0a2-cp312-cp312-win_amd64.whl --force-reinstall
 
+      py -3.11 -m pip install --upgrade pip setuptools wheel pytest hypothesis cython
+      py -3.11 setup.py build_ext -f bdist_wheel
+      py -3.11 -m pip install dist\gmpy2-2.2.0a2-cp311-cp311-win_amd64.whl --force-reinstall
+
+      py -3.10 -m pip install --upgrade pipsetuptools wheel pytest hypothesis cython
+      py -3.10 setup.py build_ext -f bdist_wheel
+      py -3.10 -m pip install dist\gmpy2-2.2.0a2-cp310-cp310-win_amd64.whl --force-reinstall
+
+      py -3.9 -m pip install --upgrade pip setuptools wheel pytest hypothesis cython
+      py -3.9 setup.py build_ext -f bdist_wheel
+      py -3.9 -m pip install dist\gmpy2-2.2.0a2-cp39-cp39-win_amd64.whl --force-reinstall
+
+      py -3.8 -m pip install --upgrade pip setuptools wheel pytest hypothesis cython
+      py -3.8 setup.py build_ext -f bdist_wheel
+      py -3.8 -m pip install dist\gmpy2-2.2.0a2-cp38-cp38-win_amd64.whl --force-reinstall
+
+      py -3.7 -m pip install --upgrade pip setuptools wheel pytest hypothesis cython
+      py -3.7 setup.py build_ext -f bdist_wheel
+      py -3.7 -m pip install dist\gmpy2-2.2.0a2-cp37-cp37m-win_amd64.whl --force-reinstall            
