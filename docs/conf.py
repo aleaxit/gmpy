@@ -5,6 +5,8 @@
 # This file is execfile()d with the current directory set to its containing dir.
 
 import sys, os
+import gmpy2
+import packaging.version
 
 if sys.version_info < (3, 9):
     raise RuntimeError("Python version >= 3.9 required to build docs.")
@@ -42,14 +44,16 @@ templates_path = ['_templates']
 project = 'gmpy2'
 copyright = '2012 - 2022, Case Van Horsen'
 
+gmpy2_version = packaging.version.parse(gmpy2.__version__)
+
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '2.2'
+version = f"{gmpy2_version.major}.{gmpy2_version.minor}"
 # The full version, including alpha/beta/rc tags.
-release = '2.2.0a1'
+release = gmpy2.__version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

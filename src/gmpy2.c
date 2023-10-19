@@ -1217,6 +1217,11 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         return NULL;;
         /* LCOV_EXCL_STOP */
     }
+    if (PyModule_AddStringConstant(gmpy_module, "__version__", gmpy_version) < 0) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* Add the exceptions. */
     Py_INCREF(GMPyExc_DivZero);
