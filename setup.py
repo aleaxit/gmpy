@@ -1,11 +1,34 @@
 import platform
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
+import shutil
+from pathlib import Path
 
 ON_WINDOWS = platform.system() == 'Windows'
 _comp_args = ["DSHARED=1"]
 sources = ['src/gmpy2.c']
+winlibs = ['gmp.h','mpfr.h','mpc.h',
+           'gmp.lib','mpfr.lib','mpc.lib',
+           'libgmp-10.dll','libmpfr-6.dll','libmpc-3.dll',
+           'libgcc_s_seh-1.dll','libwinpthread-1.dll']
 
+# Copy the pre-built Windows libraries to the 'gmpy2' directory'.
+# If you're not on Windows, delete the Windows libraries from the 'gmpy2'
+# directory if the they exist.
+src = Path('mingw64') / 'winlibs'
+dst = Path('gmpy2')
+if ON_WINDOWS:
+    for filename in winlibs:
+        try:
+            shutil.copy(src / filename, dst / filename)
+        except(FileNotFoundError):
+            pass
+else:
+    for filename in winlibs:
+        try:
+            (dst / filename).unlink()
+        except(FileNotFoundError):
+            pass
 
 class Gmpy2Build(build_ext):
     description = "Build gmpy2 with custom build options"
@@ -32,6 +55,7 @@ class Gmpy2Build(build_ext):
 
     def finalize_options(self):
         build_ext.finalize_options(self)
+        self.force = 1
         if self.fast:
             _comp_args.append('DFAST=1')
         if self.gcov:

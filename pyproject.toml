@@ -1,5 +1,5 @@
 [build-system]
-requires = ['setuptools>=61']
+requires = ['setuptools>=61', 'wheel', 'build']
 build-backend = 'setuptools.build_meta'
 
 [project]
@@ -51,7 +51,7 @@ include-package-data = true
 find = {namespaces = false}
 
 [tool.setuptools.package-data]
-gmpy2 = ['*.pxd', '*.h', '*.dll', 'vector.py']
+gmpy2 = ['*.pxd', '*.h', '*.dll', '*.lib']
 
 [tool.pytest.ini_options]
 addopts = "--durations=10"
