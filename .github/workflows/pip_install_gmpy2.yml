@@ -68,6 +68,9 @@ jobs:
             build/sphinx/html/
             build/sphinx/latex/gmpy2.pdf
             build/coverage/
+          name: wheels
+          path: ./wheelhouse
+           
 
   windows:
     strategy:
