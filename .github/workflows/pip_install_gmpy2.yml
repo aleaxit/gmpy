@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.11]
+        python-version: [3.8, 3.11]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
@@ -34,19 +34,27 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - run: |
+      - name: Install Libs
+        run: |
           sudo apt-get update
           sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk lcov
-      - run: pip install --upgrade pip
-      - run: pip --verbose install --editable .[docs,tests]
-      - run: python test/runtests.py
-      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
-      - run: sphinx-build --color -W --keep-going -b doctest docs build/sphinx/doctest
-      - run: sphinx-build --color -W --keep-going -b html docs build/sphinx/html
-      - run: sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
-      - run: make -C build/sphinx/latex all-pdf
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip --verbose install --editable .[docs,tests]
+      - name: Tests
+        run: |
+          python test/runtests.py
+          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+      - name: Building docs
+        if: matrix.python-version == 3.11
+        run: |
+          sphinx-build --color -W --keep-going -b doctest docs build/sphinx/doctest
+          sphinx-build --color -W --keep-going -b html docs build/sphinx/html
+          sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
+          make -C build/sphinx/latex all-pdf
+      # XXX: why this doesn't work with pip install --editable above?
       - name: Run coverage tests
-        # XXX: why this doesn't work with pip install --editable above?
         run: |
           pip uninstall -y gmpy2
           python setup.py clean
@@ -62,6 +70,7 @@ jobs:
           gcov_args: --no-external
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
+        if: matrix.python-version == 3.11
         with:
           path: |
             build/sphinx/doctest/
