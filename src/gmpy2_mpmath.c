@@ -33,24 +33,30 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
     PyObject *tup, *tsign, *tbc;
 
     if (!(tup = PyTuple_New(4))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     if (!(tsign = PyLong_FromLong(sign))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     if (!(tbc = GMPy_PyLong_FromMpBitCnt(bc))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
         Py_DECREF(tsign);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     PyTuple_SET_ITEM(tup, 0, tsign);
@@ -148,9 +154,11 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
     }
 
     if (!(upper = GMPy_MPZ_New(NULL)) || !(lower = GMPy_MPZ_New(NULL))) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     if (bc > prec) {
@@ -201,16 +209,20 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
         }
 
         if (!(tmp = PyLong_FromUnsignedLong((unsigned long)shift))) {
+            /* LCOV_EXCL_START */
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         if (!(newexp = PyNumber_Add(exp, tmp))) {
+            /* LCOV_EXCL_START */
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             Py_DECREF(tmp);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
         Py_DECREF(tmp);
         bc = prec;
@@ -226,17 +238,21 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
     if (!(tmp = GMPy_PyLong_FromMpBitCnt(zbits))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
     if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(tmp);
         Py_DECREF(newexp);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
     Py_DECREF(newexp);
     Py_DECREF(tmp);
@@ -298,10 +314,12 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
     upper = GMPy_MPZ_New(NULL);
     lower = GMPy_MPZ_New(NULL);
     if (!upper || !lower) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)man);
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     /* Extract sign, make man positive, and set bit count */
@@ -362,16 +380,20 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
                 }
         }
         if (!(tmp = PyLong_FromUnsignedLong((unsigned long)shift))) {
+            /* LCOV_EXCL_START */
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
         if (!(newexp = PyNumber_Add(exp, tmp))) {
+            /* LCOV_EXCL_START */
             Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             Py_DECREF(tmp);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
         Py_DECREF(tmp);
         bc = prec;
@@ -386,19 +408,23 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
     if (!(tmp = GMPy_PyLong_FromMpBitCnt(zbits))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
     if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(tmp);
         Py_DECREF(newexp);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
     Py_DECREF(newexp);
     Py_DECREF(tmp);
