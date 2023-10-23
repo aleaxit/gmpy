@@ -27,7 +27,6 @@
 static Py_hash_t
 GMPy_MPZ_Hash_Slot(MPZ_Object *self)
 {
-#ifdef _PyHASH_MODULUS
     Py_hash_t hash;
 
     if (self->hash_cache != -1) {
@@ -42,28 +41,11 @@ GMPy_MPZ_Hash_Slot(MPZ_Object *self)
         hash = -2;
     }
     return (self->hash_cache = hash);
-#else
-    unsigned long x;
-
-    if (self->hash_cache != -1) {
-        return self->hash_cache;
-    }
-
-    x = (unsigned long)mpn_mod_1(self->z->_mp_d, mpz_size(self->z), ULONG_MAX);
-    if (mpz_sgn(self->z) < 0) {
-        x = x * -1;
-    }
-    if (x == (unsigned long)-1) {
-        x = (unsigned long)-2;
-    }
-    return (self->hash_cache = (long)x);
-#endif
 }
 
 static Py_hash_t
 GMPy_MPQ_Hash_Slot(MPQ_Object *self)
 {
-#ifdef _PyHASH_MODULUS
     Py_hash_t hash = 0;
     mpz_t temp, temp1, mask;
 
@@ -108,27 +90,11 @@ GMPy_MPQ_Hash_Slot(MPQ_Object *self)
     mpz_clear(mask);
     self->hash_cache = hash;
     return hash;
-#else
-    PyObject *temp;
-
-    if (self->hash_cache != -1) {
-        return self->hash_cache;
-    }
-
-    if (!(temp = GMPy_PyFloat_From_MPQ(self, NULL))) {
-        SYSTEM_ERROR("Could not convert 'mpq' to float.");
-        return -1;
-    }
-    self->hash_cache = PyObject_Hash(temp);
-    Py_DECREF(temp);
-    return self->hash_cache;
-#endif
 }
 
 static Py_hash_t
 _mpfr_hash(mpfr_t f)
 {
-#ifdef _PyHASH_MODULUS
     Py_uhash_t hash = 0;
     Py_ssize_t exp;
     size_t msize;
@@ -146,7 +112,6 @@ _mpfr_hash(mpfr_t f)
         }
         else {
 #if PY_VERSION_HEX >= 0x030A00A0
-            // Python 3.10
             return _Py_HashPointer(f);
 #else
             return _PyHASH_NAN;
@@ -180,14 +145,6 @@ _mpfr_hash(mpfr_t f)
         hash = (Py_uhash_t)(-2);
     }
     return (Py_hash_t)hash;
-#else
-    double temp;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-    temp = mpfr_get_d(f, GET_MPFR_ROUND(context));
-    return _Py_HashDouble(temp);
-#endif
 }
 
 static Py_hash_t
@@ -223,4 +180,3 @@ GMPy_MPC_Hash_Slot(MPC_Object *self)
     self->hash_cache = combined;
     return (Py_hash_t)combined;
 }
-
