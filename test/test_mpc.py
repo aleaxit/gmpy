@@ -1,9 +1,11 @@
 import pytest
+from hypothesis import example, given, settings
+from hypothesis.strategies import complex_numbers
+from supportclasses import a, b, c, cx, d, q, r, z
 
 import gmpy2
-from gmpy2 import (mpc, cmp, cmp_abs, nan, random_state, mpc_random,
-                   to_binary, from_binary, get_context, is_nan, mpq, mpfr)
-from supportclasses import a, b, c, d, cx, z, q, r
+from gmpy2 import (cmp, cmp_abs, from_binary, get_context, is_nan, mpc,
+                   mpc_random, mpfr, mpq, nan, random_state, to_binary)
 
 
 def test_mpc_cmp():
@@ -186,3 +188,12 @@ def test_mpc_divmod():
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
     pytest.raises(TypeError, lambda: divmod(mpc(1,2), mpc(1,2)))
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
+
+
+@settings(max_examples=1000)
+@given(complex_numbers(allow_nan=False))
+@example(complex())
+@example(complex(-1))
+@example(complex(-2))
+def test_mpc_hash(c):
+    assert hash(mpc(c)) == hash(c)

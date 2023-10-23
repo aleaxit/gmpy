@@ -1,15 +1,17 @@
+import math
+import sys
 from decimal import Decimal
 from fractions import Fraction
 
 import pytest
-from hypothesis import given, example, settings
+from hypothesis import example, given, settings
 from hypothesis.strategies import floats
+from supportclasses import a, b, c, d, q, r, z
 
 import gmpy2
-from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
-                   to_binary, from_binary, is_nan, random_state,
-                   mpfr_grandom, mpfr_nrandom, mpc)
-from supportclasses import a, b, c, d, q, r, z
+from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, is_nan, mpc, mpfr,
+                   mpfr_grandom, mpfr_nrandom, mpq, mpz, nan, random_state,
+                   to_binary, zero)
 
 
 def test_mpfr_gamma_inc():
@@ -60,18 +62,25 @@ def test_mpfr_conversion():
     pytest.raises(TypeError, lambda: mpfr(d))
 
 
-def test_mpfr_hash():
-    assert hash(mpfr('123.456')) == hash(float('123.456'))
-    assert hash(mpfr('123.5')) == hash(float('123.5'))
-    assert hash(mpfr('0')) == hash(float('0'))
-    assert hash(mpfr('1')) == hash(float('1'))
-    assert hash(mpfr('2')) == hash(float('2'))
-    assert hash(mpfr('-1')) == hash(float('-1'))
-    assert hash(mpfr('Inf')) == hash(float('Inf'))
-    assert hash(mpfr('-Inf')) == hash(float('-Inf'))
-    assert hash(mpfr('-0')) == hash(float('-0'))
-    assert hash(mpfr('123.456')) != hash(Decimal('123.456'))
-    assert hash(mpfr('123.5')) == hash(Decimal('123.5'))
+@settings(max_examples=1000)
+@given(floats())
+@example(0.0)
+@example(1.0)
+@example(2.0)
+@example(-1.0)
+@example(123.456)
+@example(123.5)
+@example(float('inf'))
+@example(-float('inf'))
+@example(float('nan'))
+def test_mpfr_hash(x):
+    if math.isnan(x):
+        if sys.version_info < (3, 10):
+            assert hash(mpfr(x)) == hash(x) == sys.hash_info.nan
+        else:
+            assert hash(mpfr(x)) != hash(x)
+    else:
+        assert hash(mpfr(x)) == hash(x)
 
 
 @given(floats())

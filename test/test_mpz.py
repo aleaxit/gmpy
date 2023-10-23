@@ -1,17 +1,16 @@
 import math
 import numbers
 import pickle
-from decimal import Decimal
 
-from hypothesis import assume, given, example, settings
+from hypothesis import assume, example, given, settings
 from hypothesis.strategies import booleans, integers, sampled_from
-from pytest import raises, mark
+from pytest import mark, raises
+from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import (mpz, pack, unpack, cmp, cmp_abs, to_binary, from_binary,
-                   random_state, mpz_random, mpz_urandomb, mpz_rrandomb,
-                   mp_version, mpq, mpfr, mpc)
-from supportclasses import a, b, c, d, z, q
+from gmpy2 import (cmp, cmp_abs, from_binary, mp_version, mpc, mpfr, mpq, mpz,
+                   mpz_random, mpz_rrandomb, mpz_urandomb, pack, random_state,
+                   to_binary, unpack)
 
 
 def test_mpz_to_bytes_interface():
@@ -260,8 +259,15 @@ def test_mpz_to_from_binary(n):
     assert x == from_binary(to_binary(x))
 
 
-def test_mpz_hash():
-    assert hash(mpz(123)) == hash(Decimal(123))
+@settings(max_examples=1000)
+@given(integers())
+@example(0)
+@example(1)
+@example(-1)
+@example(-2)
+@example(123)
+def test_mpz_hash(n):
+    assert hash(mpz(n)) == hash(n)
 
 
 def test_mpz_ceil():
