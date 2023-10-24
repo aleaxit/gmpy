@@ -253,6 +253,8 @@ def test_mpfr_divmod():
     with gmpy2.local_context(trap_invalid=True):
         pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(mpfr(1), gmpy2.inf()))
 
+    assert divmod(mpfr(111), mpfr(-222)) == (mpfr('-1.0'), mpfr('-111.0'))
+
 
 def test_mpfr_mod():
     r = mpfr('0.0') % mpfr('-1.0')

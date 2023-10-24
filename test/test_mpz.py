@@ -154,6 +154,7 @@ def test_mpz_pickling():
 @example(-11, 75)
 @example(14, 105)
 @example(64, 123456789012345678901234567890)
+@example(321, -123)
 def test_mpz_arithmetics(i, z):
     i, z = map(mpz, [i, z])
 
@@ -171,13 +172,19 @@ def test_mpz_arithmetics(i, z):
         assert int(i) // int(z) == i // z
         assert int(i) % int(z) == i % z
         assert i % int(z) == i % z
+        assert int(i) % z == i % z
         assert divmod(int(i), int(z)) == divmod(i, z)
+        assert divmod(i, int(z)) == divmod(i, z)
+        assert divmod(int(i), z) == divmod(i, z)
 
     if i:
         assert int(z) // int(i) == z // i
         assert int(z) % int(i) == z % i
         assert z % int(i) == z % i
+        assert int(z) % i == z % i
         assert divmod(int(z), int(i)) == divmod(z, i)
+        assert divmod(z, int(i)) == divmod(z, i)
+        assert divmod(int(z), i) == divmod(z, i)
 
 
 @settings(max_examples=1000)
