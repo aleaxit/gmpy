@@ -197,3 +197,24 @@ def test_mpc_divmod():
 @example(complex(-2))
 def test_mpc_hash(c):
     assert hash(mpc(c)) == hash(c)
+
+
+def test_mpc_exc():
+    gmpy2.set_context(gmpy2.ieee(32))
+
+    ctx = gmpy2.get_context()
+    ctx.trap_overflow = True
+    ctx.trap_underflow = True
+
+    c = mpc(0.1 + 0.1j)
+
+    pytest.raises(gmpy2.UnderflowResultError, lambda: c**201)
+    pytest.raises(gmpy2.OverflowResultError, lambda: c**-201)
+
+    ctx.trap_inexact = True
+
+    pytest.raises(gmpy2.InexactResultError, lambda: mpc(0.25)**0.25)
+
+    ctx.trap_invalid = True
+
+    pytest.raises(gmpy2.InvalidOperationError, lambda: mpc(mpfr('nan')))

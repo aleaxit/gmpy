@@ -263,5 +263,3 @@ static PyTypeObject MPC_Type =
     GMPy_MPC_NewInit,                       /* tp_new           */
         0,                                  /* tp_free          */
 };
-
-
