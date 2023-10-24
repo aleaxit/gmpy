@@ -288,3 +288,16 @@ def test_mpfr_subnormalize():
     assert fmt(gmpy2.next_toward(a, 10)) == '1.00000000000000000000001p-126'
 
     gmpy2.set_context(gmpy2.context())
+
+
+def test_mpfr_as_integer_ratio():
+    assert mpfr('1.1e+2').as_integer_ratio() == (mpz(110), mpz(1))
+
+
+def test_mpfr_round():
+    pytest.raises(TypeError, lambda: round(mpfr('1.0'), "spam"))
+
+    r = round(mpfr('-0.0'), 123)
+    assert r.is_zero() and r.is_signed()
+
+    assert round(mpfr('12.34'), -1) == mpfr('10.0')

@@ -1,8 +1,9 @@
 import pytest
 
 import gmpy2
-from gmpy2 import (root, rootn, zero, mpz, mpq, mpfr, mpc, is_nan, maxnum,
-                   minnum, fma, fms, ieee, fmma, fmms)
+from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, get_exp, ieee, is_nan,
+                   maxnum, minnum, mpc, mpfr, mpq, mpz, root, rootn, set_exp,
+                   zero)
 
 
 def test_root():
@@ -133,3 +134,35 @@ def test_trigonometric():
     assert gmpy2.atanh(mpc(2.0, 3.0)) == gmpy2.atanh(complex(2, 3))
 
     assert gmpy2.tanh(mpc(4,5)) == mpc('1.0005630461157933-0.00036520305451130409j')
+
+
+def test_get_exp():
+    ctx = gmpy2.get_context()
+    ctx.trap_erange = True
+
+    pytest.raises(gmpy2.RangeError, lambda: get_exp(mpfr('inf')))
+
+
+def test_set_exp():
+    pytest.raises(ValueError, lambda: set_exp(mpfr('1.0'), int(fac(100))))
+
+    gmpy2.set_context(gmpy2.ieee(32))
+    ctx = gmpy2.get_context()
+    ctx.trap_erange = True
+
+    pytest.raises(gmpy2.RangeError, lambda: set_exp(mpfr('1.0'), 1000))
+
+    ctx.trap_erange = False
+    assert set_exp(mpfr('1.0'), 1000) == mpfr('1.0')
+
+
+def test_can_round():
+    pytest.raises(TypeError, lambda: can_round(mpfr('1.1'), 10, "spam"))
+    pytest.raises(ValueError, lambda: can_round(mpfr('1.1'), 10, 111, 111, 111))
+    pytest.raises(ValueError, lambda: can_round(mpfr('1.1'), 10, 1, 111, 111))
+    pytest.raises(ValueError, lambda: can_round(mpfr('1.1'), 10, 1, 1, -111))
+
+    x = mpfr('-1.112')
+
+    assert can_round(x, 10, 1, 1, 1)
+    assert not can_round(x, 10, 1, 1, 10)

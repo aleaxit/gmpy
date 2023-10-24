@@ -448,9 +448,11 @@ GMPy_MPFR_Integer_Ratio_Method(PyObject *self, PyObject *args)
     num = GMPy_MPZ_New(context);
     den = GMPy_MPZ_New(context);
     if (!num || !den) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)num);
         Py_XDECREF((PyObject*)den);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     if (mpfr_zero_p(MPFR(self))) {
@@ -472,8 +474,10 @@ GMPy_MPFR_Integer_Ratio_Method(PyObject *self, PyObject *args)
     }
     result = Py_BuildValue("(NN)", (PyObject*)num, (PyObject*)den);
     if (!result) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
+        /* LCOV_EXCL_STOP */
     }
     return result;
 }
@@ -505,9 +509,11 @@ GMPy_MPFR_Mantissa_Exp_Method(PyObject *self, PyObject *args)
     mantissa = GMPy_MPZ_New(context);
     exponent = GMPy_MPZ_New(context);
     if (!mantissa || !exponent) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)mantissa);
         Py_XDECREF((PyObject*)exponent);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     if (mpfr_zero_p(MPFR(self))) {
@@ -520,8 +526,10 @@ GMPy_MPFR_Mantissa_Exp_Method(PyObject *self, PyObject *args)
     }
     result = Py_BuildValue("(NN)", (PyObject*)mantissa, (PyObject*)exponent);
     if (!result) {
+        /* LCOV_EXCL_START */
         Py_DECREF((PyObject*)mantissa);
         Py_DECREF((PyObject*)exponent);
+        /* LCOV_EXCL_STOP */
     }
     return result;
 }
