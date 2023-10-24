@@ -254,6 +254,11 @@ def test_mpfr_divmod():
         pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(mpfr(1), gmpy2.inf()))
 
 
+def test_mpfr_mod():
+    r = mpfr('0.0') % mpfr('-1.0')
+    assert r.is_zero() and r.is_signed()
+
+
 def test_mpfr_subnormalize():
     gmpy2.set_context(gmpy2.ieee(64))
 
