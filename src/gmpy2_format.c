@@ -332,11 +332,11 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
         strcat(newbuf, buffer);
         strcat(newbuf, ".0");
         mpfr_free_str(buffer);
-        mpfrstr = Py_BuildValue("s", newbuf);
+        mpfrstr = PyUnicode_FromString(newbuf);
         free(newbuf);
     }
     else {
-        mpfrstr = Py_BuildValue("s", buffer);
+        mpfrstr = PyUnicode_FromString(buffer);
         mpfr_free_str(buffer);
     }
     if (!mpfrstr) {
@@ -618,7 +618,7 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
     mpfr_free_str(realbuf);
     mpfr_free_str(imagbuf);
 
-    tempstr = Py_BuildValue("s", tempbuf);
+    tempstr = PyUnicode_FromString(tempbuf);
     if (!tempstr) {
         free(tempbuf);
         return NULL;

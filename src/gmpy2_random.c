@@ -45,7 +45,7 @@ GMPy_RandomState_Dealloc(RandomState_Object *self)
 static PyObject *
 GMPy_RandomState_Repr(RandomState_Object *self)
 {
-    return Py_BuildValue("s", "<gmpy2.RandomState>");
+    return PyUnicode_FromString("<gmpy2.RandomState>");
 };
 
 PyDoc_STRVAR(GMPy_doc_random_state_factory,
