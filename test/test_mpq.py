@@ -1,16 +1,17 @@
-import numbers
 import math
+import numbers
 import pickle
+import sys
 from decimal import Decimal
 from fractions import Fraction
 
 import pytest
-from hypothesis import given, example, settings
-from hypothesis.strategies import integers
+from hypothesis import example, given, settings
+from hypothesis.strategies import fractions, integers
+from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import mpq, mpz, cmp, cmp_abs, from_binary, to_binary, mpc, mpfr
-from supportclasses import a, b, c, d, q, z
+from gmpy2 import cmp, cmp_abs, from_binary, mpc, mpfr, mpq, mpz, to_binary
 
 
 def test_mpz_constructor():
@@ -92,8 +93,16 @@ def test_mpq_to_from_binary(p, q):
     assert x == from_binary(to_binary(x))
 
 
-def test_mpq_hash():
-    hash(mpq(123456,1000)) == hash(Decimal('123.456'))
+@settings(max_examples=1000)
+@given(fractions())
+@example(Fraction(0))
+@example(Fraction(-1))
+@example(Fraction(-2))
+@example(Fraction(15432, 125))
+@example(Fraction(1, sys.hash_info.modulus))
+@example(Fraction(-1, sys.hash_info.modulus))
+def test_mpq_hash(q):
+    assert hash(mpq(q)) == hash(q)
 
 
 def test_mpq_digits():

@@ -1,9 +1,11 @@
 import pytest
+from hypothesis import example, given, settings
+from hypothesis.strategies import complex_numbers
+from supportclasses import a, b, c, cx, d, q, r, z
 
 import gmpy2
-from gmpy2 import (mpc, cmp, cmp_abs, nan, random_state, mpc_random,
-                   to_binary, from_binary, get_context, is_nan, mpq, mpfr)
-from supportclasses import a, b, c, d, cx, z, q, r
+from gmpy2 import (cmp, cmp_abs, from_binary, get_context, is_nan, mpc,
+                   mpc_random, mpfr, mpq, nan, random_state, to_binary)
 
 
 def test_mpc_cmp():
@@ -186,3 +188,33 @@ def test_mpc_divmod():
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
     pytest.raises(TypeError, lambda: divmod(mpc(1,2), mpc(1,2)))
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
+
+
+@settings(max_examples=1000)
+@given(complex_numbers(allow_nan=False))
+@example(complex())
+@example(complex(-1))
+@example(complex(-2))
+def test_mpc_hash(c):
+    assert hash(mpc(c)) == hash(c)
+
+
+def test_mpc_exc():
+    gmpy2.set_context(gmpy2.ieee(32))
+
+    ctx = gmpy2.get_context()
+    ctx.trap_overflow = True
+    ctx.trap_underflow = True
+
+    c = mpc(0.1 + 0.1j)
+
+    pytest.raises(gmpy2.UnderflowResultError, lambda: c**201)
+    pytest.raises(gmpy2.OverflowResultError, lambda: c**-201)
+
+    ctx.trap_inexact = True
+
+    pytest.raises(gmpy2.InexactResultError, lambda: mpc(0.25)**0.25)
+
+    ctx.trap_invalid = True
+
+    pytest.raises(gmpy2.InvalidOperationError, lambda: mpc(mpfr('nan')))

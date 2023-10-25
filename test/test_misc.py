@@ -1,3 +1,5 @@
+import sys
+
 import gmpy2
 
 
@@ -13,3 +15,7 @@ def test_misc():
                                '3 or later. The supported versions of the GMP, '
                                'MPFR, and MPC libraries are also licensed '
                                'under LGPL 3 or later.')
+
+
+def test_sizeof():
+    assert sys.getsizeof(gmpy2.mpfr('1.0')) > 0

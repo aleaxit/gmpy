@@ -361,4 +361,3 @@ GMPy_Context_Mod(PyObject *self, PyObject *args)
                            PyTuple_GET_ITEM(args, 1),
                            context);
 }
-

@@ -1,15 +1,17 @@
+import math
+import sys
 from decimal import Decimal
 from fractions import Fraction
 
 import pytest
-from hypothesis import given, example, settings
+from hypothesis import example, given, settings
 from hypothesis.strategies import floats
+from supportclasses import a, b, c, d, q, r, z
 
 import gmpy2
-from gmpy2 import (gamma_inc, mpfr, cmp, cmp_abs, zero, nan, mpz, mpq,
-                   to_binary, from_binary, is_nan, random_state,
-                   mpfr_grandom, mpfr_nrandom, mpc)
-from supportclasses import a, b, c, d, q, r, z
+from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, is_nan, mpc, mpfr,
+                   mpfr_grandom, mpfr_nrandom, mpq, mpz, nan, random_state,
+                   to_binary, zero)
 
 
 def test_mpfr_gamma_inc():
@@ -60,18 +62,25 @@ def test_mpfr_conversion():
     pytest.raises(TypeError, lambda: mpfr(d))
 
 
-def test_mpfr_hash():
-    assert hash(mpfr('123.456')) == hash(float('123.456'))
-    assert hash(mpfr('123.5')) == hash(float('123.5'))
-    assert hash(mpfr('0')) == hash(float('0'))
-    assert hash(mpfr('1')) == hash(float('1'))
-    assert hash(mpfr('2')) == hash(float('2'))
-    assert hash(mpfr('-1')) == hash(float('-1'))
-    assert hash(mpfr('Inf')) == hash(float('Inf'))
-    assert hash(mpfr('-Inf')) == hash(float('-Inf'))
-    assert hash(mpfr('-0')) == hash(float('-0'))
-    assert hash(mpfr('123.456')) != hash(Decimal('123.456'))
-    assert hash(mpfr('123.5')) == hash(Decimal('123.5'))
+@settings(max_examples=1000)
+@given(floats())
+@example(0.0)
+@example(1.0)
+@example(2.0)
+@example(-1.0)
+@example(123.456)
+@example(123.5)
+@example(float('inf'))
+@example(-float('inf'))
+@example(float('nan'))
+def test_mpfr_hash(x):
+    if math.isnan(x):
+        if sys.version_info < (3, 10):
+            assert hash(mpfr(x)) == hash(x) == sys.hash_info.nan
+        else:
+            assert hash(mpfr(x)) != hash(x)
+    else:
+        assert hash(mpfr(x)) == hash(x)
 
 
 @given(floats())
@@ -244,6 +253,13 @@ def test_mpfr_divmod():
     with gmpy2.local_context(trap_invalid=True):
         pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(mpfr(1), gmpy2.inf()))
 
+    assert divmod(mpfr(111), mpfr(-222)) == (mpfr('-1.0'), mpfr('-111.0'))
+
+
+def test_mpfr_mod():
+    r = mpfr('0.0') % mpfr('-1.0')
+    assert r.is_zero() and r.is_signed()
+
 
 def test_mpfr_subnormalize():
     gmpy2.set_context(gmpy2.ieee(64))
@@ -272,3 +288,16 @@ def test_mpfr_subnormalize():
     assert fmt(gmpy2.next_toward(a, 10)) == '1.00000000000000000000001p-126'
 
     gmpy2.set_context(gmpy2.context())
+
+
+def test_mpfr_as_integer_ratio():
+    assert mpfr('1.1e+2').as_integer_ratio() == (mpz(110), mpz(1))
+
+
+def test_mpfr_round():
+    pytest.raises(TypeError, lambda: round(mpfr('1.0'), "spam"))
+
+    r = round(mpfr('-0.0'), 123)
+    assert r.is_zero() and r.is_signed()
+
+    assert round(mpfr('12.34'), -1) == mpfr('10.0')
