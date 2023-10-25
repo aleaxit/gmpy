@@ -52,7 +52,7 @@ static Py_ssize_t GMPy_MPZ_Method_Length(MPZ_Object *self);
 static PyObject * GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item);
 static PyObject * GMPy_MPZ_Method_IsSquare(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Method_IsProbabPrime(PyObject *self, PyObject *const *args, Py_ssize_t nargs);

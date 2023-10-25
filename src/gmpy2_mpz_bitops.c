@@ -96,12 +96,13 @@ PyDoc_STRVAR(doc_bit_scan0_method,
 "format), then `None` is returned.");
 
 static PyObject *
-GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args)
+GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *const *args,
+                          Py_ssize_t nargs)
 {
     mp_bitcnt_t index, starting_bit = 0;
 
-    if (PyTuple_GET_SIZE(args) == 1) {
-        starting_bit = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 0));
+    if (nargs == 1) {
+        starting_bit = GMPy_Integer_AsMpBitCnt(args[0]);
         if (starting_bit == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
             return NULL;
         }
@@ -125,21 +126,22 @@ PyDoc_STRVAR(doc_bit_scan0_function,
 "format), then `None` is returned.");
 
 static PyObject *
-GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
+GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *const *args,
+                            Py_ssize_t nargs)
 {
     mp_bitcnt_t index, starting_bit = 0;
     MPZ_Object *tempx = NULL;
 
-    if (PyTuple_GET_SIZE(args) == 0 || PyTuple_GET_SIZE(args) > 2) {
+    if (nargs == 0 || nargs > 2) {
         goto err;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         goto err;
     }
 
-    if (PyTuple_GET_SIZE(args) == 2) {
-        starting_bit = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
+    if (nargs == 2) {
+        starting_bit = GMPy_Integer_AsMpBitCnt(args[1]);
         if (starting_bit == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
             goto err_index;
         }
@@ -170,12 +172,13 @@ PyDoc_STRVAR(doc_bit_scan1_method,
 "format), then `None` is returned.");
 
 static PyObject *
-GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args)
+GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *const *args,
+                          Py_ssize_t nargs)
 {
     mp_bitcnt_t index, starting_bit = 0;
 
-    if (PyTuple_GET_SIZE(args) == 1) {
-        starting_bit = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 0));
+    if (nargs == 1) {
+        starting_bit = GMPy_Integer_AsMpBitCnt(args[0]);
         if (starting_bit == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
             return NULL;
         }
@@ -199,21 +202,22 @@ PyDoc_STRVAR(doc_bit_scan1_function,
 "format), then `None` is returned.");
 
 static PyObject *
-GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args)
+GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *const *args,
+                            Py_ssize_t nargs)
 {
     mp_bitcnt_t index, starting_bit = 0;
     MPZ_Object *tempx = NULL;
 
-    if (PyTuple_GET_SIZE(args) == 0 || PyTuple_GET_SIZE(args) > 2) {
+    if (nargs == 0 || nargs > 2) {
         goto err;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         goto err;
     }
 
-    if (PyTuple_GET_SIZE(args) == 2) {
-        starting_bit = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
+    if (nargs == 2) {
+        starting_bit = GMPy_Integer_AsMpBitCnt(args[1]);
         if (starting_bit == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
             goto err_index;
         }
@@ -242,21 +246,22 @@ PyDoc_STRVAR(doc_bit_test_function,
 "Return the value of the n-th bit of x.");
 
 static PyObject *
-GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args)
+GMPy_MPZ_bit_test_function(PyObject *self, PyObject *const *args,
+                           Py_ssize_t nargs)
 {
     mp_bitcnt_t bit_index;
     int temp;
     MPZ_Object *tempx = NULL;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         goto err;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         goto err;
     }
 
-    bit_index = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
+    bit_index = GMPy_Integer_AsMpBitCnt(args[1]);
     if (bit_index == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         goto err_index;
     }
