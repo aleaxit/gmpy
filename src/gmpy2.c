@@ -478,6 +478,8 @@
  *
  *    2.2.0a2
  *    Change argument order of jn() and yn() to match MPFR. (casevh)
+ *    Fix documentation and code for is_extra_strong_lucas_prp. (casevh)
+ *
  *
  ************************************************************************
  *

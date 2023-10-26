@@ -954,7 +954,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
  * mpz_extrastronglucas_prp:
  * Let U_n = LucasU(p,1), V_n = LucasV(p,1), and D=p^2-4.
  * An "extra strong Lucas probable prime" to the base p is a composite n = (2^r)*s+(D/n), where
- * s is odd and (n,2D)=1, such that either U_s == 0 mod n or V_s == +/-2 mod n, or
+ * s is odd and (n,2D)=1, such that either U_s == 0 mod n and V_s == +/-2 mod n, or
  * V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1 [(D/n) is the Jacobi symbol]
  * *******************************************************************************************/
 
@@ -967,9 +967,7 @@ PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "    gcd(n, 2*D) == 1\n"
 "    n = s*(2**r) + Jacobi(D,n), s odd\n\n"
 "Then an extra strong Lucas probable prime requires:\n\n"
-"    lucasu(p,1,s) == 0 (mod n)\n"
-"    or\n"
-"    lucasv(p,1,s) == +/-2 (mod n)\n"
+"    lucasu(p,1,s) == 0 (mod n) and lucasv(p,1,s) == +/-2 (mod n)\n"
 "    or\n"
 "    lucasv(p,1,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
 
@@ -982,6 +980,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
     mp_bitcnt_t r = 0, j = 0;
+    long int q = 1;
     int ret = 0;
 
     if (PyTuple_Size(args) != 2) {
@@ -1059,7 +1058,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_set(nm2, n->z);
     mpz_sub_ui(nm2, nm2, 2);
 
-    /* make sure that either U_s == 0 mod n or V_s == +/-2 mod n, or */
+    /* make sure that either U_s == 0 mod n and V_s == +/-2 mod n, or */
     /* V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1           */
     mpz_set_si(uh, 1);
     mpz_set_si(vl, 2);
@@ -1074,7 +1073,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
         if (mpz_tstbit(s,j) == 1) {
             /* qh = ql*q */
-            mpz_set(qh, ql);
+            mpz_mul_si(qh, ql, q);
 
             /* uh = uh*vh (mod n) */
             mpz_mul(uh, uh, vh);
@@ -1118,7 +1117,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mul(ql, ql, qh);
 
     /* qh = ql*q */
-    mpz_set(qh, ql);
+    mpz_mul_si(qh, ql, q);
 
     /* uh = uh*vl - ql */
     mpz_mul(uh, uh, vl);
@@ -1135,9 +1134,17 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mod(uh, uh, n->z);
     mpz_mod(vl, vl, n->z);
 
+    /* tmp = n-2, for the following comparison */
+    mpz_sub_ui(tmp, n->z, 2);
+
     /* uh contains LucasU_s and vl contains LucasV_s */
-    if ((mpz_cmp_ui(uh, 0) == 0) || (mpz_cmp_ui(vl, 0) == 0) ||
-        (mpz_cmp(vl, nm2) == 0) || (mpz_cmp_si(vl, 2) == 0)) {
+    if (  ((mpz_cmp_ui(uh, 0) == 0) 
+            && 
+           ((mpz_cmp(vl, tmp) == 0) || (mpz_cmp_si(vl, 2) == 0))
+          )
+          ||
+          (mpz_cmp_ui(vl, 0) == 0)
+       ) {
         result = Py_True;
         goto cleanup;
     }
