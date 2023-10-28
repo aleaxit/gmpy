@@ -33,7 +33,7 @@ PyDoc_STRVAR(GMPy_doc_license,
 static PyObject *
 GMPy_get_license(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("s", gmpy_license);
+    return PyUnicode_FromString(gmpy_license);
 }
 
 PyDoc_STRVAR(GMPy_doc_version,
@@ -43,7 +43,7 @@ PyDoc_STRVAR(GMPy_doc_version,
 static PyObject *
 GMPy_get_version(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("s", gmpy_version);
+    return PyUnicode_FromString(gmpy_version);
 }
 
 PyDoc_STRVAR(GMPy_doc_mp_version,
@@ -83,5 +83,5 @@ Return the number of bits per limb.");
 static PyObject *
 GMPy_get_mp_limbsize(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", mp_bits_per_limb);
+    return PyLong_FromLong(mp_bits_per_limb);
 }

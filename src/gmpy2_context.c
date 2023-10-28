@@ -350,7 +350,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
 static PyObject *
 GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
 {
-    return Py_BuildValue("s", "<gmpy2.ContextManagerObject>");
+    return PyUnicode_FromString("<gmpy2.ContextManagerObject>");
 }
 
 PyDoc_STRVAR(GMPy_doc_get_context,

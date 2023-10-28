@@ -1227,18 +1227,19 @@ PyDoc_STRVAR(GMPy_doc_mpz_method_is_congruent,
 "Returns `True` if x is congruent to y modulo m, else return `False`.");
 
 static PyObject *
-GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args)
+GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *const *args,
+                            Py_ssize_t nargs)
 {
     int res;
     MPZ_Object *tempy = NULL, *tempm = NULL;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("is_congruent() requires 2 integer arguments");
         return NULL;
     }
 
-    if (!(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
-        !(tempm = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
+    if (!(tempy = GMPy_MPZ_From_Integer(args[0], NULL)) ||
+        !(tempm = GMPy_MPZ_From_Integer(args[1], NULL))) {
 
         Py_XDECREF((PyObject*)tempy);
         Py_XDECREF((PyObject*)tempm);

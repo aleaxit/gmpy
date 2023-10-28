@@ -605,7 +605,7 @@ GMPy_MPC_Str_Slot(MPC_Object *self)
 
     sprintf(fmtstr, "{0:.%ld.%ldg}", rprec, iprec);
 
-    temp = Py_BuildValue("s", fmtstr);
+    temp = PyUnicode_FromString(fmtstr);
     if (!temp)
         return NULL;
     result = PyObject_CallMethod(temp, "format", "O", self);
@@ -631,7 +631,7 @@ GMPy_MPC_Repr_Slot(MPC_Object *self)
     else
         sprintf(fmtstr, "mpc('{0:.%ld.%ldg}')", rprec, iprec);
 
-    temp = Py_BuildValue("s", fmtstr);
+    temp = PyUnicode_FromString(fmtstr);
     if (!temp)
         return NULL;
     result = PyObject_CallMethod(temp, "format", "O", self);

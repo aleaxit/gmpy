@@ -330,7 +330,7 @@ mpz_ascii(mpz_t z, int base, int option, int which)
         *(p++) = ')';
     *(p++) = '\00';
 
-    result = Py_BuildValue("s", buffer);
+    result = PyUnicode_FromString(buffer);
     if (negative == 1) {
         mpz_neg(z, z);
     }

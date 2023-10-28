@@ -20,7 +20,7 @@ jobs:
       - run: pip --verbose install --editable .[tests]
       - run: python test/runtests.py
       - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
-        if: ${{ matrix.python-version == '3.11' }}
+        if: ${{ matrix.python-version != '3.13' }}
 
   linux:
     strategy:

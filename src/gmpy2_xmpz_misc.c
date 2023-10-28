@@ -395,7 +395,7 @@ GMPy_Iter_Next(GMPy_Iter_Object *self) {
 static PyObject *
 GMPy_Iter_Repr(GMPy_Iter_Object *self)
 {
-    return Py_BuildValue("s", "<gmpy2.Iterator>");
+    return PyUnicode_FromString("<gmpy2.Iterator>");
 };
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_bits,

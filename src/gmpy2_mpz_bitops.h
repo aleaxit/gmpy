@@ -34,12 +34,12 @@ extern "C" {
 static PyObject * GMPy_MPZ_bit_length_function(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_bit_length_method(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_bit_mask(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 
-static PyObject * GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_bit_test_function(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_bit_test_method(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_bit_clear_function(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_bit_clear_method(PyObject *self, PyObject *other);

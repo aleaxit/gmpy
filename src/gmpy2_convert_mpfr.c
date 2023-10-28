@@ -888,7 +888,7 @@ GMPy_MPFR_Str_Slot(MPFR_Object *self)
 
     sprintf(fmtstr, "{0:.%ldg}", precision);
 
-    temp = Py_BuildValue("s", fmtstr);
+    temp = PyUnicode_FromString(fmtstr);
     if (!temp)
         return NULL;
     result = PyObject_CallMethod(temp, "format", "O", self);
@@ -911,7 +911,7 @@ GMPy_MPFR_Repr_Slot(MPFR_Object *self)
     else
         sprintf(fmtstr, "mpfr('{0:.%ldg}')", precision);
 
-    temp = Py_BuildValue("s", fmtstr);
+    temp = PyUnicode_FromString(fmtstr);
     if (!temp)
         return NULL;
     result = PyObject_CallMethod(temp, "format", "O", self);
