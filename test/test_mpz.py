@@ -10,7 +10,7 @@ from supportclasses import a, b, c, d, q, z
 import gmpy2
 from gmpy2 import (cmp, cmp_abs, from_binary, mp_version, mpc, mpfr, mpq, mpz,
                    mpz_random, mpz_rrandomb, mpz_urandomb, pack, random_state,
-                   to_binary, unpack)
+                   to_binary, unpack, xmpz)
 
 
 def test_mpz_to_bytes_interface():
@@ -252,6 +252,10 @@ def test_mpz_conversion():
     raises(TypeError, lambda: mpz(b))
     raises(TypeError, lambda: mpz(c))
     raises(TypeError, lambda: mpz(d))
+
+    assert float(mpz(1)) == 1.0
+    raises(OverflowError, lambda: float(mpz(99**199)))
+    assert mpz(xmpz(1)) == mpz(1)
 
 
 @given(integers())

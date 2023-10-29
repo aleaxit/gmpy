@@ -11,7 +11,7 @@ from supportclasses import a, b, c, d, q, r, z
 import gmpy2
 from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, is_nan, mpc, mpfr,
                    mpfr_grandom, mpfr_nrandom, mpq, mpz, nan, random_state,
-                   to_binary, zero)
+                   to_binary, xmpz, zero)
 
 
 def test_mpfr_gamma_inc():
@@ -60,6 +60,22 @@ def test_mpfr_conversion():
     pytest.raises(TypeError, lambda: mpfr(b))
     pytest.raises(TypeError, lambda: mpfr(c))
     pytest.raises(TypeError, lambda: mpfr(d))
+
+    pytest.raises(OverflowError, lambda: mpz(mpfr('inf')))
+
+    assert mpz(mpfr(5.51)) == mpz(6)
+
+    pytest.raises(OverflowError, lambda: xmpz(mpfr('inf')))
+
+    assert xmpz(mpfr(5.51)) == xmpz(6)
+
+    pytest.raises(OverflowError, lambda: mpq(mpfr('inf')))
+
+    assert mpq(mpfr(4.5)) == mpq(9,2)
+    assert mpq(mpfr(0)) == mpq(0,1)
+    assert int(mpfr(5.3)) == 5
+    assert float(mpfr(5.3)) == 5.3
+    assert str(float('5.656')) == '5.656'
 
 
 @settings(max_examples=1000)

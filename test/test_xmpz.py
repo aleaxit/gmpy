@@ -3,7 +3,7 @@ from ctypes import memmove
 import pytest
 
 import gmpy2
-from gmpy2 import mpz, xmpz, mpfr
+from gmpy2 import mpfr, mpq, mpz, xmpz
 
 
 def test_xmpz_digits():
@@ -148,3 +148,19 @@ def test_xmpz_iterators():
     x = xmpz(10)
 
     assert [b for b in x.iter_clear()] == [0, 2]
+
+
+def test_xmpz_conversion():
+    assert xmpz('5') == xmpz(5)
+    assert xmpz('5') == xmpz(5)
+
+    pytest.raises(ValueError, lambda: xmpz('not'))
+
+    assert xmpz(-3.5) == xmpz(-3)
+
+    pytest.raises(OverflowError, lambda: xmpz(float('inf')))
+
+    assert xmpz(mpz(100)) == xmpz(100)
+    assert xmpz(xmpz(100)) == xmpz(100)
+    assert xmpz(mpq(30,2)) == xmpz(15)
+    assert str(xmpz(100)) == '100'

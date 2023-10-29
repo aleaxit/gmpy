@@ -11,7 +11,8 @@ from hypothesis.strategies import fractions, integers
 from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import cmp, cmp_abs, from_binary, mpc, mpfr, mpq, mpz, to_binary
+from gmpy2 import (cmp, cmp_abs, from_binary, mpc, mpfr, mpq, mpz, to_binary,
+                   xmpz)
 
 
 def test_mpz_constructor():
@@ -76,6 +77,28 @@ def test_mpq_conversion():
     pytest.raises(TypeError, lambda: mpq(b))
     pytest.raises(TypeError, lambda: mpq(c))
     pytest.raises(TypeError, lambda: mpq(d))
+
+    assert mpq('2/3') == mpq(2,3)
+    assert mpq(b'2/3') == mpq(2,3)
+
+    pytest.raises(ValueError, lambda: mpq('2,3'))
+    pytest.raises(ValueError, lambda: mpq('2/a'))
+
+    assert mpq('2.3') == mpq(23,10)
+
+    assert pytest.raises(ValueError, lambda: mpq('2.3/10'))
+
+    assert mpq(4.5) == mpq(9,2)
+
+    pytest.raises(OverflowError, lambda: mpq(float('inf')))
+
+    assert mpq(xmpz(15)) == mpq(15,1)
+    assert mpq(mpfr(4.5)) == mpq(9,2)
+
+    pytest.raises(TypeError, lambda: mpq(dict()))
+
+    assert float(mpq(1,2)) == 0.5
+    assert int(mpq(15,2)) == 7
 
 
 def test_mpq_round():

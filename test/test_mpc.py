@@ -1,3 +1,5 @@
+from fractions import Fraction
+
 import pytest
 from hypothesis import example, given, settings
 from hypothesis.strategies import complex_numbers
@@ -27,6 +29,23 @@ def test_mpc_conversion():
     pytest.raises(TypeError, lambda: mpc(b))
     pytest.raises(TypeError, lambda: mpc(c))
     pytest.raises(TypeError, lambda: mpc(d))
+
+    assert mpc(mpfr(5.6), precision=(0,0)) == mpc('5.5999999999999996+0.0j')
+    assert mpc(Fraction(4,5)) == mpc('0.80000000000000004+0.0j')
+    assert mpc(b'5+6j') == mpc('5.0+6.0j')
+    assert mpc('5+6j') == mpc('5.0+6.0j')
+
+    pytest.raises(ValueError, lambda: mpc('\xc3'))
+    pytest.raises(ValueError, lambda: mpc('notanumber'))
+    pytest.raises(ValueError, lambda: mpc('\0'))
+
+    assert mpc('(5+6j)') == mpc('5.0+6.0j')
+    assert mpc('   5+6j   ') == mpc('5.0+6.0j')
+
+    pytest.raises(ValueError, lambda: mpc('5+6ji'))
+
+    assert str(mpc(5,6)) == '5.0+6.0j'
+    assert complex(mpc(4,5)) == (4+5j)
 
 
 def test_mpc_creation():
