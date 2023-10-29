@@ -117,7 +117,7 @@ _mpfr_hash(mpfr_t f)
         }
         else {
 #if PY_VERSION_HEX >= 0x030A00A0
-            return _Py_HashPointer(f);
+            return PyBaseObject_Type.tp_hash(f);
 #else
             return _PyHASH_NAN;
 #endif
