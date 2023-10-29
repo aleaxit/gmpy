@@ -277,6 +277,24 @@ def test_mpfr_mod():
     assert r.is_zero() and r.is_signed()
 
 
+def test_mpfr_pow():
+    r1, r2 = mpfr(5.0), mpfr(2.5)
+    ctx = gmpy2.get_context()
+
+    assert r1 ** mpz(2) == mpfr('25.0')
+    assert r2 ** mpz(2) == mpfr('6.25')
+    assert r2 ** 2 == mpfr('6.25')
+    assert pow(r1, r2) == mpfr('55.901699437494742')
+    assert ctx.pow(r1, r2) == mpfr('55.901699437494742')
+    assert ctx.pow(r1, r2) == r1 ** r2
+
+    pytest.raises(TypeError, lambda: pow(r1, r2, 5))
+    pytest.raises(TypeError, lambda: ctx.pow(r1, r2, 5))
+
+    assert pow(r1, 4) == mpfr('625.0')
+    assert ctx.pow(r1, 4) == mpfr('625.0')
+
+
 def test_mpfr_subnormalize():
     gmpy2.set_context(gmpy2.ieee(64))
 

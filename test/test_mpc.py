@@ -7,7 +7,7 @@ from supportclasses import a, b, c, cx, d, q, r, z
 
 import gmpy2
 from gmpy2 import (cmp, cmp_abs, from_binary, get_context, is_nan, mpc,
-                   mpc_random, mpfr, mpq, nan, random_state, to_binary)
+                   mpc_random, mpfr, mpq, mpz, nan, random_state, to_binary)
 
 
 def test_mpc_cmp():
@@ -207,6 +207,22 @@ def test_mpc_divmod():
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
     pytest.raises(TypeError, lambda: divmod(mpc(1,2), mpc(1,2)))
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
+
+
+def test_mpc_pow():
+    c1, c2 = mpc(2,5), mpc(5,2)
+    ctx = gmpy2.get_context()
+
+    assert ctx.pow(complex(2,5), complex(5,2)) == mpc('-416.55882051164394+44.334999625388825j')
+    assert pow(c1, c2) == mpc('-416.55882051164394+44.334999625388825j')
+    assert ctx.pow(c1, c2) == mpc('-416.55882051164394+44.334999625388825j')
+    assert ctx.pow(c1, c2) == c1 ** c2
+
+    pytest.raises(TypeError, lambda: pow(c1, c2, 5))
+
+    assert pow(c1, 5) == mpc('4282.0-1475.0j')
+    assert c1 ** mpz(5) == mpc('4282.0-1475.0j')
+    assert c1 ** mpfr(2.5) == mpc('-66.373652915897722+11.111336616269842j')
 
 
 @settings(max_examples=1000)

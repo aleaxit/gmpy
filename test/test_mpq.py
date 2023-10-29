@@ -200,6 +200,20 @@ def test_mpq_divmod():
     pytest.raises(TypeError, lambda: divmod(mpq(1,2), mpc(1,2)))
 
 
+def test_mpq_pow():
+    q = mpq(2,3)
+    ctx = gmpy2.get_context()
+
+    assert q ** 2 == mpq(4,9)
+    assert q ** 0 == mpq(1,1)
+    assert q ** -5 == mpq(243,32)
+    assert ctx.pow(Fraction(2,3),2) == q ** 2
+    assert mpq(-5,8) ** 5 == mpq(-3125,32768)
+    assert q ** mpq(4,5) == mpfr('0.72298118079846574')
+
+    pytest.raises(TypeError, lambda: pow(q, 5, 2))
+
+
 def test_mpq_attributes():
     q = mpq('4/5')
     pyq = Fraction(4, 5)

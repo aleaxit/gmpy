@@ -542,6 +542,31 @@ def test_mpz_divmod():
     assert divmod(z, mpz(3)) == (mpz(0), mpz(2))
 
 
+def test_mpz_pow():
+    z1, z2 = mpz(5), mpz(2)
+    ctx = gmpy2.get_context()
+
+    assert z1 ** z2 == mpz(25)
+    assert ctx.pow(z1, z2) == mpz(25)
+    assert z1 ** -z2 == mpfr('0.040000000000000001')
+    assert z1 ** 0 == mpz(1)
+    assert mpz(0) ** 32 == mpz(0)
+    assert mpz(-1) ** 32 == mpz(1)
+    assert mpz(1) ** mpz(324) == mpz(1)
+    assert mpz(0) ** 0 == mpz(1)
+    assert mpz(-1) ** 3 == mpz(-1)
+    assert z1 ** 2 == pow(z1, 2)
+    assert pow(z1, 2, 19) == mpz(6)
+    assert pow(z1, -2, 19) == mpz(16)
+
+    raises(ValueError, lambda: pow(mpz(0), -2, 19))
+
+    assert pow(z1, 2, -19) == mpz(-13)
+
+    raises(ValueError, lambda: pow(5, 2, 0))
+    raises(TypeError, lambda: ctx.pow(z1, 'invalid'))
+
+
 def test_lucasu():
     assert gmpy2.lucasu(2,4,1) == mpz(1)
 

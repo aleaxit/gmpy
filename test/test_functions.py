@@ -2,8 +2,8 @@ import pytest
 
 import gmpy2
 from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, get_exp, ieee, is_nan,
-                   maxnum, minnum, mpc, mpfr, mpq, mpz, root, rootn, set_exp,
-                   zero)
+                   maxnum, minnum, mpc, mpfr, mpq, mpz, powmod, powmod_sec,
+                   root, rootn, set_exp, zero)
 
 
 def test_root():
@@ -166,3 +166,23 @@ def test_can_round():
 
     assert can_round(x, 10, 1, 1, 1)
     assert not can_round(x, 10, 1, 1, 10)
+
+
+def test_powmod():
+    z1, z2 = mpz(5), mpz(2)
+    q = mpq(2,3)
+
+    assert powmod(z1, z2, 4) == pow(z1, z2, 4)
+
+    pytest.raises(TypeError, lambda: powmod(z1))
+    pytest.raises(TypeError, lambda: powmod(z1, q, 4))
+
+
+def test_powmod_sec():
+    assert powmod_sec(3,3,7) == mpz(6)
+    assert powmod_sec(-3,3,7) == mpz(1)
+    assert powmod(-3,3,7) == mpz(1)
+    assert powmod(3,-3,7) == mpz(6)
+
+    pytest.raises(ValueError, lambda: powmod_sec(3,-3,7))
+    pytest.raises(ValueError, lambda: powmod_sec(3,4,8))
