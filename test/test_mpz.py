@@ -258,6 +258,81 @@ def test_mpz_conversion():
     assert mpz(xmpz(1)) == mpz(1)
 
 
+def test_mpz_create():
+    assert mpz() == mpz(0)
+    assert mpz(0) == mpz(0)
+    assert mpz(1) == mpz(1)
+    assert mpz(-1) == mpz(-1)
+    assert mpz(2**15-2) == mpz(32766)
+    assert mpz(2**15-1) == mpz(32767)
+    assert mpz(2**15) == mpz(32768)
+    assert mpz(2**15+1) == mpz(32769)
+    assert mpz(2**15+2) == mpz(32770)
+    assert mpz(2**30-2) == mpz(1073741822)
+    assert mpz(2**30-1) == mpz(1073741823)
+    assert mpz(2**30) == mpz(1073741824)
+    assert mpz(2**30+1) == mpz(1073741825)
+    assert mpz(2**30+2) == mpz(1073741826)
+    assert mpz(2**16-2) == mpz(65534)
+    assert mpz(2**16-1) == mpz(65535)
+    assert mpz(2**16) == mpz(65536)
+    assert mpz(2**16+1) == mpz(65537)
+    assert mpz(2**16+2) == mpz(65538)
+    assert mpz(1000000000000) == mpz(1000000000000)
+    assert mpz(-1000000000000) == mpz(-1000000000000)
+
+    raises(ValueError, lambda: mpz(''))
+    raises(ValueError, lambda: mpz('a'))
+
+    assert mpz('a',16) == mpz(10)
+
+    raises(ValueError, lambda: mpz('z',16))
+
+    assert mpz('0b1101') == mpz(13)
+    assert mpz('0b1101',2) == mpz(13)
+    assert mpz('1101',2) == mpz(13)
+    assert mpz('0b0010') == mpz(2)
+    assert mpz('0b0010',2) == mpz(2)
+
+    raises(ValueError, lambda: mpz('0b0b10',2))
+    raises(ValueError, lambda: mpz('0b0b10'))
+    raises(ValueError, lambda: mpz('0b0012'))
+
+    assert mpz('0o0012') == mpz(10)
+    assert mpz('0o0012',8) == mpz(10)
+    assert mpz('12',8) == mpz(10)
+    assert mpz('0x12') == mpz(18)
+    assert mpz('0x12',16) == mpz(18)
+    assert mpz('12',16) == mpz(18)
+    assert mpz('-1') == mpz(-1)
+    assert mpz('+1') == mpz(1)
+    assert mpz('  0xA', base=0) == mpz(10)
+
+    raises(ValueError, lambda: mpz(float('nan')))
+    raises(OverflowError, lambda: mpz(float('inf')))
+    raises(OverflowError, lambda: mpz(float('-inf')))
+    raises(TypeError, lambda: mpz(12, base=16))
+
+    assert mpz('12', base=16) == mpz(18)
+
+    raises(ValueError, lambda: mpz('\xff'))
+    raises(ValueError, lambda: mpz('\x0cf'))
+    raises(ValueError, lambda: mpz('\0xff'))
+
+    assert mpz(b'12') == mpz(12)
+
+    raises(TypeError, lambda: mpz(None))
+    raises(TypeError, lambda: mpz(None,base=10))
+    raises(ValueError, lambda: mpz('99',base=100))
+    raises(TypeError, lambda: mpz('99',base='a'))
+
+    assert mpz('99',base=10) == mpz(99)
+    assert mpz(xmpz(5)) == mpz(5)
+
+    raises(ValueError, lambda: mpz('ы'))
+    raises(ValueError, lambda: mpz(bytes('ы', encoding='utf-8')))
+
+
 @given(integers())
 @example(0)
 def test_mpz_conversion_bulk(n):
