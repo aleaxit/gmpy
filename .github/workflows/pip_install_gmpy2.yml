@@ -60,6 +60,7 @@ jobs:
           python setup.py clean
           CFLAGS="-coverage" python setup.py develop
           python test/runtests.py
+          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
           lcov --capture --directory . --no-external --output-file build/coverage.info
           genhtml build/coverage.info --output-directory build/coverage
       - name: Upload coverage to Codecov
