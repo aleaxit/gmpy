@@ -24,7 +24,7 @@ print("  Floating-point library:         {0}".format(gmpy2.mpfr_version()))
 print("  Complex library:                {0}".format(gmpy2.mpc_version()))
 print()
 
-mpz_doctests = ["test_mpz.txt", "test_mpz_io.txt"]
+mpz_doctests = ["test_mpz.txt"]
 
 mpq_doctests = ["test_mpq.txt"]
 

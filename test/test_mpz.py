@@ -1,6 +1,7 @@
 import math
 import numbers
 import pickle
+from fractions import Fraction
 
 from hypothesis import assume, example, given, settings
 from hypothesis.strategies import booleans, integers, sampled_from
@@ -394,6 +395,43 @@ def test_mpz_create():
     raises(ValueError, lambda: mpz('ы'))
     raises(ValueError, lambda: mpz(bytes('ы', encoding='utf-8')))
 
+    assert mpz(3.14) == mpz(3)
+    assert mpz(mpq(17,3)) == mpz(5)
+    assert mpz(23) == mpz(23)
+    assert mpz(-23) == mpz(-23)
+
+    x = 1000*1000*1000*1000*1000*1000*1000
+
+    assert mpz(x) == 1000000000000000000000
+    assert mpz(0.0) == mpz(0)
+    assert mpz(-0.0) == mpz(0)
+
+    raises(ValueError, lambda: mpz(float("nan")))
+    raises(OverflowError, lambda: mpz(float("inf")))
+    raises(OverflowError, lambda: mpz(float("-inf")))
+
+    assert mpz("0") == mpz(0)
+    assert mpz("-0") == mpz(0)
+
+    raises(ValueError, lambda: mpz("hi"))
+
+    assert mpz("123456", 7) == mpz(22875)
+
+    raises(ValueError, lambda: mpz("123456", base=3))
+
+    assert mpz() == mpz(0)
+    assert mpz(Fraction(1,2)) == mpz(0)
+    assert mpz(Fraction(-3,2)) == mpz(-1)
+    assert mpz(Fraction(3,2)) == mpz(1)
+    assert mpz('043') == mpz(43)
+    assert mpz('43',0) == mpz(43)
+    assert mpz('0o43') == mpz(35)
+    assert mpz('0x43') == mpz(67)
+
+    raises(ValueError, lambda: mpz('0x43',10))
+
+    assert mpz('43') == mpz(43)
+
 
 @given(integers())
 @example(0)
@@ -514,6 +552,52 @@ def test_mpz_format():
 
     raises(ValueError, lambda: '{:>5#}'.format(z1))
     raises(ValueError, lambda: '{:~}'.format(z1))
+
+    a = mpz(123)
+
+    assert str(a) == '123'
+    assert repr(a) == 'mpz(123)'
+    assert hex(a) == '0x7b'
+    assert oct(a) == '0o173'
+    assert mpz('1001001011',2) == mpz(587)
+    assert bin(mpz('1001001011',2)) == '0b1001001011'
+    assert '1001001011' == mpz('1001001011',2).digits(2)
+    assert [a.digits(i) for i in range(2,63)] == ['1111011', '11120', '1323',
+                                                  '443', '323', '234', '173',
+                                                  '146', '123', '102', 'a3',
+                                                  '96', '8b', '83', '7b', '74',
+                                                  '6f', '69', '63', '5i', '5d',
+                                                  '58', '53', '4n', '4j', '4f',
+                                                  '4b', '47', '43', '3u', '3r',
+                                                  '3o', '3l', '3i', '3f', '3C',
+                                                  '39', '36', '33', '30', '2d',
+                                                  '2b', '2Z', '2X', '2V', '2T',
+                                                  '2R', '2P', '2N', '2L', '2J',
+                                                  '2H', '2F', '2D', '2B', '29',
+                                                  '27', '25', '23', '21', '1z']
+
+    raises(ValueError, lambda: a.digits(63))
+    raises(TypeError, lambda: a.__format__())
+
+    assert '{}'.format(a) == '123'
+    assert '{:d}'.format(a) == '123'
+    assert '{:b}'.format(a) == '1111011'
+    assert '{:o}'.format(a) == '173'
+    assert '{:x}'.format(a) == '7b'
+    assert '{:#x}'.format(a) == '0x7b'
+    assert '{:#X}'.format(a) == '0X7B'
+    assert '{:#o}'.format(a) == '0o173'
+    assert '{:#15o}'.format(a) == '          0o173'
+    assert '{:<#15o}'.format(a) == '0o173          '
+    assert '{:^#15o}'.format(a) == '     0o173     '
+    assert '{:>#15o}'.format(a) == '          0o173'
+    assert '{:^ #15o}'.format(a) == '     0o173     '
+    assert '{:^#15o}'.format(a) == '     0o173     '
+    assert '{:^ #16o}'.format(a) == '      0o173     '
+
+    raises(ValueError, lambda: '{:#^16o}'.format(a))
+
+    assert '{:^#16o}'.format(a) == '     0o173      '
 
 
 def test_mpz_digits():
