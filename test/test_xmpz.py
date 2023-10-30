@@ -164,3 +164,20 @@ def test_xmpz_conversion():
     assert xmpz(xmpz(100)) == xmpz(100)
     assert xmpz(mpq(30,2)) == xmpz(15)
     assert str(xmpz(100)) == '100'
+
+
+def test_xmpz_abs():
+    a = xmpz(123)
+    b = abs(a)
+
+    assert a is not b
+
+    a = xmpz(-123)
+    b = abs(a)
+
+    assert a == xmpz(123)
+    assert b is None
+
+    b = abs(a)
+
+    assert b is None

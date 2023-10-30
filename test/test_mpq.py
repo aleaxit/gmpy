@@ -167,6 +167,19 @@ def test_mpq_digits():
     pytest.raises(ValueError, lambda: q.digits(0))
 
 
+def test_mpq_abs():
+    a = mpq(12,7)
+    b = abs(a)
+
+    assert a is b
+
+    a = mpq(-12,7)
+    b = abs(a)
+
+    assert b == mpq(12,7)
+    assert a == mpq(-12,7)
+
+
 def test_mpq_sub():
     assert mpq(1,2) - Fraction(3,2) == mpq(-1,1)
     assert Fraction(1,2) - mpq(3,2) == mpq(-1,1)

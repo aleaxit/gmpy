@@ -326,6 +326,25 @@ def test_mpfr_digits():
     pytest.raises(ValueError, lambda: r.digits(0))
 
 
+def test_mpfr_abs():
+    a = mpfr(1.0)
+    b = abs(a)
+
+    assert a is not b
+    assert abs(mpfr(1, precision=100)) == mpfr('1.0')
+
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+
+    assert is_nan(abs(mpfr('nan')))
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert abs(mpfr('inf')) == mpfr('inf')
+    assert abs(mpfr('-inf')) == mpfr('inf')
+
+
 def test_mpfr_sub():
     assert mpfr(10) - 1 == mpfr('9.0')
     assert 10 - mpfr(1) == mpfr('9.0')

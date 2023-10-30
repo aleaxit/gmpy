@@ -528,6 +528,20 @@ def test_mpz_digits():
     raises(ValueError, lambda: z1.digits(1))
 
 
+def test_mpz_abs():
+    a = mpz(123)
+    b = abs(a)
+
+    assert a is b
+
+    a = mpz(-123)
+    b = abs(a)
+
+    assert b == mpz(123)
+    assert a is not b
+    assert a == mpz(-123)
+
+
 def test_mpz_sub():
     a, b = mpz(123), mpz(456)
     c = 12345678901234567890

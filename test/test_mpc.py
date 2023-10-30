@@ -197,6 +197,44 @@ def test_mpc_digits():
     pytest.raises(ValueError, lambda: c.digits(0))
 
 
+def test_mpc_abs():
+    assert abs(mpc(-1,0)) == mpfr('1.0')
+    assert abs(-1+0j) == 1.0
+    assert abs(mpc(1,1)) == mpfr('1.4142135623730951')
+
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+
+    c = mpc('nan+0.0j')
+
+    assert is_nan(c.real) and c.imag == 0.0
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    c = mpc('nan+0j')
+
+    assert is_nan(c.real) and c.imag == 0.0
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert is_nan(abs(mpc('nanj'))) and ctx.invalid
+
+    ctx.clear_flags()
+
+    assert abs(mpc('inf+10j')) == mpfr('inf')
+    assert abs(mpc('-infj')) == mpfr('inf')
+
+    a = mpc('nan+infj')
+
+    assert abs(a) and not ctx.invalid
+
+    a = mpc('-inf+nanj')
+
+    assert abs(a) and not ctx.invalid
+
+
 def test_mpc_sub():
     pytest.raises(TypeError, lambda: mpc(1,2) - 'a')
 
