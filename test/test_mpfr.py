@@ -53,6 +53,43 @@ def test_mpfr_cmp():
     assert cmp(r, mpfr(1.5)) == 0
 
 
+def test_mpfr_comparisons():
+    from supportclasses import a, r, q
+
+    assert mpfr(1.5) == q
+    assert r == mpfr(1.5)
+    assert (r == a) is False
+
+    a = mpz(123)
+    r = mpfr('inf')
+    q = mpq('45/7')
+    f = float(0.7)
+    r2 = mpfr(454.6)
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, True, True, False, False)
+
+    r = mpfr('-inf')
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, False, False, True, True)
+
+    r = mpfr('nan')
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, False, False, False, False)
+    assert (r == q, r != q, r > q, r >= q, r < q, r <= q) == (False, True, False, False, False, False)
+    assert (r == f, r != f, r > f, r >= f, r < f, r <= f) == (False, True, False, False, False, False)
+    assert (r == r2, r != r2, r > r2, r >= r2, r < r2, r <= r2) == (False, True, False, False, False, False)
+
+    r = mpfr(126.5)
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, True, True, False, False)
+    assert (r == q, r != q, r > q, r >= q, r < q, r <= q) == (False, True, True, True, False, False)
+
+    f = float(126.5)
+
+    assert (r == f, r != f, r > f, r >= f, r < f, r <= f) == (True, False, False, True, False, True)
+    assert (r == r2, r != r2, r > r2, r >= r2, r < r2, r <= r2) == (False, True, False, False, True, True)
+
+
 def test_mpfr_conversion():
     x = mpfr(a)
     assert isinstance(x, mpfr)

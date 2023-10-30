@@ -63,6 +63,35 @@ def test_mpq_cmp():
     assert cmp(q, mpq(3,5)) == 1
 
 
+def test_mpq_comparisons():
+    from supportclasses import q
+
+    assert mpq(3,2) == q
+    assert (q == mpq(3,5)) is False
+
+    a = mpz(123)
+    q = mpq(4, 5)
+
+    assert (q == a, q != a, q > a, q >= a, q < a, q <= a) == (False, True, False, False, True, True)
+    assert (mpq(246,2) != a) is False
+
+    f = float(0.7)
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, True, True, False, False)
+
+    f = float('nan')
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, False, False, False, False)
+
+    f = float('inf')
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, False, False, True, True)
+
+    f = -f
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, True, True, False, False)
+
+
 def test_mpq_conversion():
     x = mpq(a)
     assert isinstance(x, mpq)

@@ -245,6 +245,68 @@ def test_mpz_cmp():
     assert cmp(mpz(1), mpz(q)) == 0
 
 
+def test_mpz_comparisons():
+    from supportclasses import q
+
+    assert mpz(2) == z
+    assert (z == mpz(3)) is False
+    assert (mpz(1) == q) is False
+    assert mpz(1) == mpz(q)
+
+    a = mpz(123)
+    b = mpz(456)
+    c = mpz(a)
+    q = mpq(4, 5)
+
+    assert a == mpz(123)
+    assert b == mpz(456)
+    assert c is a
+    assert c==a
+    assert (c>a) is False
+    assert (c<a) is False
+    assert (a>b) is False
+    assert a<b
+    assert not mpz(0)
+    assert not a is False
+    assert (mpz(1) == None) is False
+    assert (mpz(1) == '1') is False
+    assert (mpz(1) == 'abc') is False
+    assert [mpz(23), None].count(None) == 1
+    assert (a == q, a != q, a > q, a >= q, a < q, a <= q) == (False, True, True, True, False, False)
+
+    q = mpq(123, 1)
+
+    assert (a == q, a != q, a > q, a >= q, a < q, a <= q) == (True, False, False, True, False, True)
+
+    gmpy2.context().trap_divzero == False
+    f = float('inf')
+
+    assert (a == f, a != f, a > f, a >= f, a < f, a <= f) == (False, True, False, False, True, True)
+    assert (f == a, f != a, f > a, f >= a, f < a, f <= a) == (False, True, True, True, False, False)
+
+    f = float('-inf')
+
+    assert (a == f, a != f, a > f, a >= f, a < f, a <= f) == (False, True, True, True, False, False)
+    assert (f == a, f != a, f > a, f >= a, f < a, f <= a) == (False, True, False, False, True, True)
+
+    f = float('nan')
+
+    assert (a == f, a != f, a > f, a >= f, a < f, a <= f) == (False, True, False, False, False, False)
+    assert (f == a, f != a, f > a, f >= a, f < a, f <= a) == (False, True, False, False, False, False)
+
+    r = mpfr('inf')
+
+    assert (a == r, a != r, a > r, a >= r, a < r, a <= r) == (False, True, False, False, True, True)
+
+    r = mpfr('-inf')
+
+    assert (a == r, a != r, a > r, a >= r, a < r, a <= r) == (False, True, True, True, False, False)
+
+    r = mpfr('nan')
+
+    assert (a == r, a != r, a > r, a >= r, a < r, a <= r) == (False, True, False, False, False, False)
+
+
 def test_mpz_conversion():
     x = mpz(a)
     assert isinstance(x, mpz)

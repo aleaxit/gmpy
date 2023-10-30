@@ -21,6 +21,31 @@ def test_mpc_cmp():
     assert gmpy2.get_context().erange is True
 
 
+def test_mpc_comparisons():
+    a = mpz(123)
+    c = mpc(4.5,6)
+
+    assert (c == a, c != a) == (False, True)
+
+    pytest.raises(TypeError, lambda: c < a)
+
+    cnan = mpc(mpfr('nan'), 6)
+
+    assert (c == cnan, c != cnan) == (False, True)
+
+    pytest.raises(TypeError, lambda: c > cnan)
+
+    cx = complex(4.5,6)
+
+    assert (c == cx, c != cx) == (True, False)
+
+    pytest.raises(TypeError, lambda: c > cx)
+
+    from supportclasses import c
+
+    assert (c == cx) is False
+
+
 def test_mpc_conversion():
     x = mpc(a)
     assert isinstance(x, mpc)
