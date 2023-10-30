@@ -181,3 +181,239 @@ def test_xmpz_abs():
     b = abs(a)
 
     assert b is None
+
+
+def test_xmpz_iadd():
+    x = xmpz(5)
+    x += mpz(6)
+
+    assert x == xmpz(11)
+
+    x += 7
+
+    assert x == xmpz(18)
+
+    x += -6
+
+    assert x == xmpz(12)
+
+    x += mpfr(2.5)
+
+    assert x == mpfr('14.5')
+
+
+def test_xmpz_isub():
+    x = xmpz(7)
+    x -= xmpz(1)
+
+    assert x == xmpz(6)
+
+    x -= 1
+
+    assert x == xmpz(5)
+
+    x -= mpz(7)
+
+    assert x == xmpz(-2)
+
+    x -= -5
+
+    assert x == xmpz(3)
+
+    x -= -mpfr(5)
+
+    assert x == mpfr('8.0')
+
+
+def test_xmpz_imul():
+    x = xmpz(2)
+    x *= xmpz(2)
+
+    assert x == xmpz(4)
+
+    x *= 2
+
+    assert x == xmpz(8)
+
+    x *= mpz(3)
+
+    assert x == xmpz(24)
+
+    x *= -1
+
+    assert x == xmpz(-24)
+
+    x *= mpfr(-0.5)
+
+    assert x == mpfr('12.0')
+
+def test_xmpz_ifloordiv():
+    x = xmpz(49)
+    x //= xmpz(3)
+
+    assert x == xmpz(16)
+
+    x //= mpz(3)
+
+    assert x == xmpz(5)
+
+    x //= 2
+
+    assert x == xmpz(2)
+
+    with pytest.raises(ZeroDivisionError):
+        x //= 0
+
+    x == xmpz(2)
+    x //= mpfr(-0.5)
+
+    assert x == mpfr('-4.0')
+
+
+def test_xmpz_imod():
+    x = xmpz(45)
+    x %= xmpz(18)
+
+    assert x == xmpz(9)
+
+    x %= mpz(2)
+
+    assert x == xmpz(1)
+
+    x = xmpz(40)
+    x %= 21
+
+    assert x == xmpz(19)
+
+    with pytest.raises(ZeroDivisionError):
+        x %= 0
+
+    x == xmpz(19)
+    x %= mpfr(10)
+
+    assert x == mpfr('9.0')
+
+
+def test_xmpz_ishifts():
+    x = xmpz(63)
+    x >>= xmpz(63)
+
+    assert x == xmpz(0)
+
+    x = xmpz(63)
+    x >>= xmpz(1)
+
+    assert x == xmpz(31)
+
+    x >>= mpz(2)
+
+    assert x == xmpz(7)
+
+    x >>= 1
+
+    assert x == xmpz(3)
+
+    x <<= xmpz(2)
+
+    assert x == xmpz(12)
+
+    x <<= mpz(1)
+
+    assert x == xmpz(24)
+
+    x <<= 0
+
+    assert x == xmpz(24)
+
+    with pytest.raises(TypeError):
+        x >>= mpfr(2)
+    with pytest.raises(TypeError):
+        x <<= mpfr(2)
+    with pytest.raises(OverflowError):
+        x >>= -1
+    with pytest.raises(OverflowError):
+        x <<= -5
+
+
+def test_xmpz_ipow():
+    x = xmpz(5)
+    x **= xmpz(2)
+
+    assert x == xmpz(25)
+
+    x **= mpz(2)
+
+    assert x == xmpz(625)
+
+    with pytest.raises(OverflowError):
+        x **= -2
+
+    x **= 2
+
+    assert x == xmpz(390625)
+
+    with pytest.raises(TypeError):
+        x **= mpfr(2)
+
+
+def test_xmpz_iand():
+    x = xmpz(7)
+    x &= xmpz(5)
+
+    assert x == xmpz(5)
+
+    x &= mpz(4)
+
+    assert x == xmpz(4)
+
+    x &= 9
+
+    assert x == xmpz(0)
+
+    x = mpz(4)
+    x &= 12
+
+    assert x == mpz(4)
+
+    with pytest.raises(TypeError):
+        x &= mpfr(4)
+
+
+def test_xmpz_ior():
+    x = xmpz(0)
+    x |= xmpz(1)
+
+    assert x == xmpz(1)
+
+    x |= xmpz(0)
+
+    assert x == xmpz(1)
+
+    x = xmpz(0)
+    x |= xmpz(0)
+
+    assert x == xmpz(0)
+
+    x |= 5
+
+    assert x == xmpz(5)
+
+    with pytest.raises(TypeError):
+        x |= mpfr(3)
+
+def test_xmpz_ixor():
+    x = xmpz(1)
+    x ^= xmpz(0)
+
+    assert x == xmpz(1)
+
+    x ^= mpz(1)
+
+    assert x == xmpz(0)
+
+    x ^= 1
+
+    assert x == xmpz(1)
+
+    with pytest.raises(TypeError):
+        x ^= mpfr(0)
