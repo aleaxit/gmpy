@@ -242,6 +242,34 @@ def test_mpq_divmod():
     pytest.raises(TypeError, lambda: divmod(mpq(1,2), mpc(1,2)))
 
 
+def test_mpq_floordiv():
+    ctx = gmpy2.get_context()
+    a, b = mpz(45), mpz(6)
+    r, r2 = mpfr(45), mpfr(3.1)
+    q, q2 = mpq(118,18), mpq(3,2)
+    pyq, pyq2 = Fraction(118,18), Fraction(3,2)
+    c, c2 = mpc(51, 65), mpc(4, 6)
+
+    assert ctx.floor_div(q, q2) == mpz(4)
+    assert ctx.floor_div(q, pyq2) == mpz(4)
+    assert ctx.floor_div(q, pyq) == mpz(1)
+    assert ctx.floor_div(pyq, q2) == mpz(4)
+    assert ctx.floor_div(pyq, pyq2) == mpz(4)
+    assert ctx.floor_div(pyq, q) == mpz(1)
+
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(q, mpq(0,1)))
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(q, Fraction(0)))
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(pyq, mpq(0,1)))
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(pyq, Fraction(0)))
+
+    assert q // b == mpz(1)
+    assert q // q2 == mpz(4)
+    assert q // r2 == mpfr('2.0')
+
+    pytest.raises(TypeError, lambda: q // c2)
+    pytest.raises(TypeError, lambda: q // 'not')
+
+
 def test_mpq_pow():
     q = mpq(2,3)
     ctx = gmpy2.get_context()

@@ -618,6 +618,44 @@ def test_mpz_divmod():
     assert divmod(z, mpz(3)) == (mpz(0), mpz(2))
 
 
+def test_mpz_floordiv():
+    ctx = gmpy2.get_context()
+    a, b = mpz(45), mpz(6)
+    r, r2 = mpfr(45), mpfr(3.1)
+    q, q2 = mpq(118,18), mpq(3,2)
+    c, c2 = mpc(51, 65), mpc(4, 6)
+
+    assert ctx.floor_div(a, 6) == mpz(7)
+    assert ctx.floor_div(a, b) == mpz(7)
+
+    raises(ZeroDivisionError, lambda: ctx.floor_div(a, 0))
+    raises(ZeroDivisionError, lambda: ctx.floor_div(a, mpz(0)))
+
+    assert ctx.floor_div(45, b) == mpz(7)
+
+    raises(ZeroDivisionError, lambda: ctx.floor_div(45, 0))
+    raises(ZeroDivisionError, lambda: ctx.floor_div(45, mpz(0)))
+    raises(TypeError, lambda: ctx.floor_div())
+    raises(TypeError, lambda: gmpy2.floor_div(4,5,6))
+
+    assert a // b == mpz(7)
+
+    raises(ZeroDivisionError, lambda: a // 0)
+    raises(ZeroDivisionError, lambda: a // mpz(0))
+
+    assert ctx.floor_div(a, q2) == mpz(30)
+    assert ctx.floor_div(a, r2) == mpfr('14.0')
+
+    raises(TypeError, lambda: ctx.floor_div(a, c))
+
+    assert a // b == mpz(7)
+    assert a // q == mpz(6)
+    assert a // r2 == mpfr('14.0')
+
+    raises(TypeError, lambda: a // c2)
+    raises(TypeError, lambda: a // 'not')
+
+
 def test_mpz_pow():
     z1, z2 = mpz(5), mpz(2)
     ctx = gmpy2.get_context()

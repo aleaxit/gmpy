@@ -418,6 +418,44 @@ def test_mpfr_divmod():
     assert divmod(mpfr(111), mpfr(-222)) == (mpfr('-1.0'), mpfr('-111.0'))
 
 
+def test_mpfr_floordiv():
+    ctx = gmpy2.get_context()
+    a, b = mpz(45), mpz(6)
+    r, r2 = mpfr(45), mpfr(3.1)
+    q, q2 = mpq(118,18), mpq(3,2)
+    pyq, pyq2 = Fraction(118,18), Fraction(3,2)
+    c, c2 = mpc(51, 65), mpc(4, 6)
+
+    assert ctx.floor_div(r, r2) == mpfr('14.0')
+    assert ctx.floor_div(r, r2) == mpfr('14.0')
+    assert ctx.floor_div(r, 3.1) == mpfr('14.0')
+    assert ctx.floor_div(r, 4) == mpfr('11.0')
+    assert ctx.floor_div(r, b) == mpfr('7.0')
+    assert ctx.floor_div(r, q2) == mpfr('30.0')
+    assert ctx.floor_div(r, pyq2) == mpfr('30.0')
+    assert ctx.floor_div(r, 0) == mpfr('inf')
+    assert ctx.floor_div(r, mpz(0)) == mpfr('inf')
+    assert ctx.floor_div(45.0, r2) == mpfr('14.0')
+    assert ctx.floor_div(45.0, r2) == mpfr('14.0')
+    assert ctx.floor_div(45.0, 3.1) == mpfr('14.0')
+    assert ctx.floor_div(45.0, 4) == mpfr('11.0')
+    assert ctx.floor_div(45.0, b) == mpfr('7.0')
+    assert ctx.floor_div(45.0, q2) == mpfr('30.0')
+    assert ctx.floor_div(45.0, pyq2) == mpfr('30.0')
+    assert ctx.floor_div(45.0, 0) == mpfr('inf')
+    assert ctx.floor_div(45.0, mpz(0)) == mpfr('inf')
+    assert ctx.floor_div(45, r2) == mpfr('14.0')
+
+    pytest.raises(TypeError, lambda: ctx.floor_div(r, 'not'))
+
+    assert r // b == mpfr('7.0')
+    assert r // q2 == mpfr('30.0')
+    assert r // r2 == mpfr('14.0')
+
+    pytest.raises(TypeError, lambda: r // c2)
+    pytest.raises(TypeError, lambda: r // 'not')
+
+
 def test_mpfr_mod():
     r = mpfr('0.0') % mpfr('-1.0')
     assert r.is_zero() and r.is_signed()
