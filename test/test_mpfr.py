@@ -115,6 +115,96 @@ def test_mpfr_conversion():
     assert str(float('5.656')) == '5.656'
 
 
+def test_mpfr_create():
+    assert mpfr() == mpfr('0.0')
+    assert mpfr(0) == mpfr('0.0')
+    assert mpfr(1) == mpfr('1.0')
+    assert mpfr(-1) == mpfr('-1.0')
+    assert mpfr("123e17") == mpfr('1.23e+19')
+
+    pytest.raises(ValueError, lambda: mpfr("foo"))
+
+    assert mpfr(1,100) == mpfr('1.0',100)
+    assert mpfr("1",100) == mpfr('1.0',100)
+
+    pytest.raises(TypeError, lambda: mpfr("1","hi"))
+
+    assert mpfr("-inf") == mpfr('-inf')
+    assert mpfr("inf") == mpfr('inf')
+    assert is_nan(mpfr("nan"))
+    assert mpfr(float("-inf")) == mpfr('-inf')
+    assert mpfr(float("inf")) == mpfr('inf')
+    assert is_nan(mpfr(float("nan")))
+    assert mpfr(float("0")) == mpfr('0.0')
+    assert mpfr(float("-0")) == mpfr('-0.0')
+    assert mpfr("-0") == mpfr('-0.0')
+
+    a = float("1.2345678901234567890")
+    b = mpfr("1.2345678901234567890")
+    assert a == 1.2345678901234567
+    assert b == mpfr('1.2345678901234567')
+    assert a == b
+
+    c = mpfr(b)
+
+    assert b is c
+    assert mpfr(Fraction(0,1)) == mpfr('0.0')
+    assert mpfr(Fraction(0,-1)) == mpfr('0.0')
+    assert mpfr(Fraction(1,2)) == mpfr('0.5')
+    assert mpfr(-1) == mpfr('-1.0')
+    assert mpfr(12345678901234567890) == mpfr('1.2345678901234567e+19')
+    assert mpfr(mpz(12345678901234567890)) == mpfr('1.2345678901234567e+19')
+    assert mpfr(mpz(-1)) == mpfr('-1.0')
+    assert mpfr(2**15 - 1) == mpfr('32767.0')
+    assert mpfr(2**15) == mpfr('32768.0')
+    assert mpfr(2**15 + 1) == mpfr('32769.0')
+    assert mpfr(2**30 - 1) == mpfr('1073741823.0')
+    assert mpfr(2**30 ) == mpfr('1073741824.0')
+    assert mpfr(2**30 + 1) == mpfr('1073741825.0')
+
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+    a = mpfr("1.2")
+
+    assert a.rc == -1
+
+    ctx.clear_flags()
+    a = mpfr("1.25")
+
+    assert a.rc == 0
+
+    ctx.clear_flags()
+    a = mpfr('nan')
+
+    assert is_nan(a)
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert is_nan(mpfr(a))
+    assert not ctx.invalid
+
+    ctx.clear_flags()
+
+    assert is_nan(mpfr(float('nan')))
+    assert ctx.invalid
+
+    gmpy2.set_context(gmpy2.ieee(128))
+
+    assert mpfr(1)/7 == mpfr('0.14285714285714285714285714285714285',113)
+    assert mpfr(1.0/7) == mpfr('0.142857142857142849212692681248881854',113)
+    assert mpfr(1.0/7).digits(2) == ('10010010010010010010010010010010010010010010010010010000000000000000000000000000000000000000000000000000000000000', -2, 113)
+
+    gmpy2.set_context(gmpy2.ieee(32))
+
+    assert mpfr(1)/7 == mpfr('0.142857149',24)
+    assert (mpfr(1)/7).digits(2) == ('100100100100100100100101', -2, 24)
+    assert mpfr(1.0/7) == mpfr('0.142857149',24)
+    assert mpfr(1.0/7).digits(2) == ('100100100100100100100101', -2, 24)
+    assert mpfr(1.0/7, precision=0) == mpfr('0.142857149',24)
+    assert repr(mpfr(1.0/7, precision=1)) == "mpfr('0.14285714285714285')"
+
+
 @settings(max_examples=1000)
 @given(floats())
 @example(0.0)
