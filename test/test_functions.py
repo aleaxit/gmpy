@@ -1,13 +1,14 @@
 import pytest
 
 import gmpy2
-from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, get_exp, ieee,
-                   is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
+from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, from_binary, get_exp,
+                   ieee, is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
                    is_fermat_prp, is_fibonacci_prp, is_lucas_prp, is_nan,
                    is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
                    is_strong_prp, is_strong_selfridge_prp, maxnum, minnum, mpc,
-                   mpfr, mpq, mpz, powmod, powmod_sec, root, rootn, set_exp,
-                   zero)
+                   mpfr, mpfr_from_old_binary, mpq, mpq_from_old_binary, mpz,
+                   mpz_from_old_binary, powmod, powmod_sec, root, rootn,
+                   set_exp, zero)
 
 
 def test_root():
@@ -289,3 +290,35 @@ def test_is_bpsw_prp():
 def test_is_strong_bpsw_prp():
     assert is_strong_bpsw_prp(12345) is False
     assert is_strong_bpsw_prp(113)
+
+
+def test_mpz_from_old_binary():
+    assert gmpy2.mpz_from_old_binary(b'\x15\xcd[\x07') == mpz(123456789)
+    assert gmpy2.mpz_from_old_binary(b'\x15\xcd[\x07\xff') == mpz(-123456789)
+
+    pytest.raises(TypeError, lambda: mpz_from_old_binary(1))
+
+
+def test_mpq_from_old_binary():
+    assert mpq_from_old_binary(b'\x01\x00\x00\x00)\x98') == mpq(41,152)
+    assert mpq_from_old_binary(b'\x01\x00\x00\x80)\x98') == mpq(-41,152)
+
+    pytest.raises(TypeError, lambda: mpq_from_old_binary(1))
+    pytest.raises(ValueError, lambda: mpq_from_old_binary(b'aa'))
+    pytest.raises(ValueError, lambda: mpq_from_old_binary(b'aaaaaaaaa'))
+
+
+def test_mpfr_from_old_binary():
+    assert mpfr_from_old_binary(b'\x085\x00\x00\x00\x02\x00\x00\x0009\xac\xcc\xcc\xcc\xcc\xcc\xd0') == mpfr('12345.674999999999')
+    assert mpfr_from_old_binary(b'\t5\x00\x00\x00\x02\x00\x00\x0009\xac\xcc\xcc\xcc\xcc\xcc\xd0') == mpfr('-12345.674999999999')
+    assert mpfr_from_old_binary(b'\n5\x00\x00\x00\x06\x00\x00\x00\x01\x14\xb3\x7fKQ\xf7\x0en') == mpfr('1.5e-17')
+
+    pytest.raises(TypeError, lambda: mpfr_from_old_binary(1))
+    pytest.raises(ValueError, lambda: mpfr_from_old_binary(b'aaaaa'))
+
+    assert mpfr_from_old_binary(b'\x04') == mpfr('0.0')
+
+
+def test_from_binary():
+    pytest.raises(TypeError, lambda: from_binary(1))
+    pytest.raises(ValueError, lambda: from_binary(b'a'))

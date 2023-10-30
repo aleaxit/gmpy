@@ -242,13 +242,27 @@ def test_mpfr_to_from_binary_bulk(r):
 
 def test_mpfr_to_from_binary():
     x = mpfr("1.345e1000")
-    assert x==from_binary(to_binary(x))
+    assert x == from_binary(to_binary(x))
+    assert -x == from_binary(to_binary(-x))
+    x = mpfr("1e1234567890123456789")
+    assert x == from_binary(to_binary(x))
+    assert x.rc == 1
+    x = mpfr("-1e1234567890123456789")
+    assert x == from_binary(to_binary(x))
+    assert x.rc == -1
     x = gmpy2.const_pi()
     assert x.rc == -1
     y = from_binary(to_binary(x))
     assert x == y and y.rc == -1
     -1
+    x = gmpy2.const_pi(precision=104)
+    assert x.rc == 1
+    y = from_binary(to_binary(x))
+    assert x == y and y.rc == 1
     with gmpy2.local_context() as ctx:
+        ctx.precision = 20
+        x = gmpy2.const_pi()
+        assert x == from_binary(to_binary(x))
         ctx.precision = 100
         x = gmpy2.const_pi()
         assert x == from_binary(to_binary(x))

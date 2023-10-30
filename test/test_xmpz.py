@@ -1,9 +1,11 @@
 from ctypes import memmove
 
 import pytest
+from hypothesis import example, given, settings
+from hypothesis.strategies import integers
 
 import gmpy2
-from gmpy2 import mpfr, mpq, mpz, xmpz
+from gmpy2 import from_binary, mpfr, mpq, mpz, to_binary, xmpz
 
 
 def test_xmpz_digits():
@@ -417,3 +419,15 @@ def test_xmpz_ixor():
 
     with pytest.raises(TypeError):
         x ^= mpfr(0)
+
+
+@settings(max_examples=1000)
+@example(0)
+@example(1)
+@example(-1)
+@example(1234567890123456789)
+@given(integers())
+def test_xmpz_to_from_binary(x):
+    x = xmpz(x)
+
+    assert from_binary(to_binary(x)) == x
