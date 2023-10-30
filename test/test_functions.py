@@ -1,9 +1,13 @@
 import pytest
 
 import gmpy2
-from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, get_exp, ieee, is_nan,
-                   maxnum, minnum, mpc, mpfr, mpq, mpz, powmod, powmod_sec,
-                   root, rootn, set_exp, zero)
+from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, get_exp, ieee,
+                   is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
+                   is_fermat_prp, is_fibonacci_prp, is_lucas_prp, is_nan,
+                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
+                   is_strong_prp, is_strong_selfridge_prp, maxnum, minnum, mpc,
+                   mpfr, mpq, mpz, powmod, powmod_sec, root, rootn, set_exp,
+                   zero)
 
 
 def test_root():
@@ -186,3 +190,102 @@ def test_powmod_sec():
 
     pytest.raises(ValueError, lambda: powmod_sec(3,-3,7))
     pytest.raises(ValueError, lambda: powmod_sec(3,4,8))
+
+
+def test_is_fermat_prp():
+    assert is_fermat_prp(12345,2) is False
+    assert is_fermat_prp(113,2)
+    assert is_fermat_prp(1234,2) is False
+
+    pytest.raises(TypeError, lambda: is_fermat_prp(1234,'a'))
+    pytest.raises(TypeError, lambda: is_fermat_prp(1234, 2, 3))
+    pytest.raises(ValueError, lambda: is_fermat_prp(113, 1))
+    pytest.raises(ValueError, lambda: is_fermat_prp(-113, 3))
+    pytest.raises(ValueError, lambda: is_fermat_prp(339, 3))
+
+    assert is_fermat_prp(mpz(12345),2) is False
+    assert is_fermat_prp(113,mpz(2))
+
+
+def test_is_euler_prp():
+    assert is_euler_prp(12345,2) is False
+    assert is_euler_prp(113,2)
+    assert is_euler_prp(1234,2) is False
+
+    pytest.raises(TypeError, lambda: is_euler_prp(1234,'a'))
+    pytest.raises(TypeError, lambda: is_euler_prp(1234, 2, 3))
+    pytest.raises(ValueError, lambda: is_euler_prp(113, 1))
+    pytest.raises(ValueError, lambda: is_euler_prp(-113, 3))
+    pytest.raises(ValueError, lambda: is_euler_prp(339, 3))
+
+    assert is_euler_prp(mpz(12345),2) is False
+    assert is_euler_prp(113,mpz(2))
+
+
+def test_is_strong_prp():
+    assert is_strong_prp(12345,2) is False
+    assert is_strong_prp(113,2)
+    assert is_strong_prp(1234,2) is False
+
+    pytest.raises(TypeError, lambda: is_strong_prp(1234,'a'))
+    pytest.raises(TypeError, lambda: is_strong_prp(1234, 2, 3))
+    pytest.raises(ValueError, lambda: is_strong_prp(113, 1))
+    pytest.raises(ValueError, lambda: is_strong_prp(-113, 3))
+    pytest.raises(ValueError, lambda: is_strong_prp(339, 3))
+
+    assert is_strong_prp(mpz(12345),2) is False
+    assert is_strong_prp(113,mpz(2))
+
+
+def test_is_fibonacci_prp():
+    assert is_fibonacci_prp(12345, 3, 1) is False
+    assert is_fibonacci_prp(113, 3, 1)
+    assert is_fibonacci_prp(12345, 3, -1) is False
+    assert is_fibonacci_prp(113, 3, -1)
+
+    pytest.raises(ValueError, lambda: is_fibonacci_prp(113, 3, 2))
+    pytest.raises(TypeError, lambda: is_fibonacci_prp('a', 3, 2))
+    pytest.raises(ValueError, lambda: is_fibonacci_prp(113, 2, 1))
+
+    assert is_fibonacci_prp(113, 2, -1)
+
+
+def test_is_lucas_prp():
+    assert is_lucas_prp(12345, 5, 2) is False
+    assert is_lucas_prp(113, 5, 2)
+
+    pytest.raises(ValueError, lambda: is_lucas_prp(12345, 3, 5))
+
+
+def test_is_is_stronglucas_prp():
+    assert is_strong_lucas_prp(12345, 5, 2) is False
+    assert is_strong_lucas_prp(113, 5, 2)
+
+    pytest.raises(ValueError, lambda: is_strong_lucas_prp(12345, 3, 5))
+
+
+def test_is_extra_strong_lucas_prp():
+    assert is_extra_strong_lucas_prp(12345, 9) is False
+    assert is_extra_strong_lucas_prp(113, 5)
+
+    pytest.raises(ValueError, lambda: is_extra_strong_lucas_prp(12345, 3))
+
+
+def test_is_selfridge_prp():
+    assert is_selfridge_prp(12345) is False
+    assert is_selfridge_prp(113)
+
+
+def test_is_strong_selfridge_prp():
+    assert is_strong_selfridge_prp(12345) is False
+    assert is_strong_selfridge_prp(113)
+
+
+def test_is_bpsw_prp():
+    assert is_bpsw_prp(12345) is False
+    assert is_bpsw_prp(113)
+
+
+def test_is_strong_bpsw_prp():
+    assert is_strong_bpsw_prp(12345) is False
+    assert is_strong_bpsw_prp(113)
