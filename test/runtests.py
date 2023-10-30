@@ -31,8 +31,6 @@ mpq_doctests = ["test_mpq.txt"]
 mpfr_doctests = ["test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_context.txt"]
 
-mpc_doctests = ["test_mpc.txt"]
-
 gmpy2_tests = [os.path.basename(i)
                for i in glob.glob(os.path.join(test_dir,
                                   "test_gmpy2*.txt"))]
@@ -43,8 +41,6 @@ attempted = 0
 all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
 
 all_doctests += mpfr_doctests
-
-all_doctests += mpc_doctests
 
 for test in sorted(all_doctests):
     result = doctest.testfile(test, globs=globals(),

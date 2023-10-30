@@ -3,12 +3,13 @@ import pytest
 import gmpy2
 from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, from_binary, get_exp,
                    ieee, is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
-                   is_fermat_prp, is_fibonacci_prp, is_lucas_prp, is_nan,
-                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
-                   is_strong_prp, is_strong_selfridge_prp, maxnum, minnum, mpc,
-                   mpfr, mpfr_from_old_binary, mpq, mpq_from_old_binary, mpz,
-                   mpz_from_old_binary, powmod, powmod_sec, root, rootn,
-                   set_exp, zero)
+                   is_fermat_prp, is_fibonacci_prp, is_finite, is_infinite,
+                   is_lucas_prp, is_nan, is_selfridge_prp, is_strong_bpsw_prp,
+                   is_strong_lucas_prp, is_strong_prp, is_strong_selfridge_prp,
+                   is_zero, maxnum, minnum, mpc, mpfr, mpfr_from_old_binary,
+                   mpq, mpq_from_old_binary, mpz, mpz_from_old_binary, norm,
+                   phase, polar, powmod, powmod_sec, proj, rect, root,
+                   root_of_unity, rootn, set_exp, zero)
 
 
 def test_root():
@@ -322,3 +323,81 @@ def test_mpfr_from_old_binary():
 def test_from_binary():
     pytest.raises(TypeError, lambda: from_binary(1))
     pytest.raises(ValueError, lambda: from_binary(b'a'))
+
+
+def test_phase():
+    pytest.raises(TypeError, lambda: phase())
+    pytest.raises(TypeError, lambda: phase(3))
+
+    assert phase(mpc(4,5)) == mpfr('0.89605538457134393')
+    assert ieee(64).phase(mpc(4,5)) == mpfr('0.89605538457134393')
+
+
+def test_root_of_unity():
+    assert root_of_unity(1,1) == mpc('1.0+0.0j')
+    assert root_of_unity(1,2) == mpc('1.0+0.0j')
+    assert root_of_unity(2,1) == mpc('-1.0+0.0j')
+    assert root_of_unity(3,1) == mpc('-0.5+0.8660254037844386j')
+    assert root_of_unity(3,2) == mpc('-0.5-0.8660254037844386j')
+    assert root_of_unity(3,3) == mpc('1.0+0.0j')
+    assert ieee(128).root_of_unity(3,1) == mpc('-0.5+0.866025403784438646763723170752936161j',(113,113))
+
+    pytest.raises(TypeError, lambda: ieee(128).root_of_unity())
+    pytest.raises(TypeError, lambda: ieee(128).root_of_unity('a','b'))
+
+
+def test_norm():
+    pytest.raises(TypeError, lambda: norm())
+    pytest.raises(TypeError, lambda: norm(2))
+
+    assert norm(mpc(1,2)) == mpfr('5.0')
+    assert ieee(32).norm(mpc(1,2)) == mpfr('5.0',24)
+
+
+def test_polar():
+    pytest.raises(TypeError, lambda: polar())
+    pytest.raises(TypeError, lambda: polar(5))
+    assert polar(mpc(1,1)) == (mpfr('1.4142135623730951'), mpfr('0.78539816339744828'))
+
+
+def test_rect():
+    pytest.raises(TypeError, lambda: rect())
+    pytest.raises(TypeError, lambda: rect(1))
+
+    assert rect(1,1) == mpc('0.54030230586813977+0.8414709848078965j')
+
+
+def test_proj():
+    pytest.raises(TypeError, lambda: proj())
+    pytest.raises(TypeError, lambda: proj(1))
+
+    assert proj(mpc(1,1)) == mpc('1.0+1.0j')
+    assert proj(mpc(1,2)) == mpc('1.0+2.0j')
+
+
+def test_is_zero():
+    assert is_zero(mpc("0+0j"))
+    assert is_zero(mpc("1+0j")) is False
+    assert is_zero(mpc("1+1j")) is False
+    assert is_zero(mpc("0+1j")) is False
+
+def test_is_nan():
+    assert is_nan(mpc("nan+1j"))
+    assert is_nan(mpc("1+nanj"))
+    assert is_nan(mpc("nan+nanj"))
+    assert is_nan(mpc("1+1j")) is False
+
+def test_is_infinite():
+    assert is_infinite(mpc("inf+1j"))
+    assert is_infinite(mpc("-inf+1j"))
+    assert is_infinite(mpc("1+infj"))
+    assert is_infinite(mpc("1-infj"))
+    assert is_infinite(mpc("inf-infj"))
+    assert is_infinite(mpc("1+1j")) is False
+
+def test_is_finite():
+    assert is_finite(mpc("0+0j"))
+    assert is_finite(mpc("nan+0j")) is False
+    assert is_finite(mpc("0+nanj")) is False
+    assert is_finite(mpc("0+infj")) is False
+    assert is_finite(mpc("inf+3j")) is False

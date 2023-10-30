@@ -71,6 +71,7 @@ def test_mpc_conversion():
 
     assert str(mpc(5,6)) == '5.0+6.0j'
     assert complex(mpc(4,5)) == (4+5j)
+    assert complex(mpc(4,5)) == (4+5j)
 
 
 def test_mpc_creation():
@@ -89,6 +90,22 @@ def test_mpc_creation():
     assert a == 1 + 2.1j
     assert a.rc == (0, 1)
     assert ctx.inexact
+
+    c = mpc('67+87j', precision=70)
+
+    assert c.precision == (70, 70)
+    assert c.real.precision == 70
+    assert c.imag.precision == 70
+
+    c = mpc('42e56+42.909j', precision=(45,300))
+
+    assert c.precision == (45, 300)
+    assert c.real.precision == 45
+    assert c.imag.precision == 300
+
+    x = mpc("1.3142123+4.3e-1001j", precision=(70,37))
+
+    assert mpc(x.real, x.imag, precision=(70,37)) == x
 
 
 def test_mpc_random():
@@ -235,6 +252,31 @@ def test_mpc_abs():
     assert abs(a) and not ctx.invalid
 
 
+def test_mpc_add():
+    a = mpz(123)
+    aj = mpc(1+2j)
+    bj = mpc(4+5j)
+
+    assert aj + bj == mpc('5.0+7.0j')
+    assert bj + aj == mpc('5.0+7.0j')
+    assert aj + a == mpc('124.0+2.0j')
+    assert a + aj == mpc('124.0+2.0j')
+    assert aj + 1 == mpc('2.0+2.0j')
+    assert 1 + aj == mpc('2.0+2.0j')
+    assert aj + 0 == mpc('1.0+2.0j')
+    assert 0 + aj == mpc('1.0+2.0j')
+    assert -1 + aj == mpc('0.0+2.0j')
+    assert aj - 1 == mpc('0.0+2.0j')
+    assert aj + 1.2 == 2.2 + 2j
+
+    assert aj + float('inf') == mpc('inf+2.0j')
+    assert aj + float('-inf') == mpc('-inf+2.0j')
+
+    x = aj + float('nan')
+
+    assert is_nan(x.real) and x.imag == 2.0
+
+
 def test_mpc_sub():
     pytest.raises(TypeError, lambda: mpc(1,2) - 'a')
 
@@ -246,6 +288,30 @@ def test_mpc_sub():
     assert mpc(1,2) - q == mpc('-0.5+2.0j')
     assert mpc(1,2) - r == mpc('-0.5+2.0j')
     assert mpc(1,2) - cx == mpc('-41.0-65.0j')
+
+    a = mpz(123)
+    aj = mpc(1+2j)
+    bj = mpc(4+5j)
+
+    assert aj - bj == mpc('-3.0-3.0j')
+    assert bj - aj == mpc('3.0+3.0j')
+    assert aj - a == mpc('-122.0+2.0j')
+    assert a - aj == mpc('122.0-2.0j')
+    assert aj - 1 == mpc('0.0+2.0j')
+    assert 1 - aj == mpc('0.0-2.0j')
+    assert 0 - aj == mpc('-1.0-2.0j')
+    assert aj - 0 == mpc('1.0+2.0j')
+    assert aj - -1 == mpc('2.0+2.0j')
+    assert -1 - aj == mpc('-2.0-2.0j')
+    assert aj - 1.2 == (1+2j) - 1.2
+
+    assert float('inf') - aj == mpc('inf-2.0j')
+    assert aj - float('inf') == mpc('-inf+2.0j')
+    assert aj - float('-inf') == mpc('inf+2.0j')
+
+    x = aj - float('nan')
+
+    assert is_nan(x.real) and x.imag == 2.0
 
 
 def test_mpc_mul():
@@ -261,6 +327,24 @@ def test_mpc_mul():
     assert mpc(1,2) * r == mpc('1.5+3.0j')
     assert mpc(1,2) * cx == mpc('-92.0+151.0j')
 
+    a = mpz(123)
+    aj = mpc(1+2j)
+    bj = mpc(4+5j)
+
+    assert aj * bj == mpc('-6.0+13.0j')
+    assert bj * aj == mpc('-6.0+13.0j')
+    assert aj * a == mpc('123.0+246.0j')
+    assert a * aj == mpc('123.0+246.0j')
+    assert aj * -1 == mpc('-1.0-2.0j')
+    assert aj * (0.0+1j) == mpc('-2.0+1.0j')
+
+    assert aj * float('inf') == mpc('inf+infj')
+    assert aj * float('-inf') == mpc('-inf-infj')
+
+    for x in [aj * float('nan'), mpc(0,0) * float('inf'),
+              mpc(0,0) * float('-inf'), mpc(0,0) * float('nan')]:
+        assert all(is_nan(_) for _ in [x.real, x.imag])
+
 
 def test_mpc_divmod():
     pytest.raises(TypeError, lambda: divmod(mpc(1),'a'))
@@ -270,6 +354,54 @@ def test_mpc_divmod():
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
     pytest.raises(TypeError, lambda: divmod(mpc(1,2), mpc(1,2)))
     pytest.raises(TypeError, lambda: ctx.divmod(mpc(1,2),mpc(3,4)))
+
+    aj = mpc(1+2j)
+    bj = mpc(4+5j)
+
+    with pytest.raises(TypeError):
+        divmod(aj, bj)
+
+
+def test_mpc_div():
+    a = mpz(123)
+    aj = mpc(1+2j)
+    bj = mpc(4+5j)
+
+    assert aj / bj == mpc('0.34146341463414637+0.073170731707317069j')
+    assert gmpy2.div(aj, bj) == mpc('0.34146341463414637+0.073170731707317069j')
+
+    with pytest.raises(TypeError):
+        aj // bj
+
+    assert aj / a == mpc('0.008130081300813009+0.016260162601626018j')
+    assert a / aj == mpc('24.600000000000001-49.200000000000003j')
+    assert aj / 0 == mpc('inf+infj')
+    assert mpc('2.0+2.0j') / z == mpc('1.0+1.0j')
+    assert mpc('2.0+2.0j') / q == mpc('1.3333333333333333+1.3333333333333333j')
+    assert mpc('2.0+2.0j') / r == mpc('1.3333333333333333+1.3333333333333333j')
+    assert mpc(15,15) / cx == mpc('0.26147449224372299-0.059971213817367662j')
+
+    with gmpy2.local_context(trap_divzero=True):
+        with pytest.raises(gmpy2.DivisionByZeroError):
+            mpc(15, 15)/mpc(0)
+
+    assert aj / float('inf') == mpc('0.0+0.0j')
+    assert aj / float('-inf') == mpc('-0.0-0.0j')
+    assert float('inf') / aj == mpc('inf-infj')
+    assert float('-inf') / aj == mpc('-inf+infj')
+
+
+def test_mpc_mod():
+    a = mpz(123)
+    aj = mpc(1+2j)
+    bj = mpc(4+5j)
+
+    with pytest.raises(TypeError):
+        aj % bj
+    with pytest.raises(TypeError):
+        aj % a
+    with pytest.raises(TypeError):
+        a % aj
 
 
 def test_mpc_pow():
