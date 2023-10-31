@@ -86,6 +86,9 @@ def test_xmpz_misc():
     assert len(z) == 3
     assert len(xmpz(3000)) == 12
 
+    assert str(xmpz(42)) == '42'
+    assert repr(xmpz(42)) == 'xmpz(42)'
+
 
 def test_xmpz_subscripts():
     x = xmpz(10)

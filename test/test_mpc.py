@@ -204,6 +204,13 @@ def test_mpc_format():
     assert '{:M}'.format(c1) == '(-1.000000 -2.000000)'
 
 
+def test_mpc_repr():
+    c = mpc('1.2999999999999999999999999999994-4.7000000000000000000000000000000025j',(100,110))
+    assert repr(c) == "mpc('1.2999999999999999999999999999994-4.7000000000000000000000000000000025j',(100,110))"
+    assert repr(mpc("1+nanj")) == "mpc('1.0+nanj')"
+    assert repr(mpc("infj")) == "mpc('0.0+infj')"
+
+
 def test_mpc_digits():
     c = mpc(mpq(1/3), 5)
 
