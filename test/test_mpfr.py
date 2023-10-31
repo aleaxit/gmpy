@@ -11,7 +11,7 @@ from supportclasses import a, b, c, d, q, r, z
 import gmpy2
 from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, is_nan, mpc, mpfr,
                    mpfr_grandom, mpfr_nrandom, mpq, mpz, nan, random_state,
-                   to_binary, zero)
+                   to_binary, xmpz, zero)
 
 
 def test_mpfr_gamma_inc():
@@ -53,6 +53,43 @@ def test_mpfr_cmp():
     assert cmp(r, mpfr(1.5)) == 0
 
 
+def test_mpfr_comparisons():
+    from supportclasses import a, r, q
+
+    assert mpfr(1.5) == q
+    assert r == mpfr(1.5)
+    assert (r == a) is False
+
+    a = mpz(123)
+    r = mpfr('inf')
+    q = mpq('45/7')
+    f = float(0.7)
+    r2 = mpfr(454.6)
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, True, True, False, False)
+
+    r = mpfr('-inf')
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, False, False, True, True)
+
+    r = mpfr('nan')
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, False, False, False, False)
+    assert (r == q, r != q, r > q, r >= q, r < q, r <= q) == (False, True, False, False, False, False)
+    assert (r == f, r != f, r > f, r >= f, r < f, r <= f) == (False, True, False, False, False, False)
+    assert (r == r2, r != r2, r > r2, r >= r2, r < r2, r <= r2) == (False, True, False, False, False, False)
+
+    r = mpfr(126.5)
+
+    assert (r == a, r != a, r > a, r >= a, r < a, r <= a) == (False, True, True, True, False, False)
+    assert (r == q, r != q, r > q, r >= q, r < q, r <= q) == (False, True, True, True, False, False)
+
+    f = float(126.5)
+
+    assert (r == f, r != f, r > f, r >= f, r < f, r <= f) == (True, False, False, True, False, True)
+    assert (r == r2, r != r2, r > r2, r >= r2, r < r2, r <= r2) == (False, True, False, False, True, True)
+
+
 def test_mpfr_conversion():
     x = mpfr(a)
     assert isinstance(x, mpfr)
@@ -60,6 +97,112 @@ def test_mpfr_conversion():
     pytest.raises(TypeError, lambda: mpfr(b))
     pytest.raises(TypeError, lambda: mpfr(c))
     pytest.raises(TypeError, lambda: mpfr(d))
+
+    pytest.raises(OverflowError, lambda: mpz(mpfr('inf')))
+
+    assert mpz(mpfr(5.51)) == mpz(6)
+
+    pytest.raises(OverflowError, lambda: xmpz(mpfr('inf')))
+
+    assert xmpz(mpfr(5.51)) == xmpz(6)
+
+    pytest.raises(OverflowError, lambda: mpq(mpfr('inf')))
+
+    assert mpq(mpfr(4.5)) == mpq(9,2)
+    assert mpq(mpfr(0)) == mpq(0,1)
+    assert int(mpfr(5.3)) == 5
+    assert float(mpfr(5.3)) == 5.3
+    assert str(float('5.656')) == '5.656'
+
+
+def test_mpfr_create():
+    assert mpfr() == mpfr('0.0')
+    assert mpfr(0) == mpfr('0.0')
+    assert mpfr(1) == mpfr('1.0')
+    assert mpfr(-1) == mpfr('-1.0')
+    assert mpfr("123e17") == mpfr('1.23e+19')
+
+    pytest.raises(ValueError, lambda: mpfr("foo"))
+
+    assert mpfr(1,100) == mpfr('1.0',100)
+    assert mpfr("1",100) == mpfr('1.0',100)
+
+    pytest.raises(TypeError, lambda: mpfr("1","hi"))
+
+    assert mpfr("-inf") == mpfr('-inf')
+    assert mpfr("inf") == mpfr('inf')
+    assert is_nan(mpfr("nan"))
+    assert mpfr(float("-inf")) == mpfr('-inf')
+    assert mpfr(float("inf")) == mpfr('inf')
+    assert is_nan(mpfr(float("nan")))
+    assert mpfr(float("0")) == mpfr('0.0')
+    assert mpfr(float("-0")) == mpfr('-0.0')
+    assert mpfr("-0") == mpfr('-0.0')
+
+    a = float("1.2345678901234567890")
+    b = mpfr("1.2345678901234567890")
+    assert a == 1.2345678901234567
+    assert b == mpfr('1.2345678901234567')
+    assert a == b
+
+    c = mpfr(b)
+
+    assert b is c
+    assert mpfr(Fraction(0,1)) == mpfr('0.0')
+    assert mpfr(Fraction(0,-1)) == mpfr('0.0')
+    assert mpfr(Fraction(1,2)) == mpfr('0.5')
+    assert mpfr(-1) == mpfr('-1.0')
+    assert mpfr(12345678901234567890) == mpfr('1.2345678901234567e+19')
+    assert mpfr(mpz(12345678901234567890)) == mpfr('1.2345678901234567e+19')
+    assert mpfr(mpz(-1)) == mpfr('-1.0')
+    assert mpfr(2**15 - 1) == mpfr('32767.0')
+    assert mpfr(2**15) == mpfr('32768.0')
+    assert mpfr(2**15 + 1) == mpfr('32769.0')
+    assert mpfr(2**30 - 1) == mpfr('1073741823.0')
+    assert mpfr(2**30 ) == mpfr('1073741824.0')
+    assert mpfr(2**30 + 1) == mpfr('1073741825.0')
+
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+    a = mpfr("1.2")
+
+    assert a.rc == -1
+
+    ctx.clear_flags()
+    a = mpfr("1.25")
+
+    assert a.rc == 0
+
+    ctx.clear_flags()
+    a = mpfr('nan')
+
+    assert is_nan(a)
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert is_nan(mpfr(a))
+    assert not ctx.invalid
+
+    ctx.clear_flags()
+
+    assert is_nan(mpfr(float('nan')))
+    assert ctx.invalid
+
+    gmpy2.set_context(gmpy2.ieee(128))
+
+    assert mpfr(1)/7 == mpfr('0.14285714285714285714285714285714285',113)
+    assert mpfr(1.0/7) == mpfr('0.142857142857142849212692681248881854',113)
+    assert mpfr(1.0/7).digits(2) == ('10010010010010010010010010010010010010010010010010010000000000000000000000000000000000000000000000000000000000000', -2, 113)
+
+    gmpy2.set_context(gmpy2.ieee(32))
+
+    assert mpfr(1)/7 == mpfr('0.142857149',24)
+    assert (mpfr(1)/7).digits(2) == ('100100100100100100100101', -2, 24)
+    assert mpfr(1.0/7) == mpfr('0.142857149',24)
+    assert mpfr(1.0/7).digits(2) == ('100100100100100100100101', -2, 24)
+    assert mpfr(1.0/7, precision=0) == mpfr('0.142857149',24)
+    assert repr(mpfr(1.0/7, precision=1)) == "mpfr('0.14285714285714285')"
 
 
 @settings(max_examples=1000)
@@ -99,13 +242,27 @@ def test_mpfr_to_from_binary_bulk(r):
 
 def test_mpfr_to_from_binary():
     x = mpfr("1.345e1000")
-    assert x==from_binary(to_binary(x))
+    assert x == from_binary(to_binary(x))
+    assert -x == from_binary(to_binary(-x))
+    x = mpfr("1e1234567890123456789")
+    assert x == from_binary(to_binary(x))
+    assert x.rc == 1
+    x = mpfr("-1e1234567890123456789")
+    assert x == from_binary(to_binary(x))
+    assert x.rc == -1
     x = gmpy2.const_pi()
     assert x.rc == -1
     y = from_binary(to_binary(x))
     assert x == y and y.rc == -1
     -1
+    x = gmpy2.const_pi(precision=104)
+    assert x.rc == 1
+    y = from_binary(to_binary(x))
+    assert x == y and y.rc == 1
     with gmpy2.local_context() as ctx:
+        ctx.precision = 20
+        x = gmpy2.const_pi()
+        assert x == from_binary(to_binary(x))
         ctx.precision = 100
         x = gmpy2.const_pi()
         assert x == from_binary(to_binary(x))
@@ -183,6 +340,25 @@ def test_mpfr_digits():
     pytest.raises(ValueError, lambda: r.digits(0))
 
 
+def test_mpfr_abs():
+    a = mpfr(1.0)
+    b = abs(a)
+
+    assert a is not b
+    assert abs(mpfr(1, precision=100)) == mpfr('1.0')
+
+    ctx = gmpy2.get_context()
+    ctx.clear_flags()
+
+    assert is_nan(abs(mpfr('nan')))
+    assert ctx.invalid
+
+    ctx.clear_flags()
+
+    assert abs(mpfr('inf')) == mpfr('inf')
+    assert abs(mpfr('-inf')) == mpfr('inf')
+
+
 def test_mpfr_sub():
     assert mpfr(10) - 1 == mpfr('9.0')
     assert 10 - mpfr(1) == mpfr('9.0')
@@ -256,9 +432,65 @@ def test_mpfr_divmod():
     assert divmod(mpfr(111), mpfr(-222)) == (mpfr('-1.0'), mpfr('-111.0'))
 
 
+def test_mpfr_floordiv():
+    ctx = gmpy2.get_context()
+    a, b = mpz(45), mpz(6)
+    r, r2 = mpfr(45), mpfr(3.1)
+    q, q2 = mpq(118,18), mpq(3,2)
+    pyq, pyq2 = Fraction(118,18), Fraction(3,2)
+    c, c2 = mpc(51, 65), mpc(4, 6)
+
+    assert ctx.floor_div(r, r2) == mpfr('14.0')
+    assert ctx.floor_div(r, r2) == mpfr('14.0')
+    assert ctx.floor_div(r, 3.1) == mpfr('14.0')
+    assert ctx.floor_div(r, 4) == mpfr('11.0')
+    assert ctx.floor_div(r, b) == mpfr('7.0')
+    assert ctx.floor_div(r, q2) == mpfr('30.0')
+    assert ctx.floor_div(r, pyq2) == mpfr('30.0')
+    assert ctx.floor_div(r, 0) == mpfr('inf')
+    assert ctx.floor_div(r, mpz(0)) == mpfr('inf')
+    assert ctx.floor_div(45.0, r2) == mpfr('14.0')
+    assert ctx.floor_div(45.0, r2) == mpfr('14.0')
+    assert ctx.floor_div(45.0, 3.1) == mpfr('14.0')
+    assert ctx.floor_div(45.0, 4) == mpfr('11.0')
+    assert ctx.floor_div(45.0, b) == mpfr('7.0')
+    assert ctx.floor_div(45.0, q2) == mpfr('30.0')
+    assert ctx.floor_div(45.0, pyq2) == mpfr('30.0')
+    assert ctx.floor_div(45.0, 0) == mpfr('inf')
+    assert ctx.floor_div(45.0, mpz(0)) == mpfr('inf')
+    assert ctx.floor_div(45, r2) == mpfr('14.0')
+
+    pytest.raises(TypeError, lambda: ctx.floor_div(r, 'not'))
+
+    assert r // b == mpfr('7.0')
+    assert r // q2 == mpfr('30.0')
+    assert r // r2 == mpfr('14.0')
+
+    pytest.raises(TypeError, lambda: r // c2)
+    pytest.raises(TypeError, lambda: r // 'not')
+
+
 def test_mpfr_mod():
     r = mpfr('0.0') % mpfr('-1.0')
     assert r.is_zero() and r.is_signed()
+
+
+def test_mpfr_pow():
+    r1, r2 = mpfr(5.0), mpfr(2.5)
+    ctx = gmpy2.get_context()
+
+    assert r1 ** mpz(2) == mpfr('25.0')
+    assert r2 ** mpz(2) == mpfr('6.25')
+    assert r2 ** 2 == mpfr('6.25')
+    assert pow(r1, r2) == mpfr('55.901699437494742')
+    assert ctx.pow(r1, r2) == mpfr('55.901699437494742')
+    assert ctx.pow(r1, r2) == r1 ** r2
+
+    pytest.raises(TypeError, lambda: pow(r1, r2, 5))
+    pytest.raises(TypeError, lambda: ctx.pow(r1, r2, 5))
+
+    assert pow(r1, 4) == mpfr('625.0')
+    assert ctx.pow(r1, 4) == mpfr('625.0')
 
 
 def test_mpfr_subnormalize():

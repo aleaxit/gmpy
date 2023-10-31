@@ -1,6 +1,7 @@
 import math
 import numbers
 import pickle
+from fractions import Fraction
 
 from hypothesis import assume, example, given, settings
 from hypothesis.strategies import booleans, integers, sampled_from
@@ -10,7 +11,7 @@ from supportclasses import a, b, c, d, q, z
 import gmpy2
 from gmpy2 import (cmp, cmp_abs, from_binary, mp_version, mpc, mpfr, mpq, mpz,
                    mpz_random, mpz_rrandomb, mpz_urandomb, pack, random_state,
-                   to_binary, unpack)
+                   to_binary, unpack, xmpz)
 
 
 def test_mpz_to_bytes_interface():
@@ -245,6 +246,68 @@ def test_mpz_cmp():
     assert cmp(mpz(1), mpz(q)) == 0
 
 
+def test_mpz_comparisons():
+    from supportclasses import q
+
+    assert mpz(2) == z
+    assert (z == mpz(3)) is False
+    assert (mpz(1) == q) is False
+    assert mpz(1) == mpz(q)
+
+    a = mpz(123)
+    b = mpz(456)
+    c = mpz(a)
+    q = mpq(4, 5)
+
+    assert a == mpz(123)
+    assert b == mpz(456)
+    assert c is a
+    assert c==a
+    assert (c>a) is False
+    assert (c<a) is False
+    assert (a>b) is False
+    assert a<b
+    assert not mpz(0)
+    assert not a is False
+    assert (mpz(1) == None) is False
+    assert (mpz(1) == '1') is False
+    assert (mpz(1) == 'abc') is False
+    assert [mpz(23), None].count(None) == 1
+    assert (a == q, a != q, a > q, a >= q, a < q, a <= q) == (False, True, True, True, False, False)
+
+    q = mpq(123, 1)
+
+    assert (a == q, a != q, a > q, a >= q, a < q, a <= q) == (True, False, False, True, False, True)
+
+    gmpy2.context().trap_divzero == False
+    f = float('inf')
+
+    assert (a == f, a != f, a > f, a >= f, a < f, a <= f) == (False, True, False, False, True, True)
+    assert (f == a, f != a, f > a, f >= a, f < a, f <= a) == (False, True, True, True, False, False)
+
+    f = float('-inf')
+
+    assert (a == f, a != f, a > f, a >= f, a < f, a <= f) == (False, True, True, True, False, False)
+    assert (f == a, f != a, f > a, f >= a, f < a, f <= a) == (False, True, False, False, True, True)
+
+    f = float('nan')
+
+    assert (a == f, a != f, a > f, a >= f, a < f, a <= f) == (False, True, False, False, False, False)
+    assert (f == a, f != a, f > a, f >= a, f < a, f <= a) == (False, True, False, False, False, False)
+
+    r = mpfr('inf')
+
+    assert (a == r, a != r, a > r, a >= r, a < r, a <= r) == (False, True, False, False, True, True)
+
+    r = mpfr('-inf')
+
+    assert (a == r, a != r, a > r, a >= r, a < r, a <= r) == (False, True, True, True, False, False)
+
+    r = mpfr('nan')
+
+    assert (a == r, a != r, a > r, a >= r, a < r, a <= r) == (False, True, False, False, False, False)
+
+
 def test_mpz_conversion():
     x = mpz(a)
     assert isinstance(x, mpz)
@@ -252,6 +315,122 @@ def test_mpz_conversion():
     raises(TypeError, lambda: mpz(b))
     raises(TypeError, lambda: mpz(c))
     raises(TypeError, lambda: mpz(d))
+
+    assert float(mpz(1)) == 1.0
+    raises(OverflowError, lambda: float(mpz(99**199)))
+    assert mpz(xmpz(1)) == mpz(1)
+
+
+def test_mpz_create():
+    assert mpz() == mpz(0)
+    assert mpz(0) == mpz(0)
+    assert mpz(1) == mpz(1)
+    assert mpz(-1) == mpz(-1)
+    assert mpz(2**15-2) == mpz(32766)
+    assert mpz(2**15-1) == mpz(32767)
+    assert mpz(2**15) == mpz(32768)
+    assert mpz(2**15+1) == mpz(32769)
+    assert mpz(2**15+2) == mpz(32770)
+    assert mpz(2**30-2) == mpz(1073741822)
+    assert mpz(2**30-1) == mpz(1073741823)
+    assert mpz(2**30) == mpz(1073741824)
+    assert mpz(2**30+1) == mpz(1073741825)
+    assert mpz(2**30+2) == mpz(1073741826)
+    assert mpz(2**16-2) == mpz(65534)
+    assert mpz(2**16-1) == mpz(65535)
+    assert mpz(2**16) == mpz(65536)
+    assert mpz(2**16+1) == mpz(65537)
+    assert mpz(2**16+2) == mpz(65538)
+    assert mpz(1000000000000) == mpz(1000000000000)
+    assert mpz(-1000000000000) == mpz(-1000000000000)
+
+    raises(ValueError, lambda: mpz(''))
+    raises(ValueError, lambda: mpz('a'))
+
+    assert mpz('a',16) == mpz(10)
+
+    raises(ValueError, lambda: mpz('z',16))
+
+    assert mpz('0b1101') == mpz(13)
+    assert mpz('0b1101',2) == mpz(13)
+    assert mpz('1101',2) == mpz(13)
+    assert mpz('0b0010') == mpz(2)
+    assert mpz('0b0010',2) == mpz(2)
+
+    raises(ValueError, lambda: mpz('0b0b10',2))
+    raises(ValueError, lambda: mpz('0b0b10'))
+    raises(ValueError, lambda: mpz('0b0012'))
+
+    assert mpz('0o0012') == mpz(10)
+    assert mpz('0o0012',8) == mpz(10)
+    assert mpz('12',8) == mpz(10)
+    assert mpz('0x12') == mpz(18)
+    assert mpz('0x12',16) == mpz(18)
+    assert mpz('12',16) == mpz(18)
+    assert mpz('-1') == mpz(-1)
+    assert mpz('+1') == mpz(1)
+    assert mpz('  0xA', base=0) == mpz(10)
+
+    raises(ValueError, lambda: mpz(float('nan')))
+    raises(OverflowError, lambda: mpz(float('inf')))
+    raises(OverflowError, lambda: mpz(float('-inf')))
+    raises(TypeError, lambda: mpz(12, base=16))
+
+    assert mpz('12', base=16) == mpz(18)
+
+    raises(ValueError, lambda: mpz('\xff'))
+    raises(ValueError, lambda: mpz('\x0cf'))
+    raises(ValueError, lambda: mpz('\0xff'))
+
+    assert mpz(b'12') == mpz(12)
+
+    raises(TypeError, lambda: mpz(None))
+    raises(TypeError, lambda: mpz(None,base=10))
+    raises(ValueError, lambda: mpz('99',base=100))
+    raises(TypeError, lambda: mpz('99',base='a'))
+
+    assert mpz('99',base=10) == mpz(99)
+    assert mpz(xmpz(5)) == mpz(5)
+
+    raises(ValueError, lambda: mpz('ы'))
+    raises(ValueError, lambda: mpz(bytes('ы', encoding='utf-8')))
+
+    assert mpz(3.14) == mpz(3)
+    assert mpz(mpq(17,3)) == mpz(5)
+    assert mpz(23) == mpz(23)
+    assert mpz(-23) == mpz(-23)
+
+    x = 1000*1000*1000*1000*1000*1000*1000
+
+    assert mpz(x) == 1000000000000000000000
+    assert mpz(0.0) == mpz(0)
+    assert mpz(-0.0) == mpz(0)
+
+    raises(ValueError, lambda: mpz(float("nan")))
+    raises(OverflowError, lambda: mpz(float("inf")))
+    raises(OverflowError, lambda: mpz(float("-inf")))
+
+    assert mpz("0") == mpz(0)
+    assert mpz("-0") == mpz(0)
+
+    raises(ValueError, lambda: mpz("hi"))
+
+    assert mpz("123456", 7) == mpz(22875)
+
+    raises(ValueError, lambda: mpz("123456", base=3))
+
+    assert mpz() == mpz(0)
+    assert mpz(Fraction(1,2)) == mpz(0)
+    assert mpz(Fraction(-3,2)) == mpz(-1)
+    assert mpz(Fraction(3,2)) == mpz(1)
+    assert mpz('043') == mpz(43)
+    assert mpz('43',0) == mpz(43)
+    assert mpz('0o43') == mpz(35)
+    assert mpz('0x43') == mpz(67)
+
+    raises(ValueError, lambda: mpz('0x43',10))
+
+    assert mpz('43') == mpz(43)
 
 
 @given(integers())
@@ -374,6 +553,52 @@ def test_mpz_format():
     raises(ValueError, lambda: '{:>5#}'.format(z1))
     raises(ValueError, lambda: '{:~}'.format(z1))
 
+    a = mpz(123)
+
+    assert str(a) == '123'
+    assert repr(a) == 'mpz(123)'
+    assert hex(a) == '0x7b'
+    assert oct(a) == '0o173'
+    assert mpz('1001001011',2) == mpz(587)
+    assert bin(mpz('1001001011',2)) == '0b1001001011'
+    assert '1001001011' == mpz('1001001011',2).digits(2)
+    assert [a.digits(i) for i in range(2,63)] == ['1111011', '11120', '1323',
+                                                  '443', '323', '234', '173',
+                                                  '146', '123', '102', 'a3',
+                                                  '96', '8b', '83', '7b', '74',
+                                                  '6f', '69', '63', '5i', '5d',
+                                                  '58', '53', '4n', '4j', '4f',
+                                                  '4b', '47', '43', '3u', '3r',
+                                                  '3o', '3l', '3i', '3f', '3C',
+                                                  '39', '36', '33', '30', '2d',
+                                                  '2b', '2Z', '2X', '2V', '2T',
+                                                  '2R', '2P', '2N', '2L', '2J',
+                                                  '2H', '2F', '2D', '2B', '29',
+                                                  '27', '25', '23', '21', '1z']
+
+    raises(ValueError, lambda: a.digits(63))
+    raises(TypeError, lambda: a.__format__())
+
+    assert '{}'.format(a) == '123'
+    assert '{:d}'.format(a) == '123'
+    assert '{:b}'.format(a) == '1111011'
+    assert '{:o}'.format(a) == '173'
+    assert '{:x}'.format(a) == '7b'
+    assert '{:#x}'.format(a) == '0x7b'
+    assert '{:#X}'.format(a) == '0X7B'
+    assert '{:#o}'.format(a) == '0o173'
+    assert '{:#15o}'.format(a) == '          0o173'
+    assert '{:<#15o}'.format(a) == '0o173          '
+    assert '{:^#15o}'.format(a) == '     0o173     '
+    assert '{:>#15o}'.format(a) == '          0o173'
+    assert '{:^ #15o}'.format(a) == '     0o173     '
+    assert '{:^#15o}'.format(a) == '     0o173     '
+    assert '{:^ #16o}'.format(a) == '      0o173     '
+
+    raises(ValueError, lambda: '{:#^16o}'.format(a))
+
+    assert '{:^#16o}'.format(a) == '     0o173      '
+
 
 def test_mpz_digits():
     z1, z2 = mpz(-3), mpz(15)
@@ -385,6 +610,20 @@ def test_mpz_digits():
 
     raises(ValueError, lambda: z1.digits(0))
     raises(ValueError, lambda: z1.digits(1))
+
+
+def test_mpz_abs():
+    a = mpz(123)
+    b = abs(a)
+
+    assert a is b
+
+    a = mpz(-123)
+    b = abs(a)
+
+    assert b == mpz(123)
+    assert a is not b
+    assert a == mpz(-123)
 
 
 def test_mpz_sub():
@@ -461,6 +700,69 @@ def test_mpz_divmod():
     assert ctx.divmod(123,456) == (mpz(0), mpz(123))
     assert divmod(mpz(3), z) == (mpz(1), mpz(1))
     assert divmod(z, mpz(3)) == (mpz(0), mpz(2))
+
+
+def test_mpz_floordiv():
+    ctx = gmpy2.get_context()
+    a, b = mpz(45), mpz(6)
+    r, r2 = mpfr(45), mpfr(3.1)
+    q, q2 = mpq(118,18), mpq(3,2)
+    c, c2 = mpc(51, 65), mpc(4, 6)
+
+    assert ctx.floor_div(a, 6) == mpz(7)
+    assert ctx.floor_div(a, b) == mpz(7)
+
+    raises(ZeroDivisionError, lambda: ctx.floor_div(a, 0))
+    raises(ZeroDivisionError, lambda: ctx.floor_div(a, mpz(0)))
+
+    assert ctx.floor_div(45, b) == mpz(7)
+
+    raises(ZeroDivisionError, lambda: ctx.floor_div(45, 0))
+    raises(ZeroDivisionError, lambda: ctx.floor_div(45, mpz(0)))
+    raises(TypeError, lambda: ctx.floor_div())
+    raises(TypeError, lambda: gmpy2.floor_div(4,5,6))
+
+    assert a // b == mpz(7)
+
+    raises(ZeroDivisionError, lambda: a // 0)
+    raises(ZeroDivisionError, lambda: a // mpz(0))
+
+    assert ctx.floor_div(a, q2) == mpz(30)
+    assert ctx.floor_div(a, r2) == mpfr('14.0')
+
+    raises(TypeError, lambda: ctx.floor_div(a, c))
+
+    assert a // b == mpz(7)
+    assert a // q == mpz(6)
+    assert a // r2 == mpfr('14.0')
+
+    raises(TypeError, lambda: a // c2)
+    raises(TypeError, lambda: a // 'not')
+
+
+def test_mpz_pow():
+    z1, z2 = mpz(5), mpz(2)
+    ctx = gmpy2.get_context()
+
+    assert z1 ** z2 == mpz(25)
+    assert ctx.pow(z1, z2) == mpz(25)
+    assert z1 ** -z2 == mpfr('0.040000000000000001')
+    assert z1 ** 0 == mpz(1)
+    assert mpz(0) ** 32 == mpz(0)
+    assert mpz(-1) ** 32 == mpz(1)
+    assert mpz(1) ** mpz(324) == mpz(1)
+    assert mpz(0) ** 0 == mpz(1)
+    assert mpz(-1) ** 3 == mpz(-1)
+    assert z1 ** 2 == pow(z1, 2)
+    assert pow(z1, 2, 19) == mpz(6)
+    assert pow(z1, -2, 19) == mpz(16)
+
+    raises(ValueError, lambda: pow(mpz(0), -2, 19))
+
+    assert pow(z1, 2, -19) == mpz(-13)
+
+    raises(ValueError, lambda: pow(5, 2, 0))
+    raises(TypeError, lambda: ctx.pow(z1, 'invalid'))
 
 
 def test_lucasu():

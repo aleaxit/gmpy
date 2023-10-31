@@ -11,7 +11,8 @@ from hypothesis.strategies import fractions, integers
 from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import cmp, cmp_abs, from_binary, mpc, mpfr, mpq, mpz, to_binary
+from gmpy2 import (cmp, cmp_abs, from_binary, mpc, mpfr, mpq, mpz, to_binary,
+                   xmpz)
 
 
 def test_mpz_constructor():
@@ -62,6 +63,35 @@ def test_mpq_cmp():
     assert cmp(q, mpq(3,5)) == 1
 
 
+def test_mpq_comparisons():
+    from supportclasses import q
+
+    assert mpq(3,2) == q
+    assert (q == mpq(3,5)) is False
+
+    a = mpz(123)
+    q = mpq(4, 5)
+
+    assert (q == a, q != a, q > a, q >= a, q < a, q <= a) == (False, True, False, False, True, True)
+    assert (mpq(246,2) != a) is False
+
+    f = float(0.7)
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, True, True, False, False)
+
+    f = float('nan')
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, False, False, False, False)
+
+    f = float('inf')
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, False, False, True, True)
+
+    f = -f
+
+    assert (q == f, q != f, q > f, q >= f, q < f, q <= f) == (False, True, True, True, False, False)
+
+
 def test_mpq_conversion():
     x = mpq(a)
     assert isinstance(x, mpq)
@@ -76,6 +106,28 @@ def test_mpq_conversion():
     pytest.raises(TypeError, lambda: mpq(b))
     pytest.raises(TypeError, lambda: mpq(c))
     pytest.raises(TypeError, lambda: mpq(d))
+
+    assert mpq('2/3') == mpq(2,3)
+    assert mpq(b'2/3') == mpq(2,3)
+
+    pytest.raises(ValueError, lambda: mpq('2,3'))
+    pytest.raises(ValueError, lambda: mpq('2/a'))
+
+    assert mpq('2.3') == mpq(23,10)
+
+    assert pytest.raises(ValueError, lambda: mpq('2.3/10'))
+
+    assert mpq(4.5) == mpq(9,2)
+
+    pytest.raises(OverflowError, lambda: mpq(float('inf')))
+
+    assert mpq(xmpz(15)) == mpq(15,1)
+    assert mpq(mpfr(4.5)) == mpq(9,2)
+
+    pytest.raises(TypeError, lambda: mpq(dict()))
+
+    assert float(mpq(1,2)) == 0.5
+    assert int(mpq(15,2)) == 7
 
 
 def test_mpq_round():
@@ -113,6 +165,19 @@ def test_mpq_digits():
 
     pytest.raises(TypeError, lambda: q.digits(16, 5))
     pytest.raises(ValueError, lambda: q.digits(0))
+
+
+def test_mpq_abs():
+    a = mpq(12,7)
+    b = abs(a)
+
+    assert a is b
+
+    a = mpq(-12,7)
+    b = abs(a)
+
+    assert b == mpq(12,7)
+    assert a == mpq(-12,7)
 
 
 def test_mpq_sub():
@@ -175,6 +240,48 @@ def test_mpq_divmod():
     assert ctx.divmod(mpq(3,2),mpq(3,7)) == (mpz(3), mpq(3,14))
 
     pytest.raises(TypeError, lambda: divmod(mpq(1,2), mpc(1,2)))
+
+
+def test_mpq_floordiv():
+    ctx = gmpy2.get_context()
+    a, b = mpz(45), mpz(6)
+    r, r2 = mpfr(45), mpfr(3.1)
+    q, q2 = mpq(118,18), mpq(3,2)
+    pyq, pyq2 = Fraction(118,18), Fraction(3,2)
+    c, c2 = mpc(51, 65), mpc(4, 6)
+
+    assert ctx.floor_div(q, q2) == mpz(4)
+    assert ctx.floor_div(q, pyq2) == mpz(4)
+    assert ctx.floor_div(q, pyq) == mpz(1)
+    assert ctx.floor_div(pyq, q2) == mpz(4)
+    assert ctx.floor_div(pyq, pyq2) == mpz(4)
+    assert ctx.floor_div(pyq, q) == mpz(1)
+
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(q, mpq(0,1)))
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(q, Fraction(0)))
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(pyq, mpq(0,1)))
+    pytest.raises(ZeroDivisionError, lambda: ctx.floor_div(pyq, Fraction(0)))
+
+    assert q // b == mpz(1)
+    assert q // q2 == mpz(4)
+    assert q // r2 == mpfr('2.0')
+
+    pytest.raises(TypeError, lambda: q // c2)
+    pytest.raises(TypeError, lambda: q // 'not')
+
+
+def test_mpq_pow():
+    q = mpq(2,3)
+    ctx = gmpy2.get_context()
+
+    assert q ** 2 == mpq(4,9)
+    assert q ** 0 == mpq(1,1)
+    assert q ** -5 == mpq(243,32)
+    assert ctx.pow(Fraction(2,3),2) == q ** 2
+    assert mpq(-5,8) ** 5 == mpq(-3125,32768)
+    assert q ** mpq(4,5) == mpfr('0.72298118079846574')
+
+    pytest.raises(TypeError, lambda: pow(q, 5, 2))
 
 
 def test_mpq_attributes():

@@ -24,14 +24,12 @@ print("  Floating-point library:         {0}".format(gmpy2.mpfr_version()))
 print("  Complex library:                {0}".format(gmpy2.mpc_version()))
 print()
 
-mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt"]
+mpz_doctests = ["test_mpz.txt"]
 
 mpq_doctests = ["test_mpq.txt"]
 
-mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
+mpfr_doctests = ["test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_context.txt"]
-
-mpc_doctests = ["test_mpc.txt"]
 
 gmpy2_tests = [os.path.basename(i)
                for i in glob.glob(os.path.join(test_dir,
@@ -43,8 +41,6 @@ attempted = 0
 all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
 
 all_doctests += mpfr_doctests
-
-all_doctests += mpc_doctests
 
 for test in sorted(all_doctests):
     result = doctest.testfile(test, globs=globals(),
