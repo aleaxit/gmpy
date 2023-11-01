@@ -33,19 +33,23 @@ make distclean
 ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/temp/shared --enable-shared --disable-static --enable-fat --with-pic
 
 # Uncomment the following lines to change the mp_bitcnt_t type to "unsigned long long int"
-mv gmp.h gmp.original
+cp gmp.h gmp.original
 sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t\n/g' gmp.original > gmp.h
 # Note: also need to fix mis-matched function signatures in millerrabin.c
+cd mpz
+cp millerrabin.c millerrabin.original
+sed 's/mpz_srcptr,\s*unsigned\s*long\s*int/mpz_srcptr, mp_bitcnt_t/g' millerrabin.original > millerrabin.c
+cd ..
 
-make -j32
-make -j16 check
+make -j8
+make -j8 check
 make install
 cd ..
 
 cd mpfr-${MPFR_VERSION}/
 make distclean
 ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/temp/shared --enable-shared --disable-static --disable-decimal-float --disable-float128 --with-pic --with-gmp=$HOME/temp/shared
-make -j32
+make -j8
 make check
 make install
 cd ..
@@ -53,7 +57,7 @@ cd ..
 cd mpc-${MPC_VERSION}/
 make distclean
 ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/temp/shared --enable-shared --disable-static --with-pic --with-gmp=$HOME/temp/shared --with-mpfr=$HOME/temp/shared
-make -j16
+make -j8
 make check
 make install
 cd ..
