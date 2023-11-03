@@ -32,6 +32,7 @@ Contents
    contexts
    mpfr
    mpc
+   generic
    misc
    cython
    conversion

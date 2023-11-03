@@ -118,23 +118,6 @@ return an Infinity or raise an exception.
     3.1415926535897931
 
 
-Generic gmpy2 Functions
------------------------
-
-.. autofunction:: add
-.. autofunction:: div
-.. autofunction:: mul
-.. autofunction:: sub
-
-.. autofunction:: square
-
-.. autofunction:: f2q
-
-.. autofunction:: fma
-.. autofunction:: fms
-
-.. autofunction:: cmp_abs
-
 Exceptions
 ----------
 
