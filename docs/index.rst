@@ -30,6 +30,7 @@ Contents
    advmpz
    mpq
    contexts
+   exceptions
    mpfr
    mpc
    generic

@@ -116,14 +116,3 @@ return an Infinity or raise an exception.
     3.1415926535897932384626433831
     >>> print(gmpy2.const_pi())
     3.1415926535897931
-
-
-Exceptions
-----------
-
-.. autoexception:: RangeError
-.. autoexception:: InexactResultError
-.. autoexception:: OverflowResultError
-.. autoexception:: UnderflowResultError
-.. autoexception:: InvalidOperationError
-.. autoexception:: DivisionByZeroError
