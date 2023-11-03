@@ -3,12 +3,6 @@ Multiple-precision Complex
 
 .. currentmodule:: gmpy2
 
-gmpy2 adds a multiple-precision complex type called `mpc` that is based
-on the MPC library. The context manager settings for `mpfr` arithmetic are
-applied to `mpc` arithmetic by default. It is possible to specify
-different precision and rounding modes for both the real and imaginary
-components of an `mpc`.
-
 .. doctest::
 
     >>> import gmpy2

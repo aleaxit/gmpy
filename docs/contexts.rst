@@ -1,13 +1,9 @@
+.. _contexts:
+
 Contexts
 ========
 
 .. currentmodule:: gmpy2
-
-A `context` type is used to control the behavior
-of `mpfr` and `mpc` arithmetic.  In addition to controlling the
-precision, the rounding mode can be specified, minimum and maximum exponent
-values can be changed, various exceptions can be raised or ignored, gradual
-underflow can be enabled, and returning complex results can be enabled.
 
 `context()` creates a new context with all options set to default.
 `set_context()` will set the active context.  `get_context()` will

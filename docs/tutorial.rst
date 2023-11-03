@@ -3,14 +3,6 @@ Tutorial
 
 .. currentmodule:: gmpy2
 
-The `mpz` type is compatible with Python's built-in `int` type but is
-significantly faster for large values. The cutover point for performance
-varies, but can be as low as 20 to 40 digits. A variety of additional integer
-functions are provided.
-
-Operator overloading is fully supported. Coversion from native Python types is
-optimized for performance.
-
 .. doctest::
 
     >>> import gmpy2

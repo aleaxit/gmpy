@@ -3,16 +3,6 @@ Multiple-precision Reals
 
 .. currentmodule:: gmpy2
 
-The `mpfr` type is based on the MPFR library. The new `mpfr` type supports
-correct rounding, selectable rounding modes, and many trigonometric,
-exponential, and special functions. A *context manager* is used to control
-precision, rounding modes, and the behavior of exceptions.
-
-The default precision of an `mpfr` is 53 bits - the same precision as Python's
-`float` type. If the precision is changed, then ``mpfr(float('1.2'))`` differs
-from ``mpfr('1.2')``. To take advantage of the higher precision provided by
-the `mpfr` type, always pass constants as strings.
-
 .. doctest::
 
     >>> import gmpy2
