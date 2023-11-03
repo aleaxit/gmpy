@@ -118,20 +118,6 @@ return an Infinity or raise an exception.
     3.1415926535897931
 
 
-Miscellaneous gmpy2 Functions
------------------------------
-
-.. autofunction:: digits
-.. autofunction:: from_binary
-.. autofunction:: license
-.. autofunction:: mp_limbsize
-.. autofunction:: mp_version
-.. autofunction:: mpc_version
-.. autofunction:: mpfr_version
-.. autofunction:: random_state
-.. autofunction:: to_binary
-.. autofunction:: version
-
 Generic gmpy2 Functions
 -----------------------
 
