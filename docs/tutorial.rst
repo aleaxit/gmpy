@@ -1,10 +1,7 @@
-Overview
+Tutorial
 ========
 
 .. currentmodule:: gmpy2
-
-Tutorial
---------
 
 The `mpz` type is compatible with Python's built-in `int` type but is
 significantly faster for large values. The cutover point for performance

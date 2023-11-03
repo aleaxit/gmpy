@@ -25,7 +25,7 @@ Contents
    :maxdepth: 2
 
    install
-   overview
+   tutorial
    mpz
    advmpz
    mpq
