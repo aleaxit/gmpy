@@ -3,22 +3,36 @@ Tutorial
 
 .. currentmodule:: gmpy2
 
+Start by importing the contents of the package with:
+
 .. doctest::
 
-    >>> import gmpy2
-    >>> from gmpy2 import mpz,mpq,mpfr,mpc
-    >>> gmpy2.set_context(gmpy2.context())
+    >>> from gmpy2 import *
+
+.. note::
+
+    The use of ``from gmpy2 import *`` is not recommended in real code.  The
+    names in gmpy2 have been chosen to avoid conflict with Python's builtin
+    names but gmpy2 does use names that may conflict with other modules or
+    variable names.  In normal usage you’ll probably only want to import the
+    classes and functions that you actually need.
+
+Lets look first on some examples of arbitrary precision arithmetic with
+integer and rational types:
+
+.. doctest::
+
     >>> mpz(99) * 43
     mpz(4257)
     >>> pow(mpz(99), 37, 59)
     mpz(18)
-    >>> gmpy2.isqrt(99)
+    >>> isqrt(99)
     mpz(9)
-    >>> gmpy2.isqrt_rem(99)
+    >>> isqrt_rem(99)
     (mpz(9), mpz(18))
-    >>> gmpy2.gcd(123,27)
+    >>> gcd(123, 27)
     mpz(3)
-    >>> gmpy2.lcm(123,27)
+    >>> lcm(123, 27)
     mpz(1107)
     >>> (mpz(123) + 12) / 5
     mpfr('27.0')
@@ -26,82 +40,129 @@ Tutorial
     mpz(27)
     >>> (mpz(123) + 12) / 5.0
     mpfr('27.0')
-
-The `mpq` type is compatible with the `~fractions.Fraction` type included with
-Python.
-
-.. doctest::
-
-    >>> mpq(3,7)/7
+    >>> mpz('123') + 1
+    mpz(124)
+    >>> 10 - mpz(1)
+    mpz(9)
+    >>> is_prime(17)
+    True
+    >>> mpz('1_000_000')
+    mpz(1000000)
+    >>> mpq(3, 7)/7
     mpq(3,49)
-    >>> mpq(45,3) * mpq(11,8)
+    >>> mpq(45, 3) * mpq(11, 8)
     mpq(165,8)
+    >>> mpq(1, 7) * 11
+    mpq(11,7)
 
-gmpy2 supports correctly rounded arbitrary precision real and complex arithmetic
-via the MPFR and MPC libraries. Floating point contexts are used to control precision,
-rounding modes, and exceptional conditions. For example, division by zero can either
-return an Infinity or raise an exception.
+But gmpy2 also supports correctly rounded multiple precision real and complex
+arithmetic.  The following example shows how to control precision settings and
+rounding modes:
 
 .. doctest::
 
-    >>> gmpy2.set_context(gmpy2.context())
-    >>> mpfr(1)/7
-    mpfr('0.14285714285714285')
-    >>> gmpy2.get_context().precision=200
-    >>> mpfr(1)/7
-    mpfr('0.1428571428571428571428571428571428571428571428571428571428571',200)
-    >>> gmpy2.get_context()
-    context(precision=200, real_prec=Default, imag_prec=Default,
-            round=RoundToNearest, real_round=Default, imag_round=Default,
-            emax=1073741823, emin=-1073741823,
-            subnormalize=False,
-            trap_underflow=False, underflow=False,
-            trap_overflow=False, overflow=False,
-            trap_inexact=False, inexact=True,
-            trap_invalid=False, invalid=False,
-            trap_erange=False, erange=False,
-            trap_divzero=False, divzero=False,
-            allow_complex=False,
-            rational_division=False,
-            allow_release_gil=False)
+    >>> mpfr('1.2')
+    mpfr('1.2')
+    >>> mpfr(float('1.2'))
+    mpfr('1.2')
+    >>> ctx = get_context()
+    >>> ctx.precision
+    53
+    >>> ctx.precision = 100
+    >>> mpfr('1.2')
+    mpfr('1.2000000000000000000000000000006',100)
+    >>> mpfr(float('1.2'))
+    mpfr('1.1999999999999999555910790149937',100)
+    >>> ctx.precision = 53
+    >>> ctx.round = RoundUp
+    >>> const_pi()
+    mpfr('3.1415926535897936')
+    >>> ctx.round = RoundToNearest
+    >>> const_pi()
+    mpfr('3.1415926535897931')
+
+You have seen, that if the precision is changed, then ``mpfr(float('1.2'))``
+differs from ``mpfr('1.2')``.  To take advantage of the higher precision
+provided by the `mpfr` type, always pass constants as strings.
+
+Floating point contexts also are used to control exceptional conditions.  For
+example, division by zero can either return a floating-point positive infinity
+(default) or raise an exception.
+
+.. doctest::
+
+    >>> ctx.divzero
+    False
     >>> mpfr(1)/0
     mpfr('inf')
-    >>> gmpy2.get_context().trap_divzero=True
-    >>> mpfr(1)/0  # doctest: +IGNORE_EXCEPTION_DETAIL +ELLIPSIS
+    >>> ctx.trap_divzero = True
+    >>> mpfr(1)/0
     Traceback (most recent call last):
     ...
     gmpy2.DivisionByZeroError: division by zero
-    >>> gmpy2.get_context()
-    context(precision=200, real_prec=Default, imag_prec=Default,
-            round=RoundToNearest, real_round=Default, imag_round=Default,
-            emax=1073741823, emin=-1073741823,
-            subnormalize=False,
-            trap_underflow=False, underflow=False,
-            trap_overflow=False, overflow=False,
-            trap_inexact=False, inexact=True,
-            trap_invalid=False, invalid=False,
-            trap_erange=False, erange=False,
-            trap_divzero=True, divzero=True,
-            allow_complex=False,
-            rational_division=False,
-            allow_release_gil=False)
-    >>> gmpy2.sqrt(mpfr(-2))
+    >>> ctx.divzero
+    True
+
+Exceptions are normally raised in Python when the result of a real operation is
+not defined over the reals; for example, ``math.sqrt(-2)`` will raise a
+:exc:`ValueError` exception.  The default context in gmpy2 implements similar
+behavior, but by setting :attr:`~context.allow_complex` flag, complex results
+will be returned.
+
+.. doctest::
+
+    >>> sqrt(mpfr(-2))
     mpfr('nan')
-    >>> gmpy2.get_context().allow_complex=True
-    >>> gmpy2.get_context().precision=53
-    >>> gmpy2.sqrt(mpfr(-2))
+    >>> ctx.allow_complex = True
+    >>> sqrt(mpfr(-2))
     mpc('0.0+1.4142135623730951j')
-    >>>
-    >>> gmpy2.set_context(gmpy2.context())
-    >>> with gmpy2.local_context() as ctx:
-    ...   print(gmpy2.const_pi())
-    ...   ctx.precision+=20
-    ...   print(gmpy2.const_pi())
-    ...   ctx.precision+=20
-    ...   print(gmpy2.const_pi())
+
+Contexts can also be used in conjunction with Python's :keyword:`with`
+statement to temporarily change the context settings for a block of code.
+
+.. doctest::
+
+    >>> with local_context() as ctx:
+    ...   print(const_pi())
+    ...   ctx.precision += 20
+    ...   print(const_pi())
     ...
     3.1415926535897931
     3.1415926535897932384628
-    3.1415926535897932384626433831
-    >>> print(gmpy2.const_pi())
+    >>> print(const_pi())
     3.1415926535897931
+
+It's possible to set different precision settings for real and imaginary
+components.
+
+.. doctest::
+
+    >>> ctx = get_context()
+    >>> ctx.real_prec = 60
+    >>> ctx.imag_prec = 70
+    >>> sqrt(mpc('1+2j'))
+    mpc('1.272019649514068965+0.78615137775742328606947j',(60,70))
+
+All gmpy2 numeric types support Python's "new style" string formatting
+available in `formatted string literals
+<https://docs.python.org/3/tutorial/inputoutput.html#tut-f-strings>`_ or with
+:meth:`str.format`; see `Format Specification Mini-Language
+<https://docs.python.org/3/library/string.html#formatspec>`_ for a description
+of the standard formatting syntax.  The precision value optionally can be
+followed by the rounding mode type ('U' to round toward plus infinity, 'D' to
+round toward minus infinity, 'Y' to round away from zero, 'Z' to round toward
+zero and 'N' - round to the nearest value.
+
+.. doctest::
+
+    >>> a = mpfr("1.23456")
+    >>> "{0:15.3f}".format(a)
+    '          1.235'
+    >>> "{0:15.3Uf}".format(a)
+    '          1.235'
+    >>> "{0:15.3Df}".format(a)
+    '          1.234'
+    >>> "{0:.3Df}".format(a)
+    '1.234'
+    >>> "{0:+.3Df}".format(a)
+    '+1.234'

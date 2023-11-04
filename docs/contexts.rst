@@ -12,51 +12,6 @@ modifying the reference returned by `get_context()` will modify the active
 context until a new context is enabled with `set_context()`. The
 `~context.copy()` method of a context will return a copy of the context.
 
-The following example just modifies the precision. The remaining options will
-be discussed later.
-
-.. doctest::
-
-    >>> import gmpy2
-    >>> from gmpy2 import mpfr
-    >>> gmpy2.set_context(gmpy2.context())
-    >>> gmpy2.get_context()
-    context(precision=53, real_prec=Default, imag_prec=Default,
-            round=RoundToNearest, real_round=Default, imag_round=Default,
-            emax=1073741823, emin=-1073741823,
-            subnormalize=False,
-            trap_underflow=False, underflow=False,
-            trap_overflow=False, overflow=False,
-            trap_inexact=False, inexact=False,
-            trap_invalid=False, invalid=False,
-            trap_erange=False, erange=False,
-            trap_divzero=False, divzero=False,
-            allow_complex=False,
-            rational_division=False,
-            allow_release_gil=False)
-    >>> gmpy2.sqrt(5)
-    mpfr('2.2360679774997898')
-    >>> gmpy2.get_context().precision=100
-    >>> gmpy2.sqrt(5)
-    mpfr('2.2360679774997896964091736687316',100)
-    >>> gmpy2.get_context().precision+=20
-    >>> gmpy2.sqrt(5)
-    mpfr('2.2360679774997896964091736687312762351',120)
-    >>> ctx=gmpy2.get_context()
-    >>> ctx.precision+=20
-    >>> gmpy2.sqrt(5)
-    mpfr('2.2360679774997896964091736687312762354406182',140)
-    >>> gmpy2.set_context(gmpy2.context())
-    >>> gmpy2.sqrt(5)
-    mpfr('2.2360679774997898')
-    >>> ctx.precision+=20
-    >>> gmpy2.sqrt(5)
-    mpfr('2.2360679774997898')
-    >>> gmpy2.set_context(ctx)
-    >>> gmpy2.sqrt(5)
-    mpfr('2.2360679774997896964091736687312762354406183596116',160)
-    >>> gmpy2.set_context(gmpy2.context())
-
 Context Type
 ------------
 
@@ -89,6 +44,7 @@ set to 100. When the block is finished, the original context is restored.
 
 .. doctest::
 
+    >>> import gmpy2
     >>> print(gmpy2.sqrt(2))
     1.4142135623730951
     >>> with gmpy2.local_context(gmpy2.context(), precision=100) as ctx:

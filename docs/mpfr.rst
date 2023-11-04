@@ -3,39 +3,6 @@ Multiple-precision Reals
 
 .. currentmodule:: gmpy2
 
-.. doctest::
-
-    >>> import gmpy2
-    >>> from gmpy2 import mpfr
-    >>> gmpy2.set_context(gmpy2.context())
-    >>> mpfr('1.2')
-    mpfr('1.2')
-    >>> mpfr(float('1.2'))
-    mpfr('1.2')
-    >>> gmpy2.get_context().precision=100
-    >>> mpfr('1.2')
-    mpfr('1.2000000000000000000000000000006',100)
-    >>> mpfr(float('1.2'))
-    mpfr('1.1999999999999999555910790149937',100)
-
-The `mpfr` type supports the `~mpfr.__format__()` special method to
-allow custom output formatting.
-
-.. doctest::
-
-    >>> from gmpy2 import mpfr
-    >>> a=mpfr("1.23456")
-    >>> "{0:15.3f}".format(a)
-    '          1.235'
-    >>> "{0:15.3Uf}".format(a)
-    '          1.235'
-    >>> "{0:15.3Df}".format(a)
-    '          1.234'
-    >>> "{0:.3Df}".format(a)
-    '1.234'
-    >>> "{0:+.3Df}".format(a)
-    '+1.234'
-
 mpfr Type
 ---------
 
