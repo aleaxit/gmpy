@@ -1,5 +1,5 @@
-Multiple-precision Rationals
-============================
+Rationals
+=========
 
 .. currentmodule:: gmpy2
 

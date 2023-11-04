@@ -1,5 +1,5 @@
-Multiple-precision Integers
-===========================
+Integers
+========
 
 .. currentmodule:: gmpy2
 

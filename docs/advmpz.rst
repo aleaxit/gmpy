@@ -1,5 +1,5 @@
-Multiple-precision Integers (Advanced topics)
-=============================================
+Integers (Advanced topics)
+==========================
 
 .. currentmodule:: gmpy2
 
