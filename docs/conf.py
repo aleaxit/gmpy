@@ -79,3 +79,11 @@ man_pages = [
     ('index', 'gmpy2', 'gmpy2 Documentation',
      ['Case Van Horsen'], 3)
 ]
+
+# Python code that is treated like it were put in a testcleanup directive
+# for *every* file that is tested, and for every group.
+doctest_global_cleanup = """
+import gmpy2
+
+gmpy2.set_context(gmpy2.context())
+"""
