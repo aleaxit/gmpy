@@ -117,7 +117,9 @@ _mpfr_hash(mpfr_t f)
         }
         else {
 #if PY_VERSION_HEX >= 0x030A00A0
-            return PyBaseObject_Type.tp_hash(f);
+            /* The default object hash implementation in the CPython
+             * accepts void* pointer. */
+            return PyBaseObject_Type.tp_hash((PyObject*)f);
 #else
             return _PyHASH_NAN;
 #endif
@@ -171,13 +173,7 @@ GMPy_MPC_Hash_Slot(MPC_Object *self)
     }
 
     hashreal = (Py_uhash_t)_mpfr_hash(mpc_realref(self->c));
-    if (hashreal == (Py_uhash_t)(-1)) {
-        return -1;
-    }
     hashimag = (Py_uhash_t)_mpfr_hash(mpc_imagref(self->c));
-    if (hashimag == (Py_uhash_t)(-1)) {
-        return -1;
-    }
     combined = hashreal + _PyHASH_IMAG * hashimag;
     if (combined == (Py_uhash_t)(-1)) {
         combined = (Py_uhash_t)(-2);
