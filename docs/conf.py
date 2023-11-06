@@ -41,7 +41,7 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
 templates_path = ['_templates']
 
 # General information about the project.
-project = 'gmpy2'
+project = gmpy2.__package__
 copyright = '2012 - 2022, Case Van Horsen'
 
 gmpy2_version = packaging.version.parse(gmpy2.__version__)
@@ -79,3 +79,11 @@ man_pages = [
     ('index', 'gmpy2', 'gmpy2 Documentation',
      ['Case Van Horsen'], 3)
 ]
+
+# Python code that is treated like it were put in a testcleanup directive
+# for *every* file that is tested, and for every group.
+doctest_global_cleanup = """
+import gmpy2
+
+gmpy2.set_context(gmpy2.context())
+"""

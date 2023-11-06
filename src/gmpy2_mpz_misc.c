@@ -1307,7 +1307,7 @@ GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_prime,
 "is_prime(x, n=25, /) -> bool\n\n"
-"Return `True` if x is _probably_ prime, else `False` if x is\n"
+"Return `True` if x is *probably* prime, else `False` if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
 
@@ -1357,7 +1357,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_prime,
 "x.is_prime(n=25, /) -> bool\n\n"
-"Return `True` if x is _probably_ prime, else `False` if x is\n"
+"Return `True` if x is *probably* prime, else `False` if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
 
