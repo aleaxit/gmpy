@@ -24,14 +24,18 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   install
    overview
+   install
+   tutorial
    mpz
    advmpz
    mpq
    contexts
+   exceptions
    mpfr
    mpc
+   generic
+   misc
    cython
    conversion
    history

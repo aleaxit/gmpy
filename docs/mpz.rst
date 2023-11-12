@@ -1,37 +1,7 @@
-Multiple-precision Integers
-===========================
+Integers
+========
 
 .. currentmodule:: gmpy2
-
-The gmpy2 `mpz` type supports arbitrary precision integers. It should be a
-drop-in replacement for Python's `int` type. Depending on the platform and the
-specific operation, an `mpz` will be faster than Python's `int` once the
-precision exceeds 20 to 50 digits. All the special integer functions in GMP are
-supported.
-
-Examples
---------
-
-.. doctest::
-
-    >>> from gmpy2 import is_prime, mpz
-    >>> mpz('123') + 1
-    mpz(124)
-    >>> 10 - mpz(1)
-    mpz(9)
-    >>> is_prime(17)
-    True
-    >>> mpz('1_2')
-    mpz(12)
-
-.. note::
-    The use of ``from gmpy2 import *`` is not recommended. The names in gmpy2
-    have been chosen to avoid conflict with Python's builtin names but gmpy2
-    does use names that may conflict with other modules or variable names.
-
-.. note::
-   `mpz` ignores all embedded underscore characters. It does not attempt to be
-   100% compatible with all Python exceptions.
 
 mpz type
 --------

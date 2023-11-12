@@ -1,10 +1,7 @@
-Multiple-precision Integers (Advanced topics)
-=============================================
+Integers (Advanced topics)
+==========================
 
 .. currentmodule:: gmpy2
-
-The xmpz type
--------------
 
 gmpy2 provides access to an experimental integer type called `xmpz`. The
 `xmpz` type is a mutable integer type. In-place operations (+=, //=,
@@ -123,6 +120,9 @@ prime numbers.
         print(time.time() - start)
         print(len(result))
 
+
+The xmpz type
+-------------
 
 .. autoclass:: xmpz
    :special-members: __format__
