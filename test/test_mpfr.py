@@ -9,9 +9,9 @@ from hypothesis.strategies import floats
 from supportclasses import a, b, c, d, q, r, z
 
 import gmpy2
-from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, is_nan, mpc, mpfr,
-                   mpfr_grandom, mpfr_nrandom, mpq, mpz, nan, random_state,
-                   to_binary, xmpz, zero)
+from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, inf, is_nan, mpc,
+                   mpfr, mpfr_grandom, mpfr_nrandom, mpq, mpz, nan,
+                   random_state, to_binary, xmpz, zero)
 
 
 def test_mpfr_gamma_inc():
@@ -54,7 +54,7 @@ def test_mpfr_cmp():
 
 
 def test_mpfr_comparisons():
-    from supportclasses import a, r, q
+    from supportclasses import a, q, r
 
     assert mpfr(1.5) == q
     assert r == mpfr(1.5)
@@ -121,6 +121,7 @@ def test_mpfr_create():
     assert mpfr(1) == mpfr('1.0')
     assert mpfr(-1) == mpfr('-1.0')
     assert mpfr("123e17") == mpfr('1.23e+19')
+    assert mpfr('1._3_5e4_5') == mpfr('1.3499999999999999e+45')
 
     pytest.raises(ValueError, lambda: mpfr("foo"))
 
@@ -359,6 +360,11 @@ def test_mpfr_abs():
     assert abs(mpfr('-inf')) == mpfr('inf')
 
 
+def test_mpfr_not():
+    assert not mpfr(0)
+    assert not mpfr(1) is False
+
+
 def test_mpfr_sub():
     assert mpfr(10) - 1 == mpfr('9.0')
     assert 10 - mpfr(1) == mpfr('9.0')
@@ -525,6 +531,9 @@ def test_mpfr_subnormalize():
 def test_mpfr_as_integer_ratio():
     assert mpfr('1.1e+2').as_integer_ratio() == (mpz(110), mpz(1))
 
+    pytest.raises(ValueError, lambda: mpfr('nan').as_integer_ratio())
+    pytest.raises(OverflowError, lambda: mpfr('inf').as_integer_ratio())
+
 
 def test_mpfr_round():
     pytest.raises(TypeError, lambda: round(mpfr('1.0'), "spam"))
@@ -533,3 +542,43 @@ def test_mpfr_round():
     assert r.is_zero() and r.is_signed()
 
     assert round(mpfr('12.34'), -1) == mpfr('10.0')
+
+    r = mpfr(4.55)
+
+    assert round(r, 1) == mpfr('4.5')
+    assert round(mpfr('5.1')) == mpz(5)
+
+    pytest.raises(ValueError, lambda: round(nan()))
+    pytest.raises(OverflowError, lambda: round(inf()))
+
+
+def test_mpfr_as_mantissa_exp():
+    r = mpfr(4.55)
+
+    assert r.as_mantissa_exp() == (mpz(5122844576133939), mpz(-50))
+    assert mpfr(0).as_mantissa_exp() == (mpz(0), mpz(1))
+
+    pytest.raises(OverflowError, lambda: inf().as_mantissa_exp())
+    pytest.raises(ValueError, lambda: nan().as_mantissa_exp())
+
+
+def test_mpfr_as_simple_fraction():
+    r = mpfr(4.55)
+
+    assert r.as_simple_fraction() == mpq(91,20)
+
+    pytest.raises(ValueError, lambda: r.as_simple_fraction(precision=100))
+    pytest.raises(TypeError, lambda: r.as_simple_fraction(nosense=10))
+
+
+def test_mpfr_real_imag():
+    r = mpfr(4.55)
+
+    assert r.imag == mpfr('0.0')
+    assert r.real == mpfr('4.5499999999999998')
+
+
+def test_mpfr_conjugate():
+    r = mpfr(4.55)
+
+    assert r.conjugate() == r

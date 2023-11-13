@@ -1,15 +1,17 @@
 import pytest
 
 import gmpy2
-from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, from_binary, get_exp,
-                   ieee, is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
-                   is_fermat_prp, is_fibonacci_prp, is_finite, is_infinite,
-                   is_lucas_prp, is_nan, is_selfridge_prp, is_strong_bpsw_prp,
-                   is_strong_lucas_prp, is_strong_prp, is_strong_selfridge_prp,
-                   is_zero, maxnum, minnum, mpc, mpfr, mpfr_from_old_binary,
-                   mpq, mpq_from_old_binary, mpz, mpz_from_old_binary, norm,
+from gmpy2 import (can_round, check_range, copy_sign, f2q, fac, fma, fmma,
+                   fmms, fms, from_binary, get_emax_max, get_emin_min, get_exp,
+                   ieee, inf, is_bpsw_prp, is_euler_prp,
+                   is_extra_strong_lucas_prp, is_fermat_prp, is_fibonacci_prp,
+                   is_finite, is_infinite, is_lucas_prp, is_nan,
+                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
+                   is_strong_prp, is_strong_selfridge_prp, is_zero, maxnum,
+                   minnum, mpc, mpfr, mpfr_from_old_binary, mpq,
+                   mpq_from_old_binary, mpz, mpz_from_old_binary, nan, norm,
                    phase, polar, powmod, powmod_sec, proj, rect, root,
-                   root_of_unity, rootn, set_exp, zero)
+                   root_of_unity, rootn, set_exp, set_sign, zero)
 
 
 def test_root():
@@ -401,3 +403,104 @@ def test_is_finite():
     assert is_finite(mpc("0+nanj")) is False
     assert is_finite(mpc("0+infj")) is False
     assert is_finite(mpc("inf+3j")) is False
+
+
+def test_f2q():
+    a = mpfr('123.456')
+
+    pytest.raises(TypeError, lambda: f2q('a'))
+    pytest.raises(TypeError, lambda: f2q(1,2,3,4))
+
+    assert f2q(a,0.1) == mpz(123)
+    assert f2q(a,0.01) == mpz(123)
+    assert f2q(a,0.001) == mpq(247,2)
+    assert f2q(a,0.0001) == mpq(1358,11)
+    assert f2q(a,0.00001) == mpq(7037,57)
+    assert f2q(a,0.000001) == mpq(15432,125)
+    assert f2q(a,0.0000001) == mpq(15432,125)
+    assert f2q(a) == mpq(15432,125)
+    assert f2q(2.50000000000008) == mpq(15637498706148,6254999482459)
+    assert f2q(2.5000000000000) == mpq(5,2)
+    assert f2q(2.50000000000008, 0.001) == mpq(5,2)
+    assert f2q(2.50000000000008, -50) == mpq(15637498706148,6254999482459)
+    assert f2q(mpfr('0.500000011'), 1e-4) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-5) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-6) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-7) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-8) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-9) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-10) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-11) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-12) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-13) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-14) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-15) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-16) == mpq(204545458,409090907)
+    assert f2q(mpfr('0.500000011'), 1e-17) == mpq(204545458,409090907)
+
+
+def test_get_emin_min():
+    assert get_emin_min() in (-4611686018427387903, -1073741823)
+
+
+def test_get_emax_max():
+    assert get_emax_max() in (4611686018427387903, 1073741823)
+
+
+def test_get_exp():
+    assert get_exp(mpfr(5.232)) == 3
+
+    pytest.raises(TypeError, lambda: get_exp(0))
+
+    assert get_exp(mpfr('inf')) == 0
+    assert get_exp(mpfr(0)) == 0
+
+
+def test_set_exp():
+    r = mpfr(4.55)
+
+    assert set_exp(r, 4) == mpfr('9.0999999999999996')
+
+    pytest.raises(TypeError, lambda: set_exp(r, mpz(4)))
+
+
+def test_set_sign():
+    r = mpfr(4.55)
+
+    assert set_sign(r, False) == mpfr('4.5499999999999998')
+    assert set_sign(r, True) == mpfr('-4.5499999999999998')
+
+    pytest.raises(TypeError, lambda: set_sign(mpz(5), True))
+    pytest.raises(TypeError, lambda: set_sign(r, 'oiio'))
+
+
+def test_copy_sign():
+    assert copy_sign(mpfr(4), mpfr(-2)) == mpfr('-4.0')
+
+    pytest.raises(TypeError, lambda: copy_sign(mpfr(4), True))
+
+
+def test_nan():
+    x = nan()
+
+    assert is_nan(x)
+
+
+def test_inf():
+    assert inf() == mpfr('inf')
+    assert inf(-5) == mpfr('-inf')
+    assert inf(mpz(-30)) == mpfr('-inf')
+
+    pytest.raises(TypeError, lambda: inf(mpfr(30)))
+
+
+def test_check_range():
+    r = mpfr(4.55)
+
+    assert check_range(r) == mpfr('4.5499999999999998')
+
+    ctx = gmpy2.get_context()
+
+    assert ctx.check_range(r) == mpfr('4.5499999999999998')
+
+    pytest.raises(TypeError, lambda: ctx.check_range(mpz(5)))

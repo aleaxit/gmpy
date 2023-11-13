@@ -107,6 +107,8 @@ def test_mpc_creation():
 
     assert mpc(x.real, x.imag, precision=(70,37)) == x
 
+    assert mpc('1_2+4_5j') == mpc('12.0+45.0j')
+
 
 def test_mpc_random():
     assert (mpc_random(random_state(42))
