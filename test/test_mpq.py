@@ -11,8 +11,8 @@ from hypothesis.strategies import fractions, integers
 from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import (cmp, cmp_abs, from_binary, mpc, mpfr, mpq, mpz, to_binary,
-                   xmpz)
+from gmpy2 import (cmp, cmp_abs, from_binary, is_nan, mpc, mpfr, mpq, mpz,
+                   to_binary, xmpz)
 
 
 def test_mpz_constructor():
@@ -180,6 +180,24 @@ def test_mpq_abs():
     assert a == mpq(-12,7)
 
 
+def test_mpq_add():
+    a = mpq(3,11)
+
+    assert a + float('Inf') == mpfr('inf')
+    assert float('Inf') + a == mpfr('inf')
+    assert a + float('-Inf') == mpfr('-inf')
+    assert float('-Inf') + a == mpfr('-inf')
+    assert is_nan(a + float('nan'))
+    assert is_nan(float('nan') + a)
+
+    assert a + mpfr('Inf') == mpfr('inf')
+    assert mpfr('Inf') + a == mpfr('inf')
+    assert a + mpfr('-Inf') == mpfr('-inf')
+    assert mpfr('-Inf') + a == mpfr('-inf')
+    assert is_nan(a + mpfr('nan'))
+    assert is_nan(mpfr('nan') + a)
+
+
 def test_mpq_sub():
     assert mpq(1,2) - Fraction(3,2) == mpq(-1,1)
     assert Fraction(1,2) - mpq(3,2) == mpq(-1,1)
@@ -206,6 +224,37 @@ def test_mpq_sub():
     pytest.raises(TypeError, lambda: mpq(1,2) - 'a')
     pytest.raises(TypeError, lambda: 'a' - mpq(1,2))
 
+    a = mpq(3,11)
+    b = mpq(1,2)
+    c = Fraction(5,7)
+
+    assert a-b == mpq(-5,22)
+    assert b-a == mpq(5,22)
+    assert a-1 == mpq(-8,11)
+    assert 1-a == mpq(8,11)
+    assert a-c == mpq(-34,77)
+    assert c-a == mpq(34,77)
+    assert a-a == mpq(0,1)
+    assert a-mpz(123456) == mpq(-1358013,11)
+    assert mpz(-123456)-a == mpq(-1358019,11)
+
+    pytest.raises(TypeError, lambda: a-'b')
+    pytest.raises(TypeError, lambda: 'b'-a)
+
+    assert a - float('Inf') == mpfr('-inf')
+    assert float('Inf') - a == mpfr('inf')
+    assert a - float('-Inf') == mpfr('inf')
+    assert float('-Inf') - a == mpfr('-inf')
+    assert is_nan(a - float('nan'))
+    assert is_nan(float('nan') - a)
+
+    assert a - mpfr('Inf') == mpfr('-inf')
+    assert mpfr('Inf') - a == mpfr('inf')
+    assert a - mpfr('-Inf') == mpfr('inf')
+    assert mpfr('-Inf') - a == mpfr('-inf')
+    assert is_nan(a - mpfr('nan'))
+    assert is_nan(mpfr('nan') - a)
+
 
 def test_mpq_mul():
     assert mpq(1,2) * Fraction(3,2) == mpq(3,4)
@@ -230,8 +279,92 @@ def test_mpq_mul():
     pytest.raises(TypeError, lambda: mpq(1,2) * 'a')
     pytest.raises(TypeError, lambda: 'a' * mpq(1,2))
 
+    a = mpq(3,11)
+    b = mpq(1,2)
+
+    assert a*b == mpq(3,22)
+    assert b*a == mpq(3,22)
+    assert a*0 == mpq(0,1)
+    assert 0*a == mpq(0,1)
+    assert a*-1 == mpq(-3,11)
+    assert -1*a == mpq(-3,11)
+    assert a*mpz(17) == mpq(51,11)
+    assert mpz(17)*a == mpq(51,11)
+    assert a*a == mpq(9,121)
+
+    pytest.raises(TypeError, lambda: a*'b')
+    pytest.raises(TypeError, lambda: 'b'*a)
+
+    assert a * float('Inf') == mpfr('inf')
+    assert float('Inf') * a == mpfr('inf')
+    assert a * float('-Inf') == mpfr('-inf')
+    assert float('-Inf') * a == mpfr('-inf')
+    assert -a * float('Inf') == mpfr('-inf')
+    assert float('Inf') * -a == mpfr('-inf')
+    assert -a * float('-Inf') == mpfr('inf')
+    assert float('-Inf') * -a == mpfr('inf')
+    assert is_nan(a * float('nan'))
+    assert is_nan(float('nan') * a)
+    assert is_nan(mpz(0) * float('Inf'))
+    assert is_nan(mpz(0) * float('-Inf'))
+    assert is_nan(float('Inf') * mpz(0))
+    assert is_nan(float('-Inf') * mpz(0))
+
+    assert a * mpfr('Inf') == mpfr('inf')
+    assert mpfr('Inf') * a == mpfr('inf')
+    assert a * mpfr('-Inf') == mpfr('-inf')
+    assert mpfr('-Inf') * a == mpfr('-inf')
+    assert -a * mpfr('Inf') == mpfr('-inf')
+    assert mpfr('Inf') * -a == mpfr('-inf')
+    assert -a * mpfr('-Inf') == mpfr('inf')
+    assert mpfr('-Inf') * -a == mpfr('inf')
+    assert is_nan(a * mpfr('nan'))
+    assert is_nan(mpfr('nan') * a)
+    assert is_nan(mpz(0) * mpfr('Inf'))
+    assert is_nan(mpz(0) * mpfr('-Inf'))
+    assert is_nan(mpfr('Inf') * mpz(0))
+    assert is_nan(mpfr('-Inf') * mpz(0))
+
+
+def test_mpq_mod():
+    a = mpq(3,11)
+    b = mpq(1,2)
+    ctx = gmpy2.get_context()
+
+    assert a%b == mpq(3,11)
+    assert b%a == mpq(5,22)
+    assert a%z == mpq(3,11)
+    assert mpq(3,1) % q == mpq(0,1)
+
+    pytest.raises(ZeroDivisionError, lambda: a % mpq(0,5))
+
+    assert ctx.mod(a, mpfr(1.5)) == mpfr('0.27272727272727271')
+
+    pytest.raises(TypeError, lambda: ctx.mod(a, mpc(0.5, 2)))
+    pytest.raises(ZeroDivisionError, lambda: ctx.mod(a, mpq(0, 2)))
+
+    assert a % mpfr(1.5) == mpfr('0.27272727272727271')
+
+    pytest.raises(TypeError, lambda: a % mpc(0.5, 2))
+    pytest.raises(TypeError, lambda: a % 'str')
+    pytest.raises(TypeError, lambda: ctx.mod(a, 'str'))
+
 
 def test_mpq_divmod():
+    a = mpq(3,11)
+    b = mpq(1,2)
+    c = Fraction(5,7)
+    ctx = gmpy2.get_context()
+
+    assert divmod(a,b) == (mpz(0), mpq(3,11))
+    assert divmod(b,a) == (mpz(1), mpq(5,22))
+
+    pytest.raises(ZeroDivisionError, lambda: divmod(a,0))
+
+    assert divmod(17,a) == (mpz(62), mpq(1,11))
+    assert divmod(mpz(17),a) == (mpz(62), mpq(1,11))
+    assert divmod(a,c) == (mpz(0), mpq(3,11))
+
     pytest.raises(TypeError, lambda: divmod(mpq(1,2),'a'))
 
     ctx = gmpy2.ieee(64)
@@ -240,6 +373,44 @@ def test_mpq_divmod():
     assert ctx.divmod(mpq(3,2),mpq(3,7)) == (mpz(3), mpq(3,14))
 
     pytest.raises(TypeError, lambda: divmod(mpq(1,2), mpc(1,2)))
+
+    assert divmod(a, float('Inf')) == (mpfr('0.0'), mpfr('0.27272727272727271'))
+    assert divmod(a, float('-Inf')) == (mpfr('-1.0'), mpfr('-inf'))
+    assert divmod(-a, float('Inf')) == (mpfr('-1.0'), mpfr('inf'))
+    assert divmod(-a, float('-Inf')) == (mpfr('0.0'), mpfr('-0.27272727272727271'))
+    assert all(map(is_nan, divmod(a, float('nan'))))
+    assert all(map(is_nan, divmod(-a, float('nan'))))
+    assert divmod(mpz(0), float('Inf')) == (mpfr('0.0'), mpfr('0.0'))
+    assert divmod(mpz(0), float('-Inf')) == (mpfr('-0.0'), mpfr('-0.0'))
+    assert all(map(is_nan, divmod(mpz(0), float('nan'))))
+    assert all(map(is_nan, divmod(float('Inf'), a)))
+    assert all(map(is_nan, divmod(float('-Inf'), a)))
+    assert all(map(is_nan, divmod(float('Inf'), -a)))
+    assert all(map(is_nan, divmod(float('-Inf'), -a)))
+    assert all(map(is_nan, divmod(float('nan'), a)))
+    assert all(map(is_nan, divmod(float('nan'), -a)))
+    assert all(map(is_nan, divmod(float('Inf'), mpz(0))))
+    assert all(map(is_nan, divmod(float('-Inf'), mpz(0))))
+    assert all(map(is_nan, divmod(float('nan'), mpz(0))))
+
+    assert divmod(a, mpfr('Inf')) == (mpfr('0.0'), mpfr('0.27272727272727271'))
+    assert divmod(a, mpfr('-Inf')) == (mpfr('-1.0'), mpfr('-inf'))
+    assert divmod(-a, mpfr('Inf')) == (mpfr('-1.0'), mpfr('inf'))
+    assert divmod(-a, mpfr('-Inf')) == (mpfr('0.0'), mpfr('-0.27272727272727271'))
+    assert all(map(is_nan, divmod(a, mpfr('nan'))))
+    assert all(map(is_nan, divmod(-a, mpfr('nan'))))
+    assert divmod(mpz(0), mpfr('Inf')) == (mpfr('0.0'), mpfr('0.0'))
+    assert divmod(mpz(0), mpfr('-Inf')) == (mpfr('-0.0'), mpfr('-0.0'))
+    assert divmod(mpz(0), mpfr('nan'))
+    assert divmod(mpfr('Inf'), a)
+    assert divmod(mpfr('-Inf'), a)
+    assert divmod(mpfr('Inf'), -a)
+    assert divmod(mpfr('-Inf'), -a)
+    assert divmod(mpfr('nan'), a)
+    assert divmod(mpfr('nan'), -a)
+    assert divmod(mpfr('Inf'), mpz(0))
+    assert divmod(mpfr('-Inf'), mpz(0))
+    assert divmod(mpfr('nan'), mpz(0))
 
 
 def test_mpq_floordiv():
@@ -269,6 +440,65 @@ def test_mpq_floordiv():
     pytest.raises(TypeError, lambda: q // c2)
     pytest.raises(TypeError, lambda: q // 'not')
 
+    a = mpq(3,11)
+    b = mpq(1,2)
+
+    assert a//b == mpz(0)
+    assert b//a == mpz(1)
+
+    pytest.raises(ZeroDivisionError, lambda: a//0)
+
+    assert 0//a == mpz(0)
+    assert mpq(355, 113) // 2 == mpz(1)
+    assert mpq(355, 113) // mpz(2) == mpz(1)
+    assert mpq(355, 113) // z == mpz(1)
+
+
+def test_mpq_truediv():
+    a = mpq(3,11)
+    b = mpq(1,2)
+    ctx = gmpy2.get_context()
+
+    assert a/b == mpq(6,11)
+    assert gmpy2.div(a, b) == mpq(6,11)
+    assert ctx.div(a, b) == mpq(6,11)
+    assert b/a == mpq(11,6)
+
+    pytest.raises(ZeroDivisionError, lambda: a/0)
+
+    assert 0/a == mpq(0,1)
+    assert a / z == mpq(3,22)
+    assert mpq(3,11) / q == mpq(2,11)
+    assert a / mpc(5, 4) == mpc('0.03325942350332594-0.02660753880266075j')
+
+    pytest.raises(ZeroDivisionError, lambda: a / mpq(0,1))
+    pytest.raises(TypeError, lambda: a / 'str')
+
+    assert a / float('Inf') == mpfr('0.0')
+    assert -a / float('Inf') == mpfr('-0.0')
+    assert float('Inf') / a == mpfr('inf')
+    assert float('Inf') / -a == mpfr('-inf')
+    assert a / float('-Inf') == mpfr('-0.0')
+    assert -a / float('-Inf') == mpfr('0.0')
+    assert float('-Inf') / a == mpfr('-inf')
+    assert float('-Inf') / -a == mpfr('inf')
+    assert is_nan(a / float('nan'))
+    assert is_nan(float('nan') / a)
+    assert is_nan(float('nan') / mpz(0))
+
+    assert a / mpfr('Inf') == mpfr('0.0')
+    assert -a / mpfr('Inf') == mpfr('-0.0')
+    assert mpfr('Inf') / a == mpfr('inf')
+    assert mpfr('Inf') / -a == mpfr('-inf')
+    assert a / mpfr('-Inf') == mpfr('-0.0')
+    assert -a / mpfr('-Inf') == mpfr('0.0')
+    assert mpfr('-Inf') / a == mpfr('-inf')
+    assert mpfr('-Inf') / -a == mpfr('inf')
+    assert is_nan(a / mpfr('nan'))
+    assert is_nan(mpfr('nan') / a)
+    assert is_nan(mpfr('nan') / mpz(0))
+    assert is_nan(mpfr('nan') / mpz(0))
+
 
 def test_mpq_pow():
     q = mpq(2,3)
@@ -286,6 +516,7 @@ def test_mpq_pow():
 
 def test_mpq_attributes():
     q = mpq('4/5')
+    a = mpq(3,11)
     pyq = Fraction(4, 5)
 
     assert q.numerator == mpz(4)
@@ -293,12 +524,23 @@ def test_mpq_attributes():
     assert gmpy2.numer(q) == mpz(4)
     assert gmpy2.denom(q) == mpz(5)
 
+    assert a.numerator == mpz(3)
+    assert a.denominator == mpz(11)
+    assert a.real == mpq(3,11)
+    assert a.imag == mpz(0)
+
     pytest.raises(TypeError, lambda: gmpy2.numer(6.2))
     pytest.raises(TypeError, lambda: gmpy2.denom(5.6))
     pytest.raises(TypeError, lambda: gmpy2.denom(mpfr(5)))
 
     assert gmpy2.numer(pyq) == mpz(4)
     assert gmpy2.denom(pyq) == mpz(5)
+
+
+def test_mpq_conjugate():
+    a = mpq(3, 11)
+
+    assert a.conjugate() == a
 
 
 def test_mpq_floor():
@@ -344,6 +586,18 @@ def test_mpq_qdiv():
     assert gmpy2.qdiv(q, 2) == mpq(2,5)
     assert gmpy2.qdiv(10, q) == mpq(25,2)
     assert gmpy2.qdiv(1) == mpz(1)
+
+    assert gmpy2.qdiv(8,1) == mpz(8)
+    assert gmpy2.qdiv(8,2) == mpz(4)
+    assert gmpy2.qdiv(8,3) == mpq(8,3)
+    assert gmpy2.qdiv(8,4) == mpz(2)
+    assert gmpy2.qdiv(mpq(3,4), mpq(1,3)) == mpq(9,4)
+    assert gmpy2.qdiv(mpq(3,4), mpq(1,4)) == mpz(3)
+
+    args = mpq(2), 1/gmpy2.mpq(2)
+
+    assert gmpy2.qdiv(*args) == mpz(4)
+    assert args == (mpq(2), 1/mpq(2))
 
 
 def test_issue_334():

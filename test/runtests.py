@@ -26,8 +26,6 @@ print()
 
 mpz_doctests = ["test_mpz.txt"]
 
-mpq_doctests = ["test_mpq.txt"]
-
 mpfr_doctests = ["test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_context.txt"]
 
@@ -38,7 +36,7 @@ gmpy2_tests = [os.path.basename(i)
 failed = 0
 attempted = 0
 
-all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
+all_doctests = gmpy2_tests + mpz_doctests
 
 all_doctests += mpfr_doctests
 

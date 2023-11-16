@@ -11,7 +11,7 @@ from gmpy2 import (can_round, check_range, copy_sign, f2q, fac, fma, fmma,
                    minnum, mpc, mpfr, mpfr_from_old_binary, mpq,
                    mpq_from_old_binary, mpz, mpz_from_old_binary, nan, norm,
                    phase, polar, powmod, powmod_sec, proj, rect, root,
-                   root_of_unity, rootn, set_exp, set_sign, zero)
+                   root_of_unity, rootn, set_exp, set_sign, sign, zero)
 
 
 def test_root():
@@ -504,3 +504,13 @@ def test_check_range():
     assert ctx.check_range(r) == mpfr('4.5499999999999998')
 
     pytest.raises(TypeError, lambda: ctx.check_range(mpz(5)))
+
+
+def test_sign():
+    a = mpq(3,11)
+
+    assert sign(a) == 1
+    assert sign(-a) == -1
+    assert sign(mpq(0,5)) == 0
+
+    pytest.raises(TypeError, lambda: sign('str'))
