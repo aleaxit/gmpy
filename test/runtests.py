@@ -26,7 +26,7 @@ print()
 
 mpz_doctests = ["test_mpz.txt"]
 
-mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt"]
+mpfr_doctests = ["test_mpfr_trig.txt"]
 
 gmpy2_tests = [os.path.basename(i)
                for i in glob.glob(os.path.join(test_dir,

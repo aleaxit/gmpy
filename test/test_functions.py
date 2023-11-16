@@ -514,3 +514,12 @@ def test_sign():
     assert sign(mpq(0,5)) == 0
 
     pytest.raises(TypeError, lambda: sign('str'))
+
+    a = mpfr("12.34")
+
+    assert sign(-1.5) == -1
+    assert sign(a) == 1
+    assert sign(mpfr(0)) == 0
+    assert sign(mpfr('inf')) == 1
+    assert sign(mpfr('-inf')) == -1
+    assert sign(mpfr('nan')) == 0

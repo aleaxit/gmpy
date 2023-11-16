@@ -1,4 +1,5 @@
 import math
+import pickle
 import sys
 from decimal import Decimal
 from fractions import Fraction
@@ -9,9 +10,9 @@ from hypothesis.strategies import floats
 from supportclasses import a, b, c, d, q, r, z
 
 import gmpy2
-from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, inf, is_nan, mpc,
-                   mpfr, mpfr_grandom, mpfr_nrandom, mpq, mpz, nan,
-                   random_state, to_binary, xmpz, zero)
+from gmpy2 import (cmp, cmp_abs, from_binary, gamma_inc, get_context, inf,
+                   is_nan, mpc, mpfr, mpfr_grandom, mpfr_nrandom, mpq, mpz,
+                   nan, random_state, to_binary, xmpz, zero)
 
 
 def test_mpfr_gamma_inc():
@@ -365,6 +366,45 @@ def test_mpfr_not():
     assert not mpfr(1) is False
 
 
+def test_mpfr_add():
+    a = mpfr("12.34")
+    b = mpfr("45.67")
+
+    assert a+1 == mpfr('13.34')
+    assert a+1.0 == mpfr('13.34')
+    assert a+mpz(1) == mpfr('13.34')
+    assert a+mpq(1,1) == mpfr('13.34')
+    assert 1+a == mpfr('13.34')
+    assert 1.0+a == mpfr('13.34')
+    assert mpz(1)+a == mpfr('13.34')
+    assert mpq(1,1)+a == mpfr('13.34')
+    assert a+b == mpfr('58.010000000000005')
+    assert a+0 == mpfr('12.34')
+    assert 0+a == mpfr('12.34')
+    assert b+a == mpfr('58.010000000000005')
+
+    pytest.raises(TypeError, lambda: a+'b')
+    pytest.raises(TypeError, lambda: 'b'+a)
+
+    assert a == 12.34
+    assert b == 45.67
+    assert a+b == 12.34+45.67
+
+    assert a + float('Inf') == mpfr('inf')
+    assert float('Inf') + a == mpfr('inf')
+    assert a + float('-Inf') == mpfr('-inf')
+    assert float('-Inf') + a == mpfr('-inf')
+    assert is_nan(a + float('nan'))
+    assert is_nan(float('nan') + a)
+
+    assert a + mpfr('Inf') == mpfr('inf')
+    assert mpfr('Inf') + a == mpfr('inf')
+    assert a + mpfr('-Inf') == mpfr('-inf')
+    assert mpfr('-Inf') + a == mpfr('-inf')
+    assert is_nan(a + mpfr('nan'))
+    assert is_nan(mpfr('nan') + a)
+
+
 def test_mpfr_sub():
     assert mpfr(10) - 1 == mpfr('9.0')
     assert 10 - mpfr(1) == mpfr('9.0')
@@ -382,6 +422,35 @@ def test_mpfr_sub():
     assert mpfr(10) - z == mpfr('8.0')
     assert mpfr(10) - q == mpfr('8.5')
     assert mpfr(10) - r == mpfr('8.5')
+
+    a = mpfr("12.34")
+    b = mpfr("45.67")
+
+    assert a-1 == mpfr('11.34')
+    assert a-1.0 == mpfr('11.34')
+    assert a-(-1) == mpfr('13.34')
+    assert a-(-1.0) == mpfr('13.34')
+    assert a-b == mpfr('-33.329999999999998')
+    assert b-a == mpfr('33.329999999999998')
+
+    pytest.raises(TypeError, lambda: a-'b')
+    pytest.raises(TypeError, lambda: 'b'-a)
+
+    assert a-b == 12.34-45.67
+
+    assert a - float('Inf') == mpfr('-inf')
+    assert float('Inf') - a == mpfr('inf')
+    assert a - float('-Inf') == mpfr('inf')
+    assert float('-Inf') - a == mpfr('-inf')
+    assert is_nan(a - float('nan'))
+    assert is_nan(float('nan') - a)
+
+    assert a - mpfr('Inf') == mpfr('-inf')
+    assert mpfr('Inf') - a == mpfr('inf')
+    assert a - mpfr('-Inf') == mpfr('inf')
+    assert mpfr('-Inf') - a == mpfr('-inf')
+    assert is_nan(a - mpfr('nan'))
+    assert is_nan(mpfr('nan') - a)
 
 
 def test_mpfr_mul():
@@ -406,6 +475,52 @@ def test_mpfr_mul():
 
     pytest.raises(TypeError, lambda: mpfr(10) * 'a')
     pytest.raises(TypeError, lambda: 'a' * mpfr(10))
+
+    a = mpfr("12.34")
+    b = mpfr("45.67")
+
+    assert a*b == mpfr('563.56780000000003')
+    assert a*0 == mpfr('0.0')
+    assert a*0.0 == mpfr('0.0')
+    assert a*1 == mpfr('12.34')
+    assert a*1.0 == mpfr('12.34')
+    assert a*(-1.0) == mpfr('-12.34')
+    assert 0*a == mpfr('0.0')
+    assert 0.0*a == mpfr('0.0')
+    assert 1*a == mpfr('12.34')
+    assert 1.0*a == mpfr('12.34')
+    assert a*b == mpfr('563.56780000000003')
+    assert a*b == 12.34*45.67
+
+    assert a * float('Inf') == mpfr('inf')
+    assert float('Inf') * a == mpfr('inf')
+    assert a * float('-Inf') == mpfr('-inf')
+    assert float('-Inf') * a == mpfr('-inf')
+    assert -a * float('Inf') == mpfr('-inf')
+    assert float('Inf') * -a == mpfr('-inf')
+    assert -a * float('-Inf') == mpfr('inf')
+    assert float('-Inf') * -a == mpfr('inf')
+    assert is_nan(a * float('nan'))
+    assert is_nan(float('nan') * a)
+    assert is_nan(mpfr(0) * float('Inf'))
+    assert is_nan(mpfr(0) * float('-Inf'))
+    assert is_nan(float('Inf') * mpfr(0))
+    assert is_nan(float('-Inf') * mpfr(0))
+
+    assert a * mpfr('Inf') == mpfr('inf')
+    assert mpfr('Inf') * a == mpfr('inf')
+    assert a * mpfr('-Inf') == mpfr('-inf')
+    assert mpfr('-Inf') * a == mpfr('-inf')
+    assert -a * mpfr('Inf') == mpfr('-inf')
+    assert mpfr('Inf') * -a == mpfr('-inf')
+    assert -a * mpfr('-Inf') == mpfr('inf')
+    assert mpfr('-Inf') * -a == mpfr('inf')
+    assert is_nan(a * mpfr('nan'))
+    assert is_nan(mpfr('nan') * a)
+    assert is_nan(mpz(0) * mpfr('Inf'))
+    assert is_nan(mpz(0) * mpfr('-Inf'))
+    assert is_nan(mpfr('Inf') * mpfr(0))
+    assert is_nan(mpfr('-Inf') * mpfr(0))
 
 
 def test_mpfr_divmod():
@@ -436,6 +551,52 @@ def test_mpfr_divmod():
         pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(mpfr(1), gmpy2.inf()))
 
     assert divmod(mpfr(111), mpfr(-222)) == (mpfr('-1.0'), mpfr('-111.0'))
+
+    a = mpfr("12.34")
+    b = mpfr("45.67")
+
+    assert divmod(12.34, 45.67) == (0.0, 12.34)
+    assert divmod(a,b) == (mpfr('0.0'), mpfr('12.34'))
+    assert divmod(b,a) == (mpfr('3.0'), mpfr('8.6500000000000021'))
+    assert divmod(45.67,12.34) == divmod(b,a)
+
+    assert divmod(a, float('Inf')) == (mpfr('0.0'), mpfr('12.34'))
+    assert divmod(a, float('-Inf')) == (mpfr('-1.0'), mpfr('-inf'))
+    assert divmod(-a, float('Inf')) == (mpfr('-1.0'), mpfr('inf'))
+    assert divmod(-a, float('-Inf')) == (mpfr('0.0'), mpfr('-12.34'))
+    assert all(map(is_nan, divmod(a, float('nan'))))
+    assert all(map(is_nan, divmod(-a, float('nan'))))
+    assert divmod(mpfr(0), float('Inf')) == (mpfr('0.0'), mpfr('0.0'))
+    assert divmod(mpfr(0), float('-Inf')) == (mpfr('-0.0'), mpfr('-0.0'))
+    assert divmod(mpfr(0), float('nan'))
+    assert all(map(is_nan, divmod(float('Inf'), a)))
+    assert all(map(is_nan, divmod(float('-Inf'), a)))
+    assert all(map(is_nan, divmod(float('Inf'), -a)))
+    assert all(map(is_nan, divmod(float('-Inf'), -a)))
+    assert all(map(is_nan, divmod(float('nan'), a)))
+    assert all(map(is_nan, divmod(float('nan'), -a)))
+    assert all(map(is_nan, divmod(float('Inf'), mpfr(0))))
+    assert all(map(is_nan, divmod(float('-Inf'), mpfr(0))))
+    assert all(map(is_nan, divmod(float('nan'), mpfr(0))))
+
+    assert divmod(a, mpfr('Inf')) == (mpfr('0.0'), mpfr('12.34'))
+    assert divmod(a, mpfr('-Inf')) == (mpfr('-1.0'), mpfr('-inf'))
+    assert divmod(-a, mpfr('Inf')) == (mpfr('-1.0'), mpfr('inf'))
+    assert divmod(-a, mpfr('-Inf')) == (mpfr('0.0'), mpfr('-12.34'))
+    assert all(map(is_nan, divmod(a, mpfr('nan'))))
+    assert all(map(is_nan, divmod(-a, mpfr('nan'))))
+    assert divmod(mpfr(0), mpfr('Inf')) == (mpfr('0.0'), mpfr('0.0'))
+    assert divmod(mpfr(0), mpfr('-Inf')) == (mpfr('-0.0'), mpfr('-0.0'))
+    assert divmod(mpfr(0), mpfr('nan'))
+    assert all(map(is_nan, divmod(mpfr('Inf'), a)))
+    assert all(map(is_nan, divmod(mpfr('-Inf'), a)))
+    assert all(map(is_nan, divmod(mpfr('Inf'), -a)))
+    assert all(map(is_nan, divmod(mpfr('-Inf'), -a)))
+    assert all(map(is_nan, divmod(mpfr('nan'), a)))
+    assert all(map(is_nan, divmod(mpfr('nan'), -a)))
+    assert all(map(is_nan, divmod(mpfr('Inf'), mpfr(0))))
+    assert all(map(is_nan, divmod(mpfr('-Inf'), mpfr(0))))
+    assert all(map(is_nan, divmod(mpfr('nan'), mpfr(0))))
 
 
 def test_mpfr_floordiv():
@@ -475,10 +636,118 @@ def test_mpfr_floordiv():
     pytest.raises(TypeError, lambda: r // c2)
     pytest.raises(TypeError, lambda: r // 'not')
 
+    a = mpfr("12.34")
+    b = mpfr("45.67")
+
+    assert a//b == mpfr('0.0')
+    assert b//a == mpfr('3.0')
+
+
+def test_mpfr_truediv():
+    a = mpfr("12.34")
+    b = mpfr("45.67")
+
+    assert a/b == mpfr('0.27019925552879348')
+    assert gmpy2.div(a, b) == mpfr('0.27019925552879348')
+    assert get_context().div(a, b) == mpfr('0.27019925552879348')
+    assert b/a == mpfr('3.7009724473257699')
+    assert a/b == 12.34/45.67
+    assert a/0 == mpfr('inf')
+    assert a/(-0.0) == mpfr('-inf')
+    assert a/b == 12.34/45.67
+    assert mpfr(10) / z == mpfr('5.0')
+    assert mpfr(10) / q == mpfr('6.666666666666667')
+    assert mpfr(10) / r == mpfr('6.666666666666667')
+    assert b / mpc(4, 4) == mpc('5.7087500000000002-5.7087500000000002j')
+    assert get_context().div(b, mpc(4, 4)) == mpc('5.7087500000000002-5.7087500000000002j')
+
+    ans = b / mpc(0, 0)
+
+    assert ans.real == mpfr('inf') and is_nan(ans.imag)
+
+    ans = get_context().div(b, mpc(0, 0))
+
+    assert ans.real == mpfr('inf') and is_nan(ans.imag)
+
+    pytest.raises(TypeError, lambda: b / 'str')
+    pytest.raises(TypeError, lambda: get_context().div(b, 'str'))
+
+    assert a / float('Inf') == mpfr('0.0')
+    assert -a / float('Inf') == mpfr('-0.0')
+    assert float('Inf') / a == mpfr('inf')
+    assert float('Inf') / -a == mpfr('-inf')
+    assert a / float('-Inf') == mpfr('-0.0')
+    assert -a / float('-Inf') == mpfr('0.0')
+    assert float('-Inf') / a == mpfr('-inf')
+    assert float('-Inf') / -a == mpfr('inf')
+    assert is_nan(a / float('nan'))
+    assert is_nan(float('nan') / a)
+    assert is_nan(float('nan') / mpfr(0))
+    assert is_nan(float('nan') / mpfr(0))
+
+    assert a / mpfr('Inf') == mpfr('0.0')
+    assert -a / mpfr('Inf') == mpfr('-0.0')
+    assert mpfr('Inf') / a == mpfr('inf')
+    assert mpfr('Inf') / -a == mpfr('-inf')
+    assert a / mpfr('-Inf') == mpfr('-0.0')
+    assert -a / mpfr('-Inf') == mpfr('0.0')
+    assert mpfr('-Inf') / a == mpfr('-inf')
+    assert mpfr('-Inf') / -a == mpfr('inf')
+    assert is_nan(a / mpfr('nan'))
+    assert is_nan(mpfr('nan') / a)
+    assert is_nan(mpfr('nan') / mpfr(0))
+    assert is_nan(mpfr('nan') / mpfr(0))
+
 
 def test_mpfr_mod():
     r = mpfr('0.0') % mpfr('-1.0')
     assert r.is_zero() and r.is_signed()
+
+    a = mpfr("12.34")
+    b = mpfr("45.67")
+
+    assert a % 1 == mpfr('0.33999999999999986')
+    assert 12.34 % 1 == 0.33999999999999986
+    assert a % z == mpfr('0.33999999999999986')
+    assert is_nan(b % 0)
+    assert is_nan(b % mpz(0))
+    assert is_nan(get_context().mod(b, 0))
+    assert is_nan(get_context().mod(b, mpz(0)))
+    assert is_nan(b % mpfr(0))
+    assert is_nan(get_context().mod(b, mpfr(0)))
+
+    get_context().trap_divzero = True
+
+    pytest.raises(gmpy2.DivisionByZeroError, lambda: b % 0)
+    pytest.raises(gmpy2.DivisionByZeroError, lambda: b % mpz(0))
+    pytest.raises(gmpy2.DivisionByZeroError, lambda: get_context().mod(b, 0))
+    pytest.raises(gmpy2.DivisionByZeroError, lambda: get_context().mod(b, mpz(0)))
+    pytest.raises(gmpy2.DivisionByZeroError, lambda: b % mpfr(0))
+    pytest.raises(gmpy2.DivisionByZeroError, lambda: get_context().mod(b, mpfr(0)))
+
+    get_context().trap_divzero = False
+
+    pytest.raises(TypeError, lambda: b % 'str')
+    pytest.raises(TypeError, lambda: get_context().mod(b,'str'))
+    pytest.raises(TypeError, lambda: b % mpc(3, 5))
+
+    assert is_nan(mpfr('nan') % a)
+    assert is_nan(a % mpfr('nan'))
+    assert is_nan(mpfr('inf') % a)
+    assert a % mpfr('inf') == mpfr('12.34')
+
+    get_context().trap_invalid = True
+
+    pytest.raises(gmpy2.InvalidOperationError, lambda: mpfr('nan') % a)
+    pytest.raises(gmpy2.InvalidOperationError, lambda: a % mpfr('nan'))
+    pytest.raises(gmpy2.InvalidOperationError, lambda: mpfr('inf') % a)
+    pytest.raises(gmpy2.InvalidOperationError, lambda: a % mpfr('inf'))
+
+    get_context().trap_invalid = False
+
+    pytest.raises(TypeError, lambda: get_context().mod(a, b, 5))
+
+    assert get_context().mod(a, -mpfr('inf')) == mpfr('-inf')
 
 
 def test_mpfr_pow():
@@ -573,12 +842,27 @@ def test_mpfr_as_simple_fraction():
 
 def test_mpfr_real_imag():
     r = mpfr(4.55)
+    a = mpfr('12.34')
 
     assert r.imag == mpfr('0.0')
     assert r.real == mpfr('4.5499999999999998')
+    assert a.real == mpfr('12.34')
+    assert a.imag == mpfr('0.0')
 
 
 def test_mpfr_conjugate():
     r = mpfr(4.55)
+    a = mpfr('12.34')
 
     assert r.conjugate() == r
+    assert a.conjugate() == a
+
+
+def test_mpfr_pickle():
+    a = mpfr('12.34')
+
+    assert pickle.loads(pickle.dumps(a)) == a
+    assert pickle.loads(pickle.dumps(mpfr("inf"))) == mpfr('inf')
+    assert pickle.loads(pickle.dumps(mpfr("-inf"))) == mpfr('-inf')
+    assert is_nan(pickle.loads(pickle.dumps(mpfr("nan"))))
+    assert pickle.loads(pickle.dumps(mpfr(0))) == mpfr('0.0')
