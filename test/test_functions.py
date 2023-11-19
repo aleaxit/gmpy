@@ -523,3 +523,12 @@ def test_sign():
     assert sign(mpfr('inf')) == 1
     assert sign(mpfr('-inf')) == -1
     assert sign(mpfr('nan')) == 0
+
+    a = mpz(123)
+    b = mpz(456)
+
+    assert sign(b-a) == 1
+    assert sign(b-b) == 0
+    assert sign(a-b) == -1
+    assert sign(a) == 1
+    assert sign(-a) == -1
