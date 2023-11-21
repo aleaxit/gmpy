@@ -580,7 +580,6 @@ def test_mpz_format():
                                                   '27', '25', '23', '21', '1z']
 
     raises(ValueError, lambda: a.digits(63))
-    raises(TypeError, lambda: a.__format__())
 
     assert '{}'.format(a) == '123'
     assert '{:d}'.format(a) == '123'

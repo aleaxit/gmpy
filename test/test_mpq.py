@@ -131,7 +131,7 @@ def test_mpq_conversion():
 
 
 def test_mpq_round():
-    pytest.raises(TypeError, lambda: mpq(7,3).__round__(4.5))
+    pytest.raises(TypeError, lambda: round(mpq(7,3), 4.5))
 
     q = mpq('4/5')
 

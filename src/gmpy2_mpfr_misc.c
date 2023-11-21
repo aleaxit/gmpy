@@ -710,7 +710,7 @@ GMPy_MPFR_SizeOf_Method(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_method_round10,
-"__round__(x[, n = 0]) -> mpfr\n\n"
+"x.__round__(n = 0, /) -> mpfr\n\n"
 "Return x rounded to n decimal digits before (n < 0) or after (n > 0)\n"
 "the decimal point. Rounds to an integer if n is not specified.");
 
@@ -752,12 +752,7 @@ GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args)
         return self;
     }
 
-    if (PyTuple_GET_SIZE(args) > 1) {
-        TYPE_ERROR("__round__() requires 0 or 1 argument");
-        return NULL;
-    }
-
-    if (PyTuple_GET_SIZE(args) == 1) {
+    if (PyTuple_GET_SIZE(args) >= 1) {
         digits = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
         if (digits == -1 && PyErr_Occurred()) {
             TYPE_ERROR("__round__() requires 'int' argument");
