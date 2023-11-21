@@ -3,9 +3,10 @@ from fractions import Fraction
 import pytest
 
 import gmpy2
-from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, can_round,
-                   check_range, context, copy_sign, cos, cosh, cot, coth, csc,
-                   csch, degrees, f2q, fac, fma, fmma, fmms, fms, from_binary,
+from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, c_div,
+                   c_divmod, c_mod, can_round, check_range, context, copy_sign,
+                   cos, cosh, cot, coth, csc, csch, degrees, f2q, f_div,
+                   f_divmod, f_mod, fac, fma, fmma, fmms, fms, from_binary,
                    get_context, get_emax_max, get_emin_min, get_exp, ieee, inf,
                    is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
                    is_fermat_prp, is_fibonacci_prp, is_finite, is_infinite,
@@ -15,8 +16,8 @@ from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, can_round,
                    mpq, mpq_from_old_binary, mpz, mpz_from_old_binary, nan,
                    norm, phase, polar, powmod, powmod_sec, proj, radians, rect,
                    root, root_of_unity, rootn, sec, sech, set_context, set_exp,
-                   set_sign, sign, sin, sin_cos, sinh, sinh_cosh, tan, tanh,
-                   zero)
+                   set_sign, sign, sin, sin_cos, sinh, sinh_cosh, t_div,
+                   t_divmod, t_mod, tan, tanh, zero)
 
 
 def test_root():
@@ -776,7 +777,6 @@ def test_sech():
 def test_sinh():
     r = mpfr(5.6)
 
-
     assert sinh(r) == mpfr('135.21135478121803')
     assert sinh(r) == gmpy2.sinh(5.6)
 
@@ -793,3 +793,129 @@ def test_tanh():
     r = mpfr(5.6)
 
     assert tanh(r) == mpfr('0.99997265198183083')
+
+
+def test_c_divmod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: c_divmod(1))
+    pytest.raises(TypeError, lambda: c_divmod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: c_divmod(a,0))
+
+    assert c_divmod(b,a) == (mpz(4), mpz(-36))
+    assert c_divmod(b,-a) == (mpz(-3), mpz(87))
+    assert c_divmod(-b,a) == (mpz(-3), mpz(-87))
+    assert c_divmod(-b,-a) == (mpz(4), mpz(36))
+
+
+def test_c_div():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: c_div(1))
+    pytest.raises(TypeError, lambda: c_div(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: c_div(a,0))
+
+    assert c_div(b,a) == mpz(4)
+    assert c_div(b,-a) == mpz(-3)
+    assert c_div(-b,a) == mpz(-3)
+    assert c_div(-b,-a) == mpz(4)
+
+
+def test_c_mod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: c_mod(1))
+    pytest.raises(TypeError, lambda: c_mod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: c_mod(a,0))
+
+    assert c_mod(b,a) == mpz(-36)
+    assert c_mod(b,-a) == mpz(87)
+    assert c_mod(-b,a) == mpz(-87)
+    assert c_mod(-b,-a) == mpz(36)
+
+
+def test_f_divmod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: f_divmod(1))
+    pytest.raises(TypeError, lambda: f_divmod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: f_divmod(a,0))
+
+    assert f_divmod(b,a) == (mpz(3), mpz(87))
+    assert f_divmod(b,-a) == (mpz(-4), mpz(-36))
+    assert f_divmod(-b,a) == (mpz(-4), mpz(36))
+    assert f_divmod(-b,-a) == (mpz(3), mpz(-87))
+
+
+def test_f_div():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: f_div(1))
+    pytest.raises(TypeError, lambda: f_div(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: f_div(a,0))
+
+    assert f_div(b,a) == mpz(3)
+    assert f_div(b,-a) == mpz(-4)
+    assert f_div(-b,a) == mpz(-4)
+    assert f_div(-b,-a) == mpz(3)
+
+
+def test_f_mod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: f_mod(1))
+    pytest.raises(TypeError, lambda: f_mod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: f_mod(a,0))
+
+    assert f_mod(b,a) == mpz(87)
+    assert f_mod(b,-a) == mpz(-36)
+    assert f_mod(-b,a) == mpz(36)
+    assert f_mod(-b,-a) == mpz(-87)
+
+
+def test_t_divmod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: t_divmod(1))
+    pytest.raises(TypeError, lambda: t_divmod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: t_divmod(a,0))
+
+    assert t_divmod(b,a) == (mpz(3), mpz(87))
+    assert t_divmod(b,-a) == (mpz(-3), mpz(87))
+    assert t_divmod(-b,a) == (mpz(-3), mpz(-87))
+    assert t_divmod(-b,-a) == (mpz(3), mpz(-87))
+
+
+def test_t_div():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: t_div(1))
+    pytest.raises(TypeError, lambda: t_div(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: t_div(a,0))
+
+    assert t_div(b,a) == mpz(3)
+    assert t_div(b,-a) == mpz(-3)
+    assert t_div(-b,a) == mpz(-3)
+    assert t_div(-b,-a) == mpz(3)
+
+
+def test_t_mod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: t_mod(1))
+    pytest.raises(TypeError, lambda: t_mod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: t_mod(a,0))
+
+    assert t_mod(b,a) == mpz(87)
+    assert t_mod(b,-a) == mpz(87)
+    assert t_mod(-b,a) == mpz(-87)
+    assert t_mod(-b,-a) == mpz(-87)
