@@ -154,3 +154,67 @@ def test_local_context():
 
     assert (ctx.precision == 53 and ctx.emax == 1073741823 and
             ctx.emin == -1073741823 and not ctx.subnormalize)
+
+
+def test_context_repr():
+    ctx = get_context()
+    assert repr(ctx) == \
+"""context(precision=53, real_prec=Default, imag_prec=Default,\n\
+        round=RoundToNearest, real_round=Default, imag_round=Default,\n\
+        emax=1073741823, emin=-1073741823,\n        subnormalize=False,\n\
+        trap_underflow=False, underflow=False,\n        trap_overflow=False,\
+ overflow=False,\n        trap_inexact=False, inexact=False,\n\
+        trap_invalid=False, invalid=False,\n        trap_erange=False,\
+ erange=False,\n        trap_divzero=False, divzero=False,\n\
+        allow_complex=False,\n        rational_division=False,\n\
+        allow_release_gil=False)"""
+
+    ctx.real_prec = 100
+    ctx.imag_prec = 200
+    assert repr(ctx) == \
+"""context(precision=53, real_prec=100, imag_prec=200,\n\
+        round=RoundToNearest, real_round=Default, imag_round=Default,\n\
+        emax=1073741823, emin=-1073741823,\n        subnormalize=False,\n\
+        trap_underflow=False, underflow=False,\n        trap_overflow=False,\
+ overflow=False,\n        trap_inexact=False, inexact=False,\n\
+        trap_invalid=False, invalid=False,\n        trap_erange=False,\
+ erange=False,\n        trap_divzero=False, divzero=False,\n\
+        allow_complex=False,\n        rational_division=False,\n\
+        allow_release_gil=False)"""
+    ctx.trap_invalid = True
+    assert repr(ctx) == \
+"""context(precision=53, real_prec=100, imag_prec=200,\n\
+        round=RoundToNearest, real_round=Default, imag_round=Default,\n\
+        emax=1073741823, emin=-1073741823,\n        subnormalize=False,\n\
+        trap_underflow=False, underflow=False,\n        trap_overflow=False,\
+ overflow=False,\n        trap_inexact=False, inexact=False,\n\
+        trap_invalid=True, invalid=False,\n        trap_erange=False,\
+ erange=False,\n        trap_divzero=False, divzero=False,\n\
+        allow_complex=False,\n        rational_division=False,\n\
+        allow_release_gil=False)"""
+    pytest.raises(gmpy2.InvalidOperationError, lambda: mpfr('nan') % 123)
+    assert repr(ctx) == \
+"""context(precision=53, real_prec=100, imag_prec=200,\n\
+        round=RoundToNearest, real_round=Default, imag_round=Default,\n\
+        emax=1073741823, emin=-1073741823,\n        subnormalize=False,\n\
+        trap_underflow=False, underflow=False,\n        trap_overflow=False,\
+ overflow=False,\n        trap_inexact=False, inexact=False,\n\
+        trap_invalid=True, invalid=True,\n        trap_erange=False,\
+ erange=False,\n        trap_divzero=False, divzero=False,\n\
+        allow_complex=False,\n        rational_division=False,\n\
+        allow_release_gil=False)"""
+    set_context(ieee(32))
+    ctx = get_context()
+    ctx.trap_underflow = True
+    c = mpc(0.1 + 0.1j)
+    pytest.raises(gmpy2.UnderflowResultError, lambda: c**201)
+    assert repr(ctx) == \
+"""context(precision=24, real_prec=Default, imag_prec=Default,\n\
+        round=RoundToNearest, real_round=Default, imag_round=Default,\n\
+        emax=128, emin=-148,\n        subnormalize=True,\n\
+        trap_underflow=True, underflow=True,\n        trap_overflow=False,\
+ overflow=False,\n        trap_inexact=False, inexact=True,\n\
+        trap_invalid=False, invalid=False,\n        trap_erange=False,\
+ erange=False,\n        trap_divzero=False, divzero=False,\n\
+        allow_complex=False,\n        rational_division=False,\n\
+        allow_release_gil=False)"""

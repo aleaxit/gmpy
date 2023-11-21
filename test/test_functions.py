@@ -6,16 +6,17 @@ import gmpy2
 from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, c_div,
                    c_divmod, c_mod, can_round, check_range, context, copy_sign,
                    cos, cosh, cot, coth, csc, csch, degrees, f2q, f_div,
-                   f_divmod, f_mod, fac, fma, fmma, fmms, fms, from_binary,
-                   get_context, get_emax_max, get_emin_min, get_exp, ieee, inf,
-                   is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
-                   is_fermat_prp, is_fibonacci_prp, is_finite, is_infinite,
-                   is_lucas_prp, is_nan, is_selfridge_prp, is_strong_bpsw_prp,
-                   is_strong_lucas_prp, is_strong_prp, is_strong_selfridge_prp,
-                   is_zero, maxnum, minnum, mpc, mpfr, mpfr_from_old_binary,
-                   mpq, mpq_from_old_binary, mpz, mpz_from_old_binary, nan,
-                   norm, phase, polar, powmod, powmod_sec, proj, radians, rect,
-                   root, root_of_unity, rootn, sec, sech, set_context, set_exp,
+                   f_divmod, f_mod, fac, fma, fmma, fmms, fms, free_cache,
+                   from_binary, get_context, get_emax_max, get_emin_min,
+                   get_exp, ieee, inf, is_bpsw_prp, is_euler_prp,
+                   is_extra_strong_lucas_prp, is_fermat_prp, is_fibonacci_prp,
+                   is_finite, is_infinite, is_lucas_prp, is_nan,
+                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
+                   is_strong_prp, is_strong_selfridge_prp, is_zero, maxnum,
+                   minnum, mpc, mpfr, mpfr_from_old_binary, mpq,
+                   mpq_from_old_binary, mpz, mpz_from_old_binary, nan, norm,
+                   phase, polar, powmod, powmod_sec, proj, radians, rect, root,
+                   root_of_unity, rootn, sec, sech, set_context, set_exp,
                    set_sign, sign, sin, sin_cos, sinh, sinh_cosh, t_div,
                    t_divmod, t_mod, tan, tanh, zero)
 
@@ -156,6 +157,15 @@ def test_get_exp():
 
     pytest.raises(gmpy2.RangeError, lambda: get_exp(mpfr('inf')))
 
+    gmpy2.set_context(context())
+
+    assert get_exp(mpfr(5.232)) == 3
+
+    pytest.raises(TypeError, lambda: get_exp(0))
+
+    assert get_exp(mpfr('inf')) == 0
+    assert get_exp(mpfr(0)) == 0
+
 
 def test_set_exp():
     pytest.raises(ValueError, lambda: set_exp(mpfr('1.0'), int(fac(100))))
@@ -168,6 +178,12 @@ def test_set_exp():
 
     ctx.trap_erange = False
     assert set_exp(mpfr('1.0'), 1000) == mpfr('1.0')
+
+    r = mpfr(4.55)
+
+    assert set_exp(r, 4) == mpfr('9.0999999999999996')
+
+    pytest.raises(TypeError, lambda: set_exp(r, mpz(4)))
 
 
 def test_can_round():
@@ -451,23 +467,6 @@ def test_get_emin_min():
 
 def test_get_emax_max():
     assert get_emax_max() in (4611686018427387903, 1073741823)
-
-
-def test_get_exp():
-    assert get_exp(mpfr(5.232)) == 3
-
-    pytest.raises(TypeError, lambda: get_exp(0))
-
-    assert get_exp(mpfr('inf')) == 0
-    assert get_exp(mpfr(0)) == 0
-
-
-def test_set_exp():
-    r = mpfr(4.55)
-
-    assert set_exp(r, 4) == mpfr('9.0999999999999996')
-
-    pytest.raises(TypeError, lambda: set_exp(r, mpz(4)))
 
 
 def test_set_sign():
@@ -919,3 +918,11 @@ def test_t_mod():
     assert t_mod(b,-a) == mpz(87)
     assert t_mod(-b,a) == mpz(-87)
     assert t_mod(-b,-a) == mpz(-87)
+
+
+def test_get_max_precision():
+    assert gmpy2.get_max_precision() > 53
+
+
+def test_free_cache():
+    assert free_cache() is None

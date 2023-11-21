@@ -133,6 +133,13 @@ def test_mpq_conversion():
 def test_mpq_round():
     pytest.raises(TypeError, lambda: mpq(7,3).__round__(4.5))
 
+    q = mpq('4/5')
+
+    assert round(mpq('7/2')) == mpz(4)
+    assert round(q, 4) == mpq(4,5)
+
+    pytest.raises(TypeError, lambda: round(q, 4, 2))
+
 
 @settings(max_examples=1000)
 @given(integers(), integers(min_value=1))
@@ -555,15 +562,6 @@ def test_mpq_trunc():
     assert math.trunc(mpq('7/2')) == mpz(3)
 
 
-def test_mpq_round():
-    q = mpq('4/5')
-
-    assert round(mpq('7/2')) == mpz(4)
-    assert round(q, 4) == mpq(4,5)
-
-    pytest.raises(TypeError, lambda: round(q, 4, 2))
-
-
 def test_mpq_not():
     q = mpq('4/5')
 
@@ -598,6 +596,14 @@ def test_mpq_qdiv():
 
     assert gmpy2.qdiv(*args) == mpz(4)
     assert args == (mpq(2), 1/mpq(2))
+
+
+def test_mpq_repr():
+    assert repr(mpq(11,13)) == 'mpq(11,13)'
+
+
+def test_mpq_str():
+    assert str(mpq(11,13)) == '11/13'
 
 
 def test_issue_334():
