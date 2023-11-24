@@ -1,15 +1,24 @@
+from fractions import Fraction
+
 import pytest
 
 import gmpy2
-from gmpy2 import (can_round, fac, fma, fmma, fmms, fms, from_binary, get_exp,
-                   ieee, is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
-                   is_fermat_prp, is_fibonacci_prp, is_finite, is_infinite,
-                   is_lucas_prp, is_nan, is_selfridge_prp, is_strong_bpsw_prp,
-                   is_strong_lucas_prp, is_strong_prp, is_strong_selfridge_prp,
-                   is_zero, maxnum, minnum, mpc, mpfr, mpfr_from_old_binary,
-                   mpq, mpq_from_old_binary, mpz, mpz_from_old_binary, norm,
-                   phase, polar, powmod, powmod_sec, proj, rect, root,
-                   root_of_unity, rootn, set_exp, zero)
+from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, c_div,
+                   c_divmod, c_mod, can_round, check_range, context, copy_sign,
+                   cos, cosh, cot, coth, csc, csch, degrees, f2q, f_div,
+                   f_divmod, f_mod, fac, fma, fmma, fmms, fms, free_cache,
+                   from_binary, get_context, get_emax_max, get_emin_min,
+                   get_exp, ieee, inf, is_bpsw_prp, is_euler_prp,
+                   is_extra_strong_lucas_prp, is_fermat_prp, is_fibonacci_prp,
+                   is_finite, is_infinite, is_lucas_prp, is_nan,
+                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
+                   is_strong_prp, is_strong_selfridge_prp, is_zero, maxnum,
+                   minnum, mpc, mpfr, mpfr_from_old_binary, mpq,
+                   mpq_from_old_binary, mpz, mpz_from_old_binary, nan, norm,
+                   phase, polar, powmod, powmod_sec, proj, radians, rect, root,
+                   root_of_unity, rootn, sec, sech, set_context, set_exp,
+                   set_sign, sign, sin, sin_cos, sinh, sinh_cosh, t_div,
+                   t_divmod, t_mod, tan, tanh, zero)
 
 
 def test_root():
@@ -148,6 +157,15 @@ def test_get_exp():
 
     pytest.raises(gmpy2.RangeError, lambda: get_exp(mpfr('inf')))
 
+    gmpy2.set_context(context())
+
+    assert get_exp(mpfr(5.232)) == 3
+
+    pytest.raises(TypeError, lambda: get_exp(0))
+
+    assert get_exp(mpfr('inf')) == 0
+    assert get_exp(mpfr(0)) == 0
+
 
 def test_set_exp():
     pytest.raises(ValueError, lambda: set_exp(mpfr('1.0'), int(fac(100))))
@@ -160,6 +178,12 @@ def test_set_exp():
 
     ctx.trap_erange = False
     assert set_exp(mpfr('1.0'), 1000) == mpfr('1.0')
+
+    r = mpfr(4.55)
+
+    assert set_exp(r, 4) == mpfr('9.0999999999999996')
+
+    pytest.raises(TypeError, lambda: set_exp(r, mpz(4)))
 
 
 def test_can_round():
@@ -401,3 +425,504 @@ def test_is_finite():
     assert is_finite(mpc("0+nanj")) is False
     assert is_finite(mpc("0+infj")) is False
     assert is_finite(mpc("inf+3j")) is False
+
+
+def test_f2q():
+    a = mpfr('123.456')
+
+    pytest.raises(TypeError, lambda: f2q('a'))
+    pytest.raises(TypeError, lambda: f2q(1,2,3,4))
+
+    assert f2q(a,0.1) == mpz(123)
+    assert f2q(a,0.01) == mpz(123)
+    assert f2q(a,0.001) == mpq(247,2)
+    assert f2q(a,0.0001) == mpq(1358,11)
+    assert f2q(a,0.00001) == mpq(7037,57)
+    assert f2q(a,0.000001) == mpq(15432,125)
+    assert f2q(a,0.0000001) == mpq(15432,125)
+    assert f2q(a) == mpq(15432,125)
+    assert f2q(2.50000000000008) == mpq(15637498706148,6254999482459)
+    assert f2q(2.5000000000000) == mpq(5,2)
+    assert f2q(2.50000000000008, 0.001) == mpq(5,2)
+    assert f2q(2.50000000000008, -50) == mpq(15637498706148,6254999482459)
+    assert f2q(mpfr('0.500000011'), 1e-4) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-5) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-6) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-7) == mpq(1,2)
+    assert f2q(mpfr('0.500000011'), 1e-8) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-9) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-10) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-11) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-12) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-13) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-14) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-15) == mpq(22727273,45454545)
+    assert f2q(mpfr('0.500000011'), 1e-16) == mpq(204545458,409090907)
+    assert f2q(mpfr('0.500000011'), 1e-17) == mpq(204545458,409090907)
+
+
+def test_get_emin_min():
+    assert get_emin_min() in (-4611686018427387903, -1073741823)
+
+
+def test_get_emax_max():
+    assert get_emax_max() in (4611686018427387903, 1073741823)
+
+
+def test_set_sign():
+    r = mpfr(4.55)
+
+    assert set_sign(r, False) == mpfr('4.5499999999999998')
+    assert set_sign(r, True) == mpfr('-4.5499999999999998')
+
+    pytest.raises(TypeError, lambda: set_sign(mpz(5), True))
+    pytest.raises(TypeError, lambda: set_sign(r, 'oiio'))
+
+
+def test_copy_sign():
+    assert copy_sign(mpfr(4), mpfr(-2)) == mpfr('-4.0')
+
+    pytest.raises(TypeError, lambda: copy_sign(mpfr(4), True))
+
+
+def test_nan():
+    x = nan()
+
+    assert is_nan(x)
+
+
+def test_inf():
+    assert inf() == mpfr('inf')
+    assert inf(-5) == mpfr('-inf')
+    assert inf(mpz(-30)) == mpfr('-inf')
+
+    pytest.raises(TypeError, lambda: inf(mpfr(30)))
+
+
+def test_check_range():
+    r = mpfr(4.55)
+
+    assert check_range(r) == mpfr('4.5499999999999998')
+
+    ctx = gmpy2.get_context()
+
+    assert ctx.check_range(r) == mpfr('4.5499999999999998')
+
+    pytest.raises(TypeError, lambda: ctx.check_range(mpz(5)))
+
+
+def test_sign():
+    a = mpq(3,11)
+
+    assert sign(a) == 1
+    assert sign(-a) == -1
+    assert sign(mpq(0,5)) == 0
+
+    pytest.raises(TypeError, lambda: sign('str'))
+
+    a = mpfr("12.34")
+
+    assert sign(-1.5) == -1
+    assert sign(a) == 1
+    assert sign(mpfr(0)) == 0
+    assert sign(mpfr('inf')) == 1
+    assert sign(mpfr('-inf')) == -1
+    assert sign(mpfr('nan')) == 0
+
+    a = mpz(123)
+    b = mpz(456)
+
+    assert sign(b-a) == 1
+    assert sign(b-b) == 0
+    assert sign(a-b) == -1
+    assert sign(a) == 1
+    assert sign(-a) == -1
+
+
+def test_acos():
+    assert acos(mpfr("0.2")).as_integer_ratio() == (mpz(6167402294989009), mpz(4503599627370496))
+
+    pytest.raises(TypeError, lambda: acos())
+    pytest.raises(TypeError, lambda: acos("a"))
+    pytest.raises(TypeError, lambda: acos(0,0))
+
+    assert acos(0) == mpfr('1.5707963267948966')
+    assert acos(mpz(0)) == mpfr('1.5707963267948966')
+    assert acos(mpq(1,2)) == mpfr('1.0471975511965979')
+    assert acos(Fraction(1,2)) == mpfr('1.0471975511965979')
+    assert is_nan(acos(mpfr("nan")))
+    assert is_nan(acos(mpfr("inf")))
+    assert is_nan(acos(mpfr("-inf")))
+
+    set_context(context(trap_invalid=True))
+
+    pytest.raises(gmpy2.InvalidOperationError, lambda: acos(mpfr("nan")))
+    pytest.raises(gmpy2.InvalidOperationError, lambda: acos(mpfr("inf")))
+    pytest.raises(gmpy2.InvalidOperationError, lambda: acos(mpfr("-inf")))
+
+    set_context(context(precision=100))
+
+    assert acos(mpfr("0.2")) == mpfr('1.3694384060045658277761961394221',100)
+    assert get_context().precision == 100
+    assert get_context().inexact
+
+
+def test_asin():
+    assert gmpy2.asin(mpfr("0.2")).as_integer_ratio() == (mpz(7254683656315453), mpz(36028797018963968))
+
+    pytest.raises(TypeError, lambda: asin())
+    pytest.raises(TypeError, lambda: asin("a"))
+    pytest.raises(TypeError, lambda: asin(0,0))
+
+    assert asin(0) == mpfr('0.0')
+    assert asin(mpz(0)) == mpfr('0.0')
+    assert asin(mpq(1,2)) == mpfr('0.52359877559829893')
+    assert asin(Fraction(1,2)) == mpfr('0.52359877559829893')
+    assert is_nan(asin(mpfr("nan")))
+    assert is_nan(asin(mpfr("inf")))
+    assert is_nan(asin(mpfr("-inf")))
+
+    set_context(context(trap_invalid=True))
+
+    pytest.raises(gmpy2.InvalidOperationError, lambda: asin(mpfr("nan")))
+    pytest.raises(gmpy2.InvalidOperationError, lambda: asin(mpfr("inf")))
+    pytest.raises(gmpy2.InvalidOperationError, lambda: asin(mpfr("-inf")))
+
+    set_context(context(precision=100))
+
+    assert asin(mpfr("0.2")) == mpfr('0.20135792079033079145512555221757',100)
+
+    assert get_context().precision == 100
+    assert get_context().inexact
+
+
+def test_atan():
+    assert atan(mpfr("0.2")).as_integer_ratio() == (mpz(1777981139569027), mpz(9007199254740992))
+    assert atan(mpfr("100")).as_integer_ratio() == (mpz(3514601628432273), mpz(2251799813685248))
+
+    pytest.raises(TypeError, lambda: atan())
+    pytest.raises(TypeError, lambda: atan("a"))
+    pytest.raises(TypeError, lambda: atan(0,0))
+
+    assert atan(0) == mpfr('0.0')
+    assert atan(mpz(0)) == mpfr('0.0')
+    assert atan(mpq(1,2)) == mpfr('0.46364760900080609')
+    assert atan(Fraction(1,2)) == mpfr('0.46364760900080609')
+    assert is_nan(gmpy2.atan(mpfr("nan")))
+    assert atan(mpfr("inf")) == mpfr('1.5707963267948966')
+    assert atan(mpfr("-inf")) == mpfr('-1.5707963267948966')
+
+    set_context(context(trap_invalid=True))
+
+    pytest.raises(gmpy2.InvalidOperationError, lambda: atan(mpfr("nan")))
+
+    set_context(context(precision=100))
+
+    assert gmpy2.atan(mpfr("0.2")) == mpfr('0.19739555984988075837004976519484',100)
+    assert get_context().precision == 100
+    assert get_context().inexact
+
+
+def test_atan2():
+    assert atan2(1,2).as_integer_ratio() == (mpz(8352332796509007), mpz(18014398509481984))
+    assert atan2(-1,2).as_integer_ratio() == (mpz(-8352332796509007), mpz(18014398509481984))
+    assert atan2(1,-2).as_integer_ratio() == (mpz(3015098076232407), mpz(1125899906842624))
+    assert atan2(-1,-2).as_integer_ratio() == (mpz(-3015098076232407), mpz(1125899906842624))
+    assert atan2(float("0"),float("0")).as_integer_ratio() == (mpz(0), mpz(1))
+    assert atan2(float("-0"),float("0")).as_integer_ratio() == (mpz(0), mpz(1))
+    assert atan2(float("0"),float("-0")).as_integer_ratio() == (mpz(884279719003555), mpz(281474976710656))
+    assert atan2(float("-0"),float("-0")).as_integer_ratio() == (mpz(-884279719003555), mpz(281474976710656))
+    assert atan2(float("inf"),float("inf")).as_integer_ratio() == (mpz(884279719003555), mpz(1125899906842624))
+    assert atan2(float("-inf"),float("inf")).as_integer_ratio() == (mpz(-884279719003555), mpz(1125899906842624))
+    assert atan2(float("inf"),float("-inf")).as_integer_ratio() == (mpz(2652839157010665), mpz(1125899906842624))
+    assert atan2(float("-inf"),float("-inf")).as_integer_ratio() == (mpz(-2652839157010665), mpz(1125899906842624))
+
+
+def test_cos():
+    assert cos(mpfr("0.2")).as_integer_ratio() == (mpz(4413827474764093), mpz(4503599627370496))
+    assert cos(mpfr("20")).as_integer_ratio() == (mpz(7351352886077503), mpz(18014398509481984)) or (sys.platform == 'win32')
+    assert cos(mpfr("2000")).as_integer_ratio() == (mpz(-3309781376808469), mpz(9007199254740992))
+
+    pytest.raises(TypeError, lambda: cos())
+    pytest.raises(TypeError, lambda: cos("a"))
+    pytest.raises(TypeError, lambda: cos(0,0))
+
+    assert cos(0) == mpfr('1.0')
+    assert cos(mpz(0)) == mpfr('1.0')
+    assert cos(mpq(1,2)) == mpfr('0.87758256189037276')
+    assert cos(Fraction(1,2)) == mpfr('0.87758256189037276')
+    assert is_nan(cos(mpfr("nan")))
+    assert is_nan(cos(mpfr("inf")))
+    assert is_nan(cos(mpfr("-inf")))
+
+    set_context(context(trap_invalid=True))
+
+    pytest.raises(gmpy2.InvalidOperationError, lambda: cos(mpfr("nan")))
+    pytest.raises(gmpy2.InvalidOperationError, lambda: cos(mpfr("inf")))
+    pytest.raises(gmpy2.InvalidOperationError, lambda: cos(mpfr("-inf")))
+
+    set_context(context(precision=100))
+
+    assert cos(mpfr("0.2")) == mpfr('0.98006657784124163112419651674809',100)
+    assert get_context().precision == 100
+    assert get_context().inexact
+
+
+def test_cot():
+    assert cot(mpfr("0.2")).as_integer_ratio() == (mpz(173569956714485), mpz(35184372088832))
+    assert cot(gmpy2.const_pi()).as_integer_ratio() == (mpz(-8165619676597685), mpz(1))
+    assert cot(1) == mpfr('0.64209261593433076')
+    assert cot(float('0')) == mpfr('inf')
+    assert cot(float('-0')) == mpfr('-inf')
+    assert cot(mpfr('0')) == mpfr('inf')
+    assert cot(mpfr('-0')) == mpfr('-inf')
+
+
+def test_csc():
+    r2 = mpfr('5.6')
+
+    assert csc(r2) == mpfr('-1.5841166632383596')
+
+
+def test_sec():
+    r2 = mpfr('5.6')
+
+    assert sec(r2) == mpfr('1.2893811186238056')
+
+
+def test_sin():
+    r = mpfr(5.6)
+
+    assert sin(r) == mpfr('-0.63126663787232162')
+    assert sin(r) == sin(5.6)
+
+
+def test_sin_cos():
+    r = mpfr(5.6)
+
+    assert sin_cos(r) == (mpfr('-0.63126663787232162'), mpfr('0.77556587851024961'))
+    assert sin_cos(r) == sin_cos(5.6)
+    assert sin_cos(r) == (sin(r), cos(r))
+
+
+def test_tan():
+    r = mpfr(5.6)
+
+    assert tan(r) == mpfr('-0.8139432836897027')
+
+
+def test_acosh():
+    r = mpfr(5.6)
+
+    assert acosh(r) == mpfr('2.4078447868719399')
+
+def test_asinh():
+    r = mpfr(5.6)
+
+    assert asinh(r) == mpfr('2.4237920435875173')
+
+
+def test_atanh():
+    assert atanh(mpfr(0.365)) == mpfr('0.38264235436318422')
+    assert atanh(mpfr(0.365)) == atanh(0.365)
+
+
+def test_cosh():
+    r = mpfr(5.6)
+
+    assert cosh(r) == mpfr('135.2150526449345')
+    assert cosh(r) == cosh(5.6)
+
+
+def test_coth():
+    r = mpfr(5.6)
+
+    assert coth(r) == mpfr('1.0000273487661038')
+
+
+def test_csch():
+    r = mpfr(5.6)
+
+    assert csch(r) == mpfr('0.0073958285649757295')
+
+
+def test_degrees():
+    rad = mpfr(1.57)
+    ctx = get_context()
+
+    assert ctx.degrees(rad) == mpfr('89.954373835539243')
+    assert degrees(rad) == mpfr('89.954373835539243')
+    assert degrees(1) == mpfr('57.295779513082323')
+
+
+def test_radians():
+    deg = mpfr(90)
+    ctx = get_context()
+
+    assert ctx.radians(deg) == mpfr('1.5707963267948966')
+    assert radians(deg) == mpfr('1.5707963267948966')
+    assert radians(45) == mpfr('0.78539816339744828')
+    assert radians(mpz(20)) == mpfr('0.3490658503988659')
+    assert radians(mpfr('inf')) == mpfr('inf')
+    assert is_nan(radians(mpfr('nan')))
+
+
+def test_sech():
+    r = mpfr(5.6)
+
+    assert sech(r) == mpfr('0.0073956263037217584')
+
+
+def test_sinh():
+    r = mpfr(5.6)
+
+    assert sinh(r) == mpfr('135.21135478121803')
+    assert sinh(r) == gmpy2.sinh(5.6)
+
+
+def test_sinh_cosh():
+    r = mpfr(5.6)
+
+    assert sinh_cosh(r) == (mpfr('135.21135478121803'), mpfr('135.2150526449345'))
+    assert sinh_cosh(r) == sinh_cosh(5.6)
+    assert sinh_cosh(r) == (sinh(r), cosh(r))
+
+
+def test_tanh():
+    r = mpfr(5.6)
+
+    assert tanh(r) == mpfr('0.99997265198183083')
+
+
+def test_c_divmod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: c_divmod(1))
+    pytest.raises(TypeError, lambda: c_divmod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: c_divmod(a,0))
+
+    assert c_divmod(b,a) == (mpz(4), mpz(-36))
+    assert c_divmod(b,-a) == (mpz(-3), mpz(87))
+    assert c_divmod(-b,a) == (mpz(-3), mpz(-87))
+    assert c_divmod(-b,-a) == (mpz(4), mpz(36))
+
+
+def test_c_div():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: c_div(1))
+    pytest.raises(TypeError, lambda: c_div(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: c_div(a,0))
+
+    assert c_div(b,a) == mpz(4)
+    assert c_div(b,-a) == mpz(-3)
+    assert c_div(-b,a) == mpz(-3)
+    assert c_div(-b,-a) == mpz(4)
+
+
+def test_c_mod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: c_mod(1))
+    pytest.raises(TypeError, lambda: c_mod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: c_mod(a,0))
+
+    assert c_mod(b,a) == mpz(-36)
+    assert c_mod(b,-a) == mpz(87)
+    assert c_mod(-b,a) == mpz(-87)
+    assert c_mod(-b,-a) == mpz(36)
+
+
+def test_f_divmod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: f_divmod(1))
+    pytest.raises(TypeError, lambda: f_divmod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: f_divmod(a,0))
+
+    assert f_divmod(b,a) == (mpz(3), mpz(87))
+    assert f_divmod(b,-a) == (mpz(-4), mpz(-36))
+    assert f_divmod(-b,a) == (mpz(-4), mpz(36))
+    assert f_divmod(-b,-a) == (mpz(3), mpz(-87))
+
+
+def test_f_div():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: f_div(1))
+    pytest.raises(TypeError, lambda: f_div(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: f_div(a,0))
+
+    assert f_div(b,a) == mpz(3)
+    assert f_div(b,-a) == mpz(-4)
+    assert f_div(-b,a) == mpz(-4)
+    assert f_div(-b,-a) == mpz(3)
+
+
+def test_f_mod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: f_mod(1))
+    pytest.raises(TypeError, lambda: f_mod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: f_mod(a,0))
+
+    assert f_mod(b,a) == mpz(87)
+    assert f_mod(b,-a) == mpz(-36)
+    assert f_mod(-b,a) == mpz(36)
+    assert f_mod(-b,-a) == mpz(-87)
+
+
+def test_t_divmod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: t_divmod(1))
+    pytest.raises(TypeError, lambda: t_divmod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: t_divmod(a,0))
+
+    assert t_divmod(b,a) == (mpz(3), mpz(87))
+    assert t_divmod(b,-a) == (mpz(-3), mpz(87))
+    assert t_divmod(-b,a) == (mpz(-3), mpz(-87))
+    assert t_divmod(-b,-a) == (mpz(3), mpz(-87))
+
+
+def test_t_div():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: t_div(1))
+    pytest.raises(TypeError, lambda: t_div(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: t_div(a,0))
+
+    assert t_div(b,a) == mpz(3)
+    assert t_div(b,-a) == mpz(-3)
+    assert t_div(-b,a) == mpz(-3)
+    assert t_div(-b,-a) == mpz(3)
+
+
+def test_t_mod():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: t_mod(1))
+    pytest.raises(TypeError, lambda: t_mod(1, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: t_mod(a,0))
+
+    assert t_mod(b,a) == mpz(87)
+    assert t_mod(b,-a) == mpz(87)
+    assert t_mod(-b,a) == mpz(-87)
+    assert t_mod(-b,-a) == mpz(-87)
+
+
+def test_get_max_precision():
+    assert gmpy2.get_max_precision() > 53
+
+
+def test_free_cache():
+    assert free_cache() is None

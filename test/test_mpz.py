@@ -9,9 +9,9 @@ from pytest import mark, raises
 from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import (cmp, cmp_abs, from_binary, mp_version, mpc, mpfr, mpq, mpz,
-                   mpz_random, mpz_rrandomb, mpz_urandomb, pack, random_state,
-                   to_binary, unpack, xmpz)
+from gmpy2 import (cmp, cmp_abs, from_binary, is_nan, mp_version, mpc, mpfr,
+                   mpq, mpz, mpz_random, mpz_rrandomb, mpz_urandomb, pack,
+                   random_state, to_binary, unpack, xmpz)
 
 
 def test_mpz_to_bytes_interface():
@@ -320,6 +320,8 @@ def test_mpz_conversion():
     raises(OverflowError, lambda: float(mpz(99**199)))
     assert mpz(xmpz(1)) == mpz(1)
 
+    assert int(mpz(-3)) == -3
+
 
 def test_mpz_create():
     assert mpz() == mpz(0)
@@ -435,6 +437,7 @@ def test_mpz_create():
 
 @given(integers())
 @example(0)
+@example(-3)
 def test_mpz_conversion_bulk(n):
     assert int(mpz(n)) == n
 
@@ -577,7 +580,6 @@ def test_mpz_format():
                                                   '27', '25', '23', '21', '1z']
 
     raises(ValueError, lambda: a.digits(63))
-    raises(TypeError, lambda: a.__format__())
 
     assert '{}'.format(a) == '123'
     assert '{:d}'.format(a) == '123'
@@ -617,6 +619,7 @@ def test_mpz_abs():
     b = abs(a)
 
     assert a is b
+    assert abs(-a) == a
 
     a = mpz(-123)
     b = abs(a)
@@ -624,6 +627,34 @@ def test_mpz_abs():
     assert b == mpz(123)
     assert a is not b
     assert a == mpz(-123)
+
+
+def test_mpz_add():
+    a = mpz(123)
+    b = mpz(456)
+    c = 12345678901234567890
+
+    assert a+1 == mpz(124)
+    assert a+(-1) == mpz(122)
+    assert 1+a == mpz(124)
+    assert (-1)+a == mpz(122)
+    assert a+b == mpz(579)
+    assert b+a == mpz(579)
+
+    raises(TypeError, lambda: a+'b')
+    raises(TypeError, lambda: 'b'+a)
+    assert a+c == 12345678901234568013
+    assert c+a == 12345678901234568013
+
+    assert a+True == mpz(124)
+    assert a+False == mpz(123)
+
+    assert a + float('Inf') == mpfr('inf')
+    assert float('Inf') + a == mpfr('inf')
+    assert a + float('-Inf') == mpfr('-inf')
+    assert float('-Inf') + a == mpfr('-inf')
+    assert is_nan(a + float('nan'))
+    assert is_nan(float('nan') + a)
 
 
 def test_mpz_sub():
@@ -661,6 +692,26 @@ def test_mpz_sub():
     raises(TypeError, lambda: a-'b')
     raises(TypeError, lambda: 'b'-a)
 
+    assert a-1 == mpz(122)
+    assert a-(-1) == mpz(124)
+    assert 1-a == mpz(-122)
+    assert (-1)-a == mpz(-124)
+    assert a-b == mpz(-333)
+    assert b-a == mpz(333)
+
+    raises(TypeError, lambda: a-'b')
+    raises(TypeError, lambda: 'b'-a)
+
+    assert a-c == -12345678901234567767
+    assert c-a == 12345678901234567767
+
+    assert a - float('Inf') == mpfr('-inf')
+    assert float('Inf') - a == mpfr('inf')
+    assert a - float('-Inf') == mpfr('inf')
+    assert float('-Inf') - a == mpfr('-inf')
+    assert is_nan(a - float('nan'))
+    assert is_nan(float('nan') - a)
+
 
 def test_mpz_mul():
     a = mpz(123)
@@ -681,10 +732,43 @@ def test_mpz_mul():
     raises(TypeError, lambda: ctx.mul(1))
     raises(TypeError, lambda: ctx.mul(1,2,3))
 
+    assert a*b == mpz(56088)
+    assert b*a == mpz(56088)
+    assert a*0 == mpz(0)
+    assert 0*a == mpz(0)
+    assert a*123 == mpz(15129)
+    assert 123*a == mpz(15129)
+    assert a*c == 1518518504851851850470
+    assert c*a == 1518518504851851850470
+
+    a = mpz(3)
+
+    assert a*'b' == 'bbb'
+    assert 'b'*a == 'bbb'
+
+    assert a*False == mpz(0)
+
+    assert a * float('Inf') == mpfr('inf')
+    assert float('Inf') * a == mpfr('inf')
+    assert a * float('-Inf') == mpfr('-inf')
+    assert float('-Inf') * a == mpfr('-inf')
+    assert -a * float('Inf') == mpfr('-inf')
+    assert float('Inf') * -a == mpfr('-inf')
+    assert -a * float('-Inf') == mpfr('inf')
+    assert float('-Inf') * -a == mpfr('inf')
+    assert is_nan(a * float('nan'))
+    assert is_nan(float('nan') * a)
+    assert is_nan(mpz(0) * float('Inf'))
+    assert is_nan(mpz(0) * float('-Inf'))
+    assert is_nan(float('Inf') * mpz(0))
+    assert is_nan(float('-Inf') * mpz(0))
+
 
 def test_mpz_divmod():
     a = mpz(123)
     b = mpz(456)
+    c = 12345678901234567890
+    ctx = gmpy2.get_context()
 
     raises(TypeError, lambda: divmod(mpz(123),'a'))
 
@@ -700,6 +784,60 @@ def test_mpz_divmod():
     assert ctx.divmod(123,456) == (mpz(0), mpz(123))
     assert divmod(mpz(3), z) == (mpz(1), mpz(1))
     assert divmod(z, mpz(3)) == (mpz(0), mpz(2))
+
+    assert divmod(a,b) == (mpz(0), mpz(123))
+    assert divmod(b,a) == (mpz(3), mpz(87))
+
+    raises(ZeroDivisionError, lambda: divmod(a,0))
+    raises(ZeroDivisionError, lambda: divmod(a, mpz(0)))
+    raises(ZeroDivisionError, lambda: divmod(123, mpz(0)))
+
+    assert divmod(b,123) == (mpz(3), mpz(87))
+    assert divmod(a,c) == (mpz(0), mpz(123))
+    assert divmod(a,int(c)) == (mpz(0), mpz(123))
+    assert divmod(a*(c-1),c) == (122, 12345678901234567767)
+    assert divmod(a*(c-1),int(c)) == (122, 12345678901234567767)
+    assert divmod(a*(c-1),-c) == (mpz(-123), mpz(-123))
+    assert divmod(a*(c-1),-int(c)) == (mpz(-123), mpz(-123))
+    assert divmod(int(a*(c-1)),-int(c)) == (-123, -123)
+
+    assert divmod(a, mpfr('Inf')) == (mpfr('0.0'), mpfr('123.0'))
+    assert divmod(a, mpfr('-Inf')) == (mpfr('-1.0'), mpfr('-inf'))
+    assert divmod(-a, mpfr('Inf')) == (mpfr('-1.0'), mpfr('inf'))
+    assert divmod(-a, mpfr('-Inf')) == (mpfr('0.0'), mpfr('-123.0'))
+    assert all(is_nan(_) for _ in divmod(a, mpfr('nan')))
+    assert all(is_nan(_) for _ in divmod(-a, mpfr('nan')))
+    assert divmod(mpz(0), mpfr('Inf')) == (mpfr('0.0'), mpfr('0.0'))
+    assert divmod(mpz(0), mpfr('-Inf')) == (mpfr('-0.0'), mpfr('-0.0'))
+    assert divmod(mpz(0), mpfr('nan'))
+    assert all(is_nan(_) for _ in divmod(mpfr('Inf'), a))
+    assert all(is_nan(_) for _ in divmod(mpfr('-Inf'), a))
+    assert all(is_nan(_) for _ in divmod(mpfr('Inf'), -a))
+    assert all(is_nan(_) for _ in divmod(mpfr('-Inf'), -a))
+    assert all(is_nan(_) for _ in divmod(mpfr('nan'), a))
+    assert all(is_nan(_) for _ in divmod(mpfr('nan'), -a))
+    assert all(is_nan(_) for _ in divmod(mpfr('Inf'), mpz(0)))
+    assert all(is_nan(_) for _ in divmod(mpfr('-Inf'), mpz(0)))
+    assert all(is_nan(_) for _ in divmod(mpfr('nan'), mpz(0)))
+
+    assert divmod(a, mpfr('Inf')) == (mpfr('0.0'), mpfr('123.0'))
+    assert divmod(a, mpfr('-Inf')) == (mpfr('-1.0'), mpfr('-inf'))
+    assert divmod(-a, mpfr('Inf')) == (mpfr('-1.0'), mpfr('inf'))
+    assert divmod(-a, mpfr('-Inf')) == (mpfr('0.0'), mpfr('-123.0'))
+    assert all(is_nan(_) for _ in divmod(a, mpfr('nan')))
+    assert all(is_nan(_) for _ in divmod(-a, mpfr('nan')))
+    assert divmod(mpz(0), mpfr('Inf')) == (mpfr('0.0'), mpfr('0.0'))
+    assert divmod(mpz(0), mpfr('-Inf')) == (mpfr('-0.0'), mpfr('-0.0'))
+    assert divmod(mpz(0), mpfr('nan'))
+    assert all(is_nan(_) for _ in divmod(mpfr('Inf'), a))
+    assert all(is_nan(_) for _ in divmod(mpfr('-Inf'), a))
+    assert all(is_nan(_) for _ in divmod(mpfr('Inf'), -a))
+    assert all(is_nan(_) for _ in divmod(mpfr('-Inf'), -a))
+    assert all(is_nan(_) for _ in divmod(mpfr('nan'), a))
+    assert all(is_nan(_) for _ in divmod(mpfr('nan'), -a))
+    assert all(is_nan(_) for _ in divmod(mpfr('Inf'), mpz(0)))
+    assert all(is_nan(_) for _ in divmod(mpfr('-Inf'), mpz(0)))
+    assert all(is_nan(_) for _ in divmod(mpfr('nan'), mpz(0)))
 
 
 def test_mpz_floordiv():
@@ -739,6 +877,100 @@ def test_mpz_floordiv():
     raises(TypeError, lambda: a // c2)
     raises(TypeError, lambda: a // 'not')
 
+    a = mpz(123)
+    b = mpz(456)
+    c = 12345678901234567890
+
+    assert a//b == mpz(0)
+    assert b//a == mpz(3)
+    assert (a*b)//b == mpz(123)
+    assert (a*b)//a == mpz(456)
+
+    raises(ZeroDivisionError, lambda: a//0)
+
+    assert c//a == 100371373180768844
+    assert a**10//c == mpz(64)
+    assert a // z == mpz(61)
+
+    assert a//True == mpz(123)
+
+
+def test_mpz_mod():
+    a = mpz(123)
+    b = mpz(456)
+    c = 12345678901234567890
+    ctx = gmpy2.get_context()
+
+    assert a % b == mpz(123)
+    assert b % a == mpz(87)
+    assert gmpy2.mod(b, a) == mpz(87)
+    assert ctx.mod(b, a) == mpz(87)
+    assert a % z == mpz(1)
+
+    raises(ZeroDivisionError, lambda: a % mpz(0))
+    raises(ZeroDivisionError, lambda: a % 0)
+    raises(ZeroDivisionError, lambda: 14 % mpz(0))
+    raises(ZeroDivisionError, lambda: gmpy2.mod(14, mpz(0)))
+    raises(ZeroDivisionError, lambda: gmpy2.mod(124, 0))
+    raises(ZeroDivisionError, lambda: gmpy2.mod(b, mpz(0)))
+    raises(ZeroDivisionError, lambda: ctx.mod(b, mpz(0)))
+    raises(TypeError, lambda: gmpy2.mod(124, 'str'))
+    raises(TypeError, lambda: a % 'str')
+
+    assert gmpy2.mod(124, mpz(5)) == mpz(4)
+    assert z % mpq(1,2) == mpq(0,1)
+    assert a % mpq(2,3) == mpq(1,3)
+
+
+def test_mpz_truediv():
+    a = mpz(123)
+    b = mpz(456)
+    c = 12345678901234567890
+    ctx = gmpy2.get_context()
+
+    assert a/b == mpfr('0.26973684210526316')
+    assert gmpy2.div(a, b) == mpfr('0.26973684210526316')
+    assert ctx.div(a, b) == mpfr('0.26973684210526316')
+    assert b/a == mpfr('3.7073170731707319')
+
+    raises(ZeroDivisionError, lambda: a/0)
+
+    assert a/0.0 == mpfr('inf')
+    assert a / z == mpfr('61.5')
+
+    raises(TypeError, lambda: ctx.div(a, b, 5))
+    raises(TypeError, lambda: ctx.div(a, 'str'))
+    raises(TypeError, lambda: a / 'str')
+
+    with gmpy2.local_context(rational_division=True):
+        assert mpz(1)/mpz(2) == mpq(1, 2)
+
+    assert a / float('Inf') == mpfr('0.0')
+    assert -a / float('Inf') == mpfr('-0.0')
+    assert float('Inf') / a == mpfr('inf')
+    assert float('Inf') / -a == mpfr('-inf')
+    assert a / float('-Inf') == mpfr('-0.0')
+    assert -a / float('-Inf') == mpfr('0.0')
+    assert float('-Inf') / a == mpfr('-inf')
+    assert float('-Inf') / -a == mpfr('inf')
+    assert is_nan(a / float('nan'))
+    assert is_nan(float('nan') / a)
+    assert is_nan(float('nan') / mpz(0))
+    assert is_nan(float('nan') / mpz(0))
+
+    assert a / mpfr('Inf') == mpfr('0.0')
+    assert -a / mpfr('Inf') == mpfr('-0.0')
+    assert mpfr('Inf') / a == mpfr('inf')
+    assert mpfr('Inf') / -a == mpfr('-inf')
+    assert a / mpfr('-Inf') == mpfr('-0.0')
+    assert -a / mpfr('-Inf') == mpfr('0.0')
+    assert mpfr('-Inf') / a == mpfr('-inf')
+    assert mpfr('-Inf') / -a == mpfr('inf')
+    assert is_nan(a / mpfr('nan'))
+    assert is_nan(mpfr('nan') / a)
+    assert is_nan(mpfr('nan') / mpz(0))
+    assert is_nan(mpfr('nan') / mpz(0))
+
 
 def test_mpz_pow():
     z1, z2 = mpz(5), mpz(2)
@@ -763,6 +995,12 @@ def test_mpz_pow():
 
     raises(ValueError, lambda: pow(5, 2, 0))
     raises(TypeError, lambda: ctx.pow(z1, 'invalid'))
+
+    a = mpz(123)
+    b = mpz(456)
+
+    assert pow(a,10) == 792594609605189126649
+    assert pow(a,7,b) == mpz(99)
 
 
 def test_lucasu():
@@ -793,3 +1031,107 @@ def test_lucasu():
     assert gmpy2.lucasv_mod(4,3,55,123456) == mpz(35788)
     assert gmpy2.lucasv_mod(4,3,56,123456) == mpz(107362)
     assert gmpy2.lucasv_mod(4,3,57,123456) == mpz(75172)
+
+
+def test_mpz_attributes():
+    a = mpz(123)
+
+    assert a.numerator == mpz(123)
+    assert a.denominator == mpz(1)
+
+    assert a.real == mpz(123)
+    assert a.imag == mpz(0)
+
+
+def test_mpz_conjugate():
+    a = mpz(123)
+
+    assert a.conjugate() == a
+
+
+def test_mpz_invert():
+    a = mpz(123)
+
+    assert ~a == mpz(-124)
+
+
+def test_mpz_and():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert a&b == mpz(72)
+    assert a&int(b) == mpz(72)
+    assert int(a)&b == mpz(72)
+
+    raises(TypeError, lambda: a&mpq(1))
+
+
+def test_mpz_or():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert a|b == mpz(507)
+    assert a|int(b) == mpz(507)
+    assert int(a)|b == mpz(507)
+
+    raises(TypeError, lambda: a|mpq(1))
+
+
+def test_mpz_xor():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert a^b == mpz(435)
+    assert a^int(b) == mpz(435)
+    assert int(a)^b == mpz(435)
+
+    raises(TypeError, lambda: a^mpq(1))
+
+
+def test_mpz_lshift():
+    a = mpz(123)
+
+    assert a<<1 == mpz(246)
+    assert int(a)<<mpz(1) == mpz(246)
+
+    raises(OverflowError, lambda: a<<-1)
+
+    assert a<<0 == mpz(123)
+
+    raises(TypeError, lambda: "a" << a)
+
+
+def test_mpz_rshift():
+    a = mpz(123)
+
+    assert a>>1 == mpz(61)
+    assert int(a)>>mpz(1) == mpz(61)
+
+    raises(OverflowError, lambda: a>>-2)
+
+    assert a>>0 == mpz(123)
+
+    raises(TypeError, lambda: "a" >> a)
+
+
+def test_mpz_index():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert range(333)[a] == 123
+
+    raises(IndexError, lambda: range(333)[b])
+
+
+def test_mpz_seq():
+    a = mpz(10)
+
+    assert a[1] == 1
+    assert a[-1] == 1
+    assert a[-2] == 0
+    assert a[0:2] == mpz(2)
+    assert a[0:3] == mpz(2)
+    assert a[0:3:-1] == mpz(0)
+
+    raises(IndexError, lambda: a[111111111111111111111])
+    raises(TypeError, lambda: a["spam"])
