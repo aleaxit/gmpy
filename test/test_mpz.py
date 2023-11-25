@@ -1240,6 +1240,15 @@ def test_mpz_and():
     raises(TypeError, lambda: a&mpq(1))
 
 
+def test_mpz_and_operator():
+    assert (mpz(0) and mpz(7)) == mpz(0)
+    assert (mpz(7) and mpz(0)) == mpz(0)
+    assert (mpz(7) and mpz(5)) == mpz(5)
+    assert (mpz(0) and 5) == mpz(0)
+    assert (mpz(7) and 5.2) == 5.2
+    assert (mpz(7) and None) is None
+
+
 def test_mpz_iand():
     x = mpz(7)
     x &= mpz(5)
@@ -1564,3 +1573,166 @@ def test_mpz_is_odd():
     assert not b.is_odd()
     assert gmpy2.is_odd(11)
     assert not gmpy2.is_odd(14)
+
+
+def test_mpz_bit_length():
+    assert mpz(0).bit_length() == 0
+    assert mpz(1).bit_length() == 1
+    assert mpz(5).bit_length() == 3
+    assert mpz(8).bit_length() == 4
+    assert gmpy2.bit_length(mpz(10**30)) == 100
+    assert gmpy2.bit_length(56) == 6
+
+    raises(TypeError, lambda: gmpy2.bit_length(mpfr(4.0)))
+
+
+def test_mpz_bit_mask():
+    assert gmpy2.bit_mask(mpz(0)) == mpz(0)
+    assert gmpy2.bit_mask(mpz(4)) == mpz(15)
+    assert gmpy2.bit_mask(mpz(3)) == mpz(7)
+    assert gmpy2.bit_mask(mpz(16)) == mpz(65535)
+    assert gmpy2.bit_mask(8) == mpz(255)
+
+    raises(OverflowError, lambda: gmpy2.bit_mask(-1))
+
+
+def test_mpz_bit_scan0():
+    assert mpz(6).bit_scan0() == 0
+    assert mpz(7).bit_scan0() == 3
+    assert mpz(8).bit_scan0(2) == 2
+    assert mpz(7).bit_scan0(2) == 3
+
+    raises(OverflowError, lambda: mpz(7).bit_scan0(-2))
+
+    assert gmpy2.bit_scan0(mpz(7), 2) == 3
+    assert gmpy2.bit_scan0(mpz(8), 2) == 2
+    assert gmpy2.bit_scan0(8) == 0
+
+    raises(TypeError, lambda: gmpy2.bit_scan0())
+    raises(TypeError, lambda: gmpy2.bit_scan0(mpz(7), 2.5))
+    raises(TypeError, lambda: gmpy2.bit_scan0(mpz(7), 2, 5))
+    raises(TypeError, lambda: gmpy2.bit_scan0(7.5, 0))
+    raises(OverflowError, lambda: gmpy2.bit_scan0(8, -2))
+
+    assert gmpy2.bit_scan0(mpz(-1), 1) is None
+    assert mpz(-1).bit_scan0(1) is None
+
+
+def test_mpz_bit_scan1():
+    assert mpz(7).bit_scan1() == 0
+    assert mpz(8).bit_scan1() == 3
+    assert mpz(7).bit_scan1(2) == 2
+
+    raises(OverflowError, lambda: mpz(7).bit_scan1(-2))
+
+    assert gmpy2.bit_scan1(7) == 0
+    assert gmpy2.bit_scan1(8) == 3
+    assert gmpy2.bit_scan1(7, 2) == 2
+
+    raises(TypeError, lambda: gmpy2.bit_scan1(mpz(7), 2, 5))
+    raises(TypeError, lambda: gmpy2.bit_scan1())
+    raises(TypeError, lambda: gmpy2.bit_scan1(mpz(6), 2.5))
+    raises(TypeError, lambda: gmpy2.bit_scan1(7.5, 0))
+    raises(OverflowError, lambda: gmpy2.bit_scan1(8, -1))
+
+    assert gmpy2.bit_scan1(mpz(1), 1) is None
+    assert mpz(1).bit_scan1(1) is None
+
+
+def test_mpz_bit_test():
+    assert mpz(7).bit_test(2)
+    assert not mpz(8).bit_test(2)
+    assert not mpz(-8).bit_test(2)
+
+    raises(OverflowError, lambda: mpz(8).bit_test(-2))
+
+    assert gmpy2.bit_test(mpz(7), 2)
+    assert not gmpy2.bit_test(mpz(8), 2)
+
+    raises(TypeError, lambda: gmpy2.bit_test())
+    raises(TypeError, lambda: gmpy2.bit_test(mpz(7), 2.5))
+    raises(TypeError, lambda: gmpy2.bit_test(7.5, 2))
+    raises(OverflowError, lambda: gmpy2.bit_test(8, -2))
+
+
+def test_mpz_bit_clear():
+    assert mpz(7).bit_clear(0) == mpz(6)
+    assert mpz(7).bit_clear(2) == mpz(3)
+    assert mpz(8).bit_clear(2) == mpz(8)
+
+    raises(OverflowError, lambda: mpz(8).bit_clear(-1))
+
+    assert gmpy2.bit_clear(4, 2) == mpz(0)
+
+    raises(TypeError, lambda: gmpy2.bit_clear())
+    raises(TypeError, lambda: gmpy2.bit_clear(7.2, 2))
+    raises(TypeError, lambda: gmpy2.bit_clear(mpz(4), 2.5))
+    raises(OverflowError, lambda: gmpy2.bit_clear(4, -2))
+
+
+def test_mpz_bit_set():
+    assert mpz(4).bit_set(0) == mpz(5)
+    assert mpz(7).bit_set(3) == mpz(15)
+    assert mpz(0).bit_set(2) == mpz(4)
+
+    raises(OverflowError, lambda: mpz(0).bit_set(-2))
+
+    assert gmpy2.bit_set(8, 1) == mpz(10)
+
+    raises(TypeError, lambda: gmpy2.bit_set(0))
+    raises(TypeError, lambda: gmpy2.bit_set())
+    raises(TypeError, lambda: gmpy2.bit_set(8.5, 1))
+    raises(TypeError, lambda: gmpy2.bit_set(8, 1.5))
+    raises(OverflowError, lambda: gmpy2.bit_set(8, -1))
+
+
+def test_mpz_bit_flip():
+    assert mpz(4).bit_flip(2) == mpz(0)
+    assert mpz(4).bit_flip(1) == mpz(6)
+    assert mpz(0).bit_flip(3) == mpz(8)
+
+    raises(OverflowError, lambda: mpz(5).bit_flip(-3))
+
+    assert gmpy2.bit_flip(mpz(7), mpz(1)) == mpz(5)
+    assert gmpy2.bit_flip(mpz(7), 2) == mpz(3)
+
+    raises(TypeError, lambda: gmpy2.bit_flip())
+    raises(TypeError, lambda: gmpy2.bit_flip(4.5, 2))
+    raises(TypeError, lambda: gmpy2.bit_flip(4, 2.5))
+    raises(OverflowError, lambda: gmpy2.bit_flip(mpz(7), -2))
+
+
+def test_mpz_bit_count():
+    a = mpz(10009)
+
+    assert a.bit_count() == 7
+    assert gmpy2.popcount(a) == 7
+    assert gmpy2.bit_count(a) == 7
+
+    a = -a
+
+    assert a == mpz(-10009)
+    assert a.bit_count() == 7
+    assert gmpy2.bit_count(a) == 7
+    assert gmpy2.popcount(a) == -1
+
+    raises(TypeError, lambda: gmpy2.bit_count('spam'))
+
+
+def test_mpz_popcount():
+    assert gmpy2.popcount(-65) == -1
+    assert gmpy2.popcount(7) == 3
+    assert gmpy2.popcount(8) == 1
+    assert gmpy2.popcount(15) == 4
+    assert gmpy2.popcount(mpz(0)) == 0
+
+    raises(TypeError, lambda: gmpy2.popcount(4.5))
+
+
+def test_mpz_hamdist():
+    assert gmpy2.hamdist(mpz(5), mpz(7)) == 1
+    assert gmpy2.hamdist(mpz(0), mpz(7)) == 3
+    assert gmpy2.hamdist(mpz(0), 7) == 3
+
+    raises(TypeError, lambda: gmpy2.hamdist(mpq(14,2), 5))
+    raises(TypeError, lambda: gmpy2.hamdist(5,6,5))
