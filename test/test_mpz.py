@@ -433,6 +433,10 @@ def test_mpz_create():
     raises(ValueError, lambda: mpz('0x43',10))
 
     assert mpz('43') == mpz(43)
+    assert mpz('1_2') == mpz(12)
+    assert mpz('_1_2') == mpz(12)
+    assert mpz('1 2') == mpz(12)
+    assert mpz(' 1 2') == mpz(12)
 
 
 @given(integers())
@@ -491,6 +495,15 @@ def test_mpz_round():
     assert round(mpz(123454), -1) == mpz(123450)
     assert round(mpz(123445), -1) == mpz(123440)
     assert round(mpz(123445)) == mpz(123445)
+
+    raises(TypeError, lambda: round(mpz(123456),'a'))
+    raises(TypeError, lambda: round(mpz(123456),'a',4))
+
+
+def test_mpz_bool():
+    assert bool(mpz(100))
+    assert not bool(mpz(0))
+    assert bool(mpz(-100))
 
 
 def test_mpz_random():
@@ -1135,3 +1148,152 @@ def test_mpz_seq():
 
     raises(IndexError, lambda: a[111111111111111111111])
     raises(TypeError, lambda: a["spam"])
+
+
+def test_mpz_len():
+    assert len(mpz(0)) == 1
+    assert len(mpz(1)) == 1
+    assert len(mpz(17)) == 5
+
+
+def test_mpz_num_digits():
+    assert mpz(123456).num_digits() == 6
+    assert mpz(123456).num_digits(2) == 17
+
+    raises(ValueError, lambda: mpz(123456).num_digits(-1))
+    raises(OverflowError, lambda: mpz(123456).num_digits(9999999999999999999999999999999999))
+    raises(ValueError, lambda: mpz(123456).num_digits(100))
+    raises(TypeError, lambda: gmpy2.num_digits(123456,-1,7))
+    raises(ValueError, lambda: gmpy2.num_digits(123456,-1))
+    raises(TypeError, lambda: gmpy2.num_digits('123456'))
+    raises(ValueError, lambda: gmpy2.num_digits(123456,100))
+    raises(TypeError, lambda: gmpy2.num_digits(123456,'a'))
+
+    assert gmpy2.num_digits(123456) == 6
+    assert gmpy2.num_digits(123456,2) == 17
+
+
+def test_mpz_is_square():
+    raises(TypeError, lambda: gmpy2.is_square('a'))
+
+    assert gmpy2.is_square(mpz(9))
+    assert not gmpy2.is_square(10)
+    assert mpz(16).is_square()
+    assert not mpz(17).is_square()
+
+
+def test_mpz_is_divisible():
+    raises(TypeError, lambda: gmpy2.is_divisible())
+    raises(TypeError, lambda: gmpy2.is_divisible('a',2))
+    raises(TypeError, lambda: gmpy2.is_divisible(2,'a'))
+
+    assert gmpy2.is_divisible(12,2)
+    assert not gmpy2.is_divisible(12,7)
+    assert mpz(12).is_divisible(2)
+    assert not mpz(12).is_divisible(7)
+    assert gmpy2.is_divisible(mpz(123456789123456789123456789),
+                              123456789123456789123456789)
+    assert not gmpy2.is_divisible(mpz(1234567891234567891234567897),
+                                  123456789123456789123456789)
+
+    raises(TypeError, lambda: mpz(12).is_divisible('a'))
+
+    assert mpz(123456789123456789123456789).is_divisible(123456789123456789123456789)
+    assert not mpz(1234567891234567891234567897).is_divisible(123456789123456789123456789)
+
+
+def test_mpz_is_congruent():
+    raises(TypeError, lambda: gmpy2.is_congruent(1))
+    raises(TypeError, lambda: gmpy2.is_congruent(1,'a',3))
+
+    assert gmpy2.is_congruent(7*3+2, 7*11+2, 7)
+    assert not gmpy2.is_congruent(7*3+2, 7*11+5, 7)
+
+    raises(TypeError, lambda: mpz(7*3+2).is_congruent(1))
+    raises(TypeError, lambda: mpz(7*3+2).is_congruent('a',7))
+
+    assert mpz(7*3+2).is_congruent(7*11+2,7)
+    assert not mpz(7*3+2).is_congruent(7*11+5,7)
+
+
+def test_mpz_is_power():
+    a = mpz(123)
+
+    raises(TypeError, lambda: gmpy2.is_power())
+    raises(TypeError, lambda: gmpy2.is_power('a'))
+
+    assert not a.is_power()
+    assert mpz(123**11).is_power()
+    assert not gmpy2.is_power(a)
+    assert gmpy2.is_power(99*99*99)
+    assert not gmpy2.is_power(99*98)
+
+
+def test_mpz_is_prime():
+    raises(OverflowError, lambda: gmpy2.is_prime(3,-3))
+    raises(TypeError, lambda: gmpy2.is_prime())
+    raises(TypeError, lambda: gmpy2.is_prime(1,2,3))
+    raises(TypeError, lambda: gmpy2.is_prime('a'))
+
+    assert not gmpy2.is_prime(12345)
+    assert gmpy2.is_prime(80**81 + 81**80)
+    assert gmpy2.is_prime(80**81 + 81**80, 10000)
+
+    raises(TypeError, lambda: mpz(129).is_prime(1,2))
+    raises(OverflowError, lambda: mpz(129).is_prime(-7))
+
+    assert not mpz(129).is_prime(10000)
+    assert mpz(80**81 + 81**80).is_prime()
+    assert not mpz(1234567890).is_prime()
+    assert not mpz(-3).is_prime()
+    assert not gmpy2.is_prime(-3)
+
+
+def test_mpz_is_probab_prime():
+    raises(OverflowError, lambda: gmpy2.is_probab_prime(3,-3))
+    raises(TypeError, lambda: gmpy2.is_probab_prime())
+    raises(TypeError, lambda: gmpy2.is_probab_prime(1,2,3))
+    raises(TypeError, lambda: gmpy2.is_probab_prime('a'))
+
+    assert gmpy2.is_probab_prime(71) == 2
+    assert gmpy2.is_probab_prime(12345) == 0
+    assert gmpy2.is_probab_prime(80**81 + 81**80) == 1
+    assert gmpy2.is_probab_prime(80**81 + 81**80, 10000) == 1
+
+    raises(TypeError, lambda: mpz(129).is_probab_prime(1,2))
+    raises(OverflowError, lambda: mpz(129).is_probab_prime(-7))
+
+    assert mpz(71).is_probab_prime(71) == 2
+    assert mpz(129).is_probab_prime(10000) == 0
+    assert mpz(80**81 + 81**80).is_probab_prime() == 1
+    assert mpz(1234567890).is_probab_prime() == 0
+    assert mpz(-3).is_probab_prime() == 0
+    assert gmpy2.is_probab_prime(-3) == 0
+
+
+def test_mpz_is_even():
+    a = mpz(123)
+    b = mpz(456)
+
+    raises(TypeError, lambda: gmpy2.is_even('a'))
+
+    assert not gmpy2.is_even(a)
+    assert gmpy2.is_even(b)
+    assert not a.is_even()
+    assert b.is_even()
+    assert not gmpy2.is_even(11)
+    assert gmpy2.is_even(14)
+
+
+def test_mpz_is_odd():
+    a = mpz(123)
+    b = mpz(456)
+
+    raises(TypeError, lambda: gmpy2.is_odd('a'))
+
+    assert gmpy2.is_odd(a)
+    assert not gmpy2.is_odd(b)
+    assert a.is_odd()
+    assert not b.is_odd()
+    assert gmpy2.is_odd(11)
+    assert not gmpy2.is_odd(14)

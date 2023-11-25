@@ -18,4 +18,5 @@ def test_misc():
 
 
 def test_sizeof():
+    assert sys.getsizeof(gmpy2.mpz(10)) > 0
     assert sys.getsizeof(gmpy2.mpfr('1.0')) > 0

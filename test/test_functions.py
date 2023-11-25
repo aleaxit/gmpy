@@ -3,22 +3,25 @@ from fractions import Fraction
 import pytest
 
 import gmpy2
-from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, c_div,
-                   c_divmod, c_mod, can_round, check_range, context, copy_sign,
-                   cos, cosh, cot, coth, csc, csch, degrees, f2q, f_div,
-                   f_divmod, f_mod, fac, fma, fmma, fmms, fms, free_cache,
-                   from_binary, get_context, get_emax_max, get_emin_min,
-                   get_exp, ieee, inf, is_bpsw_prp, is_euler_prp,
-                   is_extra_strong_lucas_prp, is_fermat_prp, is_fibonacci_prp,
-                   is_finite, is_infinite, is_lucas_prp, is_nan,
-                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
-                   is_strong_prp, is_strong_selfridge_prp, is_zero, maxnum,
-                   minnum, mpc, mpfr, mpfr_from_old_binary, mpq,
-                   mpq_from_old_binary, mpz, mpz_from_old_binary, nan, norm,
-                   phase, polar, powmod, powmod_sec, proj, radians, rect, root,
-                   root_of_unity, rootn, sec, sech, set_context, set_exp,
-                   set_sign, sign, sin, sin_cos, sinh, sinh_cosh, t_div,
-                   t_divmod, t_mod, tan, tanh, zero)
+from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, bincoef,
+                   c_div, c_divmod, c_mod, can_round, check_range, comb,
+                   context, copy_sign, cos, cosh, cot, coth, csc, csch,
+                   degrees, divexact, divm, double_fac, f2q, f_div, f_divmod,
+                   f_mod, fac, fib, fib2, fma, fmma, fmms, fms, free_cache,
+                   from_binary, gcd, gcdext, get_context, get_emax_max,
+                   get_emin_min, get_exp, ieee, inf, invert, iroot, iroot_rem,
+                   is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
+                   is_fermat_prp, is_fibonacci_prp, is_finite, is_infinite,
+                   is_lucas_prp, is_nan, is_selfridge_prp, is_strong_bpsw_prp,
+                   is_strong_lucas_prp, is_strong_prp, is_strong_selfridge_prp,
+                   is_zero, isqrt, isqrt_rem, jacobi, kronecker, lcm, legendre,
+                   lucas, lucas2, maxnum, minnum, mpc, mpfr,
+                   mpfr_from_old_binary, mpq, mpq_from_old_binary, mpz,
+                   mpz_from_old_binary, multi_fac, nan, next_prime, norm,
+                   phase, polar, powmod, powmod_sec, primorial, proj, radians,
+                   rect, remove, root, root_of_unity, rootn, sec, sech,
+                   set_context, set_exp, set_sign, sign, sin, sin_cos, sinh,
+                   sinh_cosh, t_div, t_divmod, t_mod, tan, tanh, zero)
 
 
 def test_root():
@@ -926,3 +929,297 @@ def test_get_max_precision():
 
 def test_free_cache():
     assert free_cache() is None
+
+
+def test_gcd():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert gcd(1,2,3) == mpz(1)
+    assert gcd(2, 4, 6) == mpz(2)
+
+    pytest.raises(TypeError, lambda: gcd(1,'a'))
+
+    assert gcd(123,456) == mpz(3)
+    assert gcd(a,b) == mpz(3)
+
+
+def test_lcm():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert lcm(1,2,3) == mpz(6)
+    assert lcm(2, 3, 4) == mpz(12)
+
+    pytest.raises(TypeError, lambda: lcm(1,'a'))
+
+    assert lcm(a,b) == mpz(18696)
+    assert lcm(123,456) == mpz(18696)
+
+
+def test_gcdext():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: gcdext(1,2,3))
+    pytest.raises(TypeError, lambda: gcdext(1,'a'))
+
+    temp = gcdext(a,b)
+
+    assert temp[0] == a*temp[1] + b*temp[2]
+
+    temp = gcdext(123,456)
+
+    assert temp[0] == a*temp[1] + b*temp[2]
+
+
+def test_divm():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert divm(b,a,20) == mpz(12)
+
+    pytest.raises(TypeError, lambda: divm(a,b,100,5))
+    pytest.raises(TypeError, lambda: divm(a,b,'a'))
+    pytest.raises(ZeroDivisionError, lambda: divm(a,b,100))
+
+    assert divm(6,12,14) == mpz(4)
+    assert divm(0,1,2) == mpz(0)
+    assert divm(4,8,20) == mpz(3)
+
+
+def test_fac():
+    pytest.raises(OverflowError, lambda: fac(-7))
+    pytest.raises(TypeError, lambda: fac('a'))
+
+    assert fac(7) == mpz(5040)
+
+
+def test_double_fac():
+    pytest.raises(OverflowError, lambda: double_fac(-7))
+    pytest.raises(TypeError, lambda: double_fac('a'))
+
+    assert double_fac(7) == mpz(105)
+    assert double_fac(7) * gmpy2.double_fac(8) == mpz(40320)
+    assert fac(8) == mpz(40320)
+
+
+def test_primorial():
+    pytest.raises(OverflowError, lambda: primorial(-7))
+    pytest.raises(TypeError, lambda: primorial('a'))
+
+    assert primorial(7) == mpz(210)
+
+
+def test_multi_fac():
+    pytest.raises(TypeError, lambda: multi_fac(-7))
+    pytest.raises(TypeError, lambda: multi_fac(7,'a'))
+    pytest.raises(OverflowError, lambda: multi_fac(7,-1))
+    pytest.raises(OverflowError, lambda: multi_fac(-7,1))
+    pytest.raises(TypeError, lambda: multi_fac('a'))
+    pytest.raises(TypeError, lambda: multi_fac(10))
+    pytest.raises(TypeError, lambda: multi_fac(10,11,12))
+
+    assert multi_fac(17,4) == mpz(9945)
+
+
+def test_fib():
+    pytest.raises(OverflowError, lambda: fib(-2))
+
+    assert fib(17) == mpz(1597)
+
+
+def test_fib2():
+    pytest.raises(OverflowError, lambda: fib2(-2))
+
+    assert fib2(17) == (mpz(1597), mpz(987))
+
+
+def test_lucas():
+    pytest.raises(OverflowError, lambda: lucas(-2))
+
+    assert lucas(17) == mpz(3571)
+
+
+def test_lucas2():
+    pytest.raises(OverflowError, lambda: lucas2(-2))
+
+    assert lucas2(17) == (mpz(3571), mpz(2207))
+
+
+def test_bincoef():
+    pytest.raises(TypeError, lambda: bincoef(1))
+    pytest.raises(TypeError, lambda: bincoef(1,2,3))
+
+    assert [bincoef(10,i) for i in range(10)] == [1, 10, 45, 120, 210,
+                                                  252, 210, 120, 45, 10]
+    assert bincoef(1111111111111111111111,
+                   2) == mpz(617283950617283950616604938271604938271605)
+
+
+def test_comb():
+    pytest.raises(OverflowError, lambda: comb(3,-1))
+    pytest.raises(TypeError, lambda: comb('a',4))
+
+    assert comb(8,4) == mpz(70)
+
+
+def test_isqrt():
+    a = mpz(123)
+
+    assert isqrt(a) == 11
+    assert isqrt(123) == 11
+
+    pytest.raises(ValueError, lambda: isqrt(-1))
+    pytest.raises(ValueError, lambda: isqrt(mpz(-1)))
+    pytest.raises(TypeError, lambda: isqrt('a'))
+
+
+def test_isqrt_rem():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert isqrt_rem(a) == (mpz(11), mpz(2))
+    assert isqrt_rem(b) == (mpz(21), mpz(15))
+
+    pytest.raises(ValueError, lambda: isqrt_rem(-1))
+    pytest.raises(ValueError, lambda: isqrt_rem(mpz(-1)))
+    pytest.raises(TypeError, lambda: isqrt_rem('a'))
+    pytest.raises(ValueError, lambda: isqrt_rem(mpz(-1)))
+
+
+def test_remove():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert remove(a,2) == (mpz(123), 0)
+    assert remove(a,mpz(2)) == (mpz(123), 0)
+    assert remove(a,3) == (mpz(41), 1)
+    assert remove(b,2) == (mpz(57), 3)
+    assert remove(b,3) == (mpz(152), 1)
+
+    pytest.raises(ValueError, lambda: remove(b,1))
+    pytest.raises(ValueError, lambda: remove(b,mpz(1)))
+    pytest.raises(ValueError, lambda: remove(b,0))
+
+    assert remove(b,789) == (mpz(456), 0)
+
+    pytest.raises(ValueError, lambda: remove(b,-3))
+    pytest.raises(TypeError, lambda: remove(b,float('NaN')))
+    pytest.raises(ValueError, lambda: remove(3,-1))
+    pytest.raises(TypeError, lambda: remove(3))
+    pytest.raises(TypeError, lambda: remove())
+
+
+def test_invert():
+    a = mpz(123)
+    b = mpz(456)
+
+    assert invert(a,100) == mpz(87)
+    assert invert(a,mpz(100)) == mpz(87)
+
+    pytest.raises(ZeroDivisionError, lambda: invert(b,mpz(100)))
+    pytest.raises(ZeroDivisionError, lambda: invert(b,mpz(0)))
+    pytest.raises(TypeError, lambda: invert(3))
+    pytest.raises(TypeError, lambda: invert())
+    pytest.raises(ZeroDivisionError, lambda: invert(456,0))
+    pytest.raises(TypeError, lambda: invert(456,'a'))
+    pytest.raises(ZeroDivisionError, lambda: invert(456,100))
+
+    assert invert(123,100) == mpz(87)
+
+
+def test_divexact():
+    a = mpz(123)
+
+    pytest.raises(TypeError, lambda: divexact(2))
+    pytest.raises(TypeError, lambda: divexact(2, 'a'))
+    pytest.raises(ZeroDivisionError, lambda: divexact(a,0))
+    pytest.raises(ZeroDivisionError, lambda: divexact(a,mpz(0)))
+    pytest.raises(ZeroDivisionError, lambda: divexact(123,0))
+
+    aa = mpz('1234567912345678912345679')
+    bb = mpz('789789789789789789789789')
+    cc = aa*bb
+
+    assert divexact(cc,aa) == 789789789789789789789789
+
+    aa = 1234567912345678912345679
+    bb = 789789789789789789789789
+    cc = aa*bb
+
+    assert divexact(cc,aa) == 789789789789789789789789
+
+
+def test_next_prime():
+    pytest.raises(TypeError, lambda: next_prime('a'))
+
+    assert next_prime(mpz(2)) == mpz(3)
+    assert next_prime(2) == mpz(3)
+    assert next_prime(1000000) == mpz(1000003)
+    assert next_prime(2357*7069-1) != 2357*7069
+
+
+def test_iroot():
+    a = mpz(123)
+    b = mpz(456)
+
+    pytest.raises(TypeError, lambda: iroot(1,2,3))
+    pytest.raises(ValueError, lambda: iroot(-9,2))
+    pytest.raises(ValueError, lambda: iroot(9,0))
+
+    assert [(iroot(a,i+1),gmpy2.iroot(b,i+1))
+            for i in range(5)] == [((mpz(123), True), (mpz(456), True)),
+                                   ((mpz(11), False), (mpz(21), False)),
+                                   ((mpz(4), False), (mpz(7), False)),
+                                   ((mpz(3), False), (mpz(4), False)),
+                                   ((mpz(2), False), (mpz(3), False))]
+    assert iroot(9,2) == (mpz(3), True)
+
+
+def test_iroot_rem():
+    a = mpz(123)
+
+    pytest.raises(TypeError, lambda: iroot_rem(1,2,3))
+    pytest.raises(ValueError, lambda: iroot_rem(-9,2))
+    pytest.raises(ValueError, lambda: iroot_rem(9,0))
+
+    assert iroot_rem(a,2) == (mpz(11), mpz(2))
+    assert iroot_rem(a,3) == (mpz(4), mpz(59))
+    assert iroot_rem(a*a,2) == (mpz(123), mpz(0))
+
+
+def test_jacobi():
+    pytest.raises(TypeError, lambda: jacobi('a', 10))
+    pytest.raises(ValueError, lambda: jacobi(10,-3))
+    pytest.raises(TypeError, lambda: jacobi(3))
+    pytest.raises(TypeError, lambda: jacobi())
+
+    assert jacobi(10,3) == 1
+
+
+def test_kronecker():
+    pytest.raises(TypeError, lambda: gmpy2.kronecker('a', 10))
+
+    assert kronecker(10,3) == 1
+    assert kronecker(10,-3) == 1
+
+    pytest.raises(TypeError, lambda: kronecker(3))
+    pytest.raises(TypeError, lambda: kronecker())
+
+    aaa = 10**20
+    bbb = aaa + 39
+
+    assert jacobi(aaa,bbb) == 1
+    assert legendre(aaa,bbb) == 1
+    assert kronecker(aaa,bbb) == 1
+
+
+def test_legendre():
+    pytest.raises(TypeError, lambda: legendre('a', 10))
+
+    assert legendre(10,3) == 1
+
+    pytest.raises(ValueError, lambda: legendre(10,-3))
+    pytest.raises(TypeError, lambda: legendre(3))
+    pytest.raises(TypeError, lambda: legendre())
