@@ -670,6 +670,29 @@ def test_mpz_add():
     assert is_nan(float('nan') + a)
 
 
+def test_mpz_iadd():
+    x = mpz(5)
+    x += mpz(6)
+
+    assert x == mpz(11)
+
+    x += 7
+
+    assert x == mpz(18)
+
+    x += -6
+
+    assert x == mpz(12)
+
+    x += 0
+
+    assert x == mpz(12)
+
+    x += mpfr(2.5)
+
+    assert x == mpfr('14.5')
+
+
 def test_mpz_sub():
     a, b = mpz(123), mpz(456)
     c = 12345678901234567890
@@ -726,6 +749,29 @@ def test_mpz_sub():
     assert is_nan(float('nan') - a)
 
 
+def test_mpz_isub():
+    x = mpz(7)
+    x -= mpz(1)
+
+    assert x == mpz(6)
+
+    x -= 1
+
+    assert x == mpz(5)
+
+    x -= xmpz(7)
+
+    assert x == mpz(-2)
+
+    x -= -5
+
+    assert x == mpz(3)
+
+    x -= -mpfr(5)
+
+    assert x == mpfr('8.0')
+
+
 def test_mpz_mul():
     a = mpz(123)
     b = mpz(456)
@@ -775,6 +821,29 @@ def test_mpz_mul():
     assert is_nan(mpz(0) * float('-Inf'))
     assert is_nan(float('Inf') * mpz(0))
     assert is_nan(float('-Inf') * mpz(0))
+
+
+def test_mul_imul():
+    x = mpz(2)
+    x *= mpz(2)
+
+    assert x == mpz(4)
+
+    x *= 2
+
+    assert x == mpz(8)
+
+    x *= xmpz(3)
+
+    assert x == mpz(24)
+
+    x *= -1
+
+    assert x == mpz(-24)
+
+    x *= mpfr(-0.5)
+
+    assert x == mpfr('12.0')
 
 
 def test_mpz_divmod():
@@ -908,6 +977,37 @@ def test_mpz_floordiv():
     assert a//True == mpz(123)
 
 
+def test_mpz_ifloordiv():
+    x = mpz(49)
+    x //= mpz(3)
+
+    assert x == mpz(16)
+
+    x //= xmpz(3)
+
+    assert x == mpz(5)
+
+    x //= 2
+
+    assert x == mpz(2)
+
+    with raises(ZeroDivisionError):
+        x //= mpz(0)
+    with raises(ZeroDivisionError):
+        x //= 0
+
+    assert x == mpz(2)
+
+    x //= mpfr(-0.5)
+
+    assert x == mpfr('-4.0')
+
+    x = mpz(11)
+    x //= -5
+
+    assert x == mpz(-3)
+
+
 def test_mpz_mod():
     a = mpz(123)
     b = mpz(456)
@@ -933,6 +1033,38 @@ def test_mpz_mod():
     assert gmpy2.mod(124, mpz(5)) == mpz(4)
     assert z % mpq(1,2) == mpq(0,1)
     assert a % mpq(2,3) == mpq(1,3)
+
+
+def test_mpz_imod():
+    x = mpz(45)
+    x %= mpz(18)
+
+    assert x == mpz(9)
+
+    x %= xmpz(2)
+
+    assert x == mpz(1)
+
+    x = mpz(40)
+    x %= 21
+
+    assert x == mpz(19)
+
+    with raises(ZeroDivisionError):
+        x %= 0
+
+    assert x == mpz(19)
+
+    with raises(ZeroDivisionError):
+        x %= mpz(0)
+
+    x %= -9
+
+    assert x == mpz(-8)
+
+    x %= mpfr(10)
+
+    assert x == mpfr('2.0')
 
 
 def test_mpz_truediv():
@@ -1016,6 +1148,35 @@ def test_mpz_pow():
     assert pow(a,7,b) == mpz(99)
 
 
+def test_mpz_ipow():
+    x = mpz(5)
+    x **= mpz(2)
+
+    assert x == mpz(25)
+
+    x **= xmpz(2)
+
+    assert x == mpz(625)
+
+    x **= -2
+
+    assert x == mpfr('2.5600000000000001e-06')
+
+    x = mpz(625)
+    x **= 2
+
+    assert x == mpz(390625)
+
+    x **= mpfr(2)
+
+    assert x == mpfr('152587890625.0')
+
+    x = mpz(390625)
+    x **= mpfr(-2)
+
+    assert x == mpfr('6.5535999999999999e-12')
+
+
 def test_lucasu():
     assert gmpy2.lucasu(2,4,1) == mpz(1)
 
@@ -1079,6 +1240,29 @@ def test_mpz_and():
     raises(TypeError, lambda: a&mpq(1))
 
 
+def test_mpz_iand():
+    x = mpz(7)
+    x &= mpz(5)
+
+    assert x == mpz(5)
+
+    x &= xmpz(4)
+
+    assert x == mpz(4)
+
+    x &= 9
+
+    assert x == mpz(0)
+
+    x = mpz(4)
+    x &= 12
+
+    assert x == mpz(4)
+
+    with raises(TypeError):
+        x &= mpfr(4)
+
+
 def test_mpz_or():
     a = mpz(123)
     b = mpz(456)
@@ -1090,6 +1274,30 @@ def test_mpz_or():
     raises(TypeError, lambda: a|mpq(1))
 
 
+def test_mpz_ior():
+    x = mpz(0)
+    x |= mpz(1)
+
+    assert x == mpz(1)
+
+    x |= mpz(0)
+
+    assert x == mpz(1)
+
+    x = mpz(0)
+
+    x |= mpz(0)
+
+    assert x == mpz(0)
+
+    x |= 5
+
+    assert x == mpz(5)
+
+    with raises(TypeError):
+        x |= mpfr(3)
+
+
 def test_mpz_xor():
     a = mpz(123)
     b = mpz(456)
@@ -1099,6 +1307,24 @@ def test_mpz_xor():
     assert int(a)^b == mpz(435)
 
     raises(TypeError, lambda: a^mpq(1))
+
+
+def test_mpz_ixor():
+    x = mpz(1)
+    x ^= mpz(0)
+
+    assert x == mpz(1)
+
+    x ^= xmpz(1)
+
+    assert x == mpz(0)
+
+    x ^= 1
+
+    assert x == mpz(1)
+
+    with raises(TypeError):
+        x ^= mpfr(0)
 
 
 def test_mpz_lshift():
@@ -1125,6 +1351,47 @@ def test_mpz_rshift():
     assert a>>0 == mpz(123)
 
     raises(TypeError, lambda: "a" >> a)
+
+
+def test_mpz_ilshift_irshift():
+    x = mpz(63)
+    x >>= mpz(63)
+
+    assert x == mpz(0)
+
+    x = mpz(63)
+    x >>= mpz(1)
+
+    assert x == mpz(31)
+
+    x >>= xmpz(2)
+
+    assert x == mpz(7)
+
+    x >>= 1
+
+    assert x == mpz(3)
+
+    x <<= mpz(2)
+
+    assert x == mpz(12)
+
+    x <<= mpz(1)
+
+    assert x == mpz(24)
+
+    x <<= 0
+
+    assert x == mpz(24)
+
+    with raises(TypeError):
+        x >>= mpfr(2)
+    with raises(TypeError):
+        x <<= mpfr(2)
+    with raises(OverflowError):
+        x >>= -1
+    with raises(OverflowError):
+        x <<= -5
 
 
 def test_mpz_index():
