@@ -13,17 +13,19 @@ from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, bincoef,
                    get_context, get_emax_max, get_emin_min, get_exp, ieee, inf,
                    invert, iroot, iroot_rem, is_bpsw_prp, is_euler_prp,
                    is_extra_strong_lucas_prp, is_fermat_prp, is_fibonacci_prp,
-                   is_finite, is_infinite, is_lucas_prp, is_nan,
-                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
-                   is_strong_prp, is_strong_selfridge_prp, is_zero, isqrt,
-                   isqrt_rem, jacobi, kronecker, lcm, legendre, lucas, lucas2,
-                   maxnum, minnum, mpc, mpfr, mpfr_from_old_binary, mpq,
-                   mpq_from_old_binary, mpz, mpz_from_old_binary, multi_fac,
-                   nan, next_prime, norm, phase, polar, powmod, powmod_sec,
-                   primorial, proj, radians, rect, remove, root, root_of_unity,
-                   rootn, sec, sech, set_context, set_exp, set_sign, sign, sin,
-                   sin_cos, sinh, sinh_cosh, t_div, t_div_2exp, t_divmod,
-                   t_divmod_2exp, t_mod, t_mod_2exp, tan, tanh, zero)
+                   is_finite, is_infinite, is_integer, is_lessgreater,
+                   is_lucas_prp, is_nan, is_regular, is_selfridge_prp,
+                   is_signed, is_strong_bpsw_prp, is_strong_lucas_prp,
+                   is_strong_prp, is_strong_selfridge_prp, is_unordered,
+                   is_zero, isqrt, isqrt_rem, jacobi, kronecker, lcm, legendre,
+                   lucas, lucas2, maxnum, minnum, mpc, mpfr,
+                   mpfr_from_old_binary, mpq, mpq_from_old_binary, mpz,
+                   mpz_from_old_binary, multi_fac, nan, next_prime, norm,
+                   phase, polar, powmod, powmod_sec, primorial, proj, radians,
+                   rect, remove, root, root_of_unity, rootn, sec, sech,
+                   set_context, set_exp, set_sign, sign, sin, sin_cos, sinh,
+                   sinh_cosh, t_div, t_div_2exp, t_divmod, t_divmod_2exp,
+                   t_mod, t_mod_2exp, tan, tanh, zero)
 
 
 def test_root():
@@ -410,11 +412,64 @@ def test_is_zero():
     assert is_zero(mpc("1+1j")) is False
     assert is_zero(mpc("0+1j")) is False
 
+    ctx = gmpy2.get_context()
+    pynan = float('nan')
+    pyinf = float('inf')
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+
+    assert is_zero(float(0))
+    assert is_zero(mpfr(0))
+    assert not is_zero(pynan)
+    assert not is_zero(rinf)
+    assert not is_zero(mpfr(5))
+    assert not gmpy2.is_zero(float(5))
+
+    pytest.raises(TypeError, lambda: is_zero(None))
+
+    assert ctx.is_zero(float(0))
+    assert ctx.is_zero(mpfr(0))
+    assert not ctx.is_zero(pynan)
+    assert not ctx.is_zero(rinf)
+    assert not ctx.is_zero(mpfr(5))
+    assert not ctx.is_zero(float(5))
+    assert not ctx.is_zero(mpc(4,4))
+    assert not ctx.is_zero(mpc(0,4))
+    assert ctx.is_zero(mpc(0,0))
+    assert ctx.is_zero(complex(0,0))
+    assert not ctx.is_zero(complex(0,5))
+    assert mpfr(0).is_zero()
+    assert not rinf.is_zero()
+    assert not mpfr(-5).is_zero()
+    assert mpc(0, 0).is_zero()
+    assert not mpc(0, 4).is_zero()
+
+
 def test_is_nan():
     assert is_nan(mpc("nan+1j"))
     assert is_nan(mpc("1+nanj"))
     assert is_nan(mpc("nan+nanj"))
     assert is_nan(mpc("1+1j")) is False
+
+    ctx = gmpy2.get_context()
+    pynan = float('nan')
+    pyinf = float('inf')
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+    r = mpfr(4)
+
+    assert not r.is_nan()
+    assert rnan.is_nan()
+    assert not is_nan(r)
+    assert is_nan(rnan)
+    assert not ctx.is_nan(r)
+    assert ctx.is_nan(rnan)
+    assert ctx.is_nan(pynan)
+    assert not ctx.is_nan(pyinf)
+    assert mpc(rnan).is_nan()
+    assert not mpc('4.0').is_nan()
+    assert ctx.is_nan(complex(pynan))
+
 
 def test_is_infinite():
     assert is_infinite(mpc("inf+1j"))
@@ -424,12 +479,161 @@ def test_is_infinite():
     assert is_infinite(mpc("inf-infj"))
     assert is_infinite(mpc("1+1j")) is False
 
+    ctx = gmpy2.get_context()
+    pynan = float('nan')
+    pyinf = float('inf')
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+    z5 = mpz(5)
+
+    assert not is_infinite(5)
+    assert not is_infinite(z5)
+    assert is_infinite(rinf)
+    assert is_infinite(pyinf)
+    assert is_infinite(complex(pyinf))
+    assert ctx.is_infinite(rinf)
+    assert ctx.is_infinite(pyinf)
+    assert not ctx.is_infinite(pynan)
+    assert not ctx.is_infinite(rnan)
+    assert not rnan.is_infinite()
+    assert rinf.is_infinite()
+    assert mpc(pyinf).is_infinite()
+    assert not mpc(3, 4).is_infinite()
+
+
 def test_is_finite():
     assert is_finite(mpc("0+0j"))
     assert is_finite(mpc("nan+0j")) is False
     assert is_finite(mpc("0+nanj")) is False
     assert is_finite(mpc("0+infj")) is False
     assert is_finite(mpc("inf+3j")) is False
+
+    ctx = gmpy2.get_context()
+    pynan = float('nan')
+    pyinf = float('inf')
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+    z5 = mpz(5)
+
+    assert is_finite(5)
+    assert is_finite(z5)
+    assert not is_finite(rinf)
+    assert not is_finite(pyinf)
+    assert not is_finite(complex(pyinf))
+    assert not ctx.is_finite(rinf)
+    assert not ctx.is_finite(pyinf)
+    assert not ctx.is_finite(pynan)
+    assert not ctx.is_finite(rnan)
+    assert not rnan.is_finite()
+    assert not rinf.is_finite()
+
+    q = mpq(2,3)
+
+    assert ctx.is_finite(q)
+    assert not mpc(pyinf).is_finite()
+    assert mpc(3, 4).is_finite()
+
+
+def test_is_signed():
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+
+    assert not rinf.is_signed()
+    assert not rnan.is_signed()
+    assert mpfr(-5).is_signed()
+    assert not mpfr(0).is_signed()
+    assert not is_signed(5)
+    assert is_signed(-5)
+    assert not is_signed(float(5))
+    assert not is_signed(mpfr(5))
+
+
+def test_is_regular():
+    ctx = gmpy2.get_context()
+    pynan = float('nan')
+    pyinf = float('inf')
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+    z5 = mpz(5)
+
+    assert not is_regular(rnan)
+    assert not is_regular(rinf)
+    assert not is_regular(mpfr(0))
+    assert not is_regular(pyinf)
+    assert is_regular(mpfr(5))
+    assert is_regular(z5)
+    assert is_regular(-0.6)
+    assert not is_regular(pynan)
+    assert not ctx.is_regular(rnan)
+    assert not ctx.is_regular(rinf)
+    assert not ctx.is_regular(mpfr(0))
+    assert not ctx.is_regular(pyinf)
+    assert ctx.is_regular(mpfr(5))
+    assert ctx.is_regular(z5)
+    assert ctx.is_regular(-0.6)
+    assert not ctx.is_regular(pynan)
+    assert mpfr(-0.6).is_regular()
+
+
+def test_is_integer():
+    ctx = gmpy2.get_context()
+    pyinf = float('inf')
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+
+    assert not rinf.is_integer()
+    assert not rnan.is_integer()
+    assert mpfr(0).is_integer()
+    assert mpfr(-42).is_integer()
+    assert not mpfr(-42.65).is_integer()
+    assert not is_integer(pyinf)
+    assert is_integer(5)
+    assert not is_integer(5.6)
+    assert not is_integer(float(5.6))
+    assert ctx.is_integer(mpfr(5))
+    assert not ctx.is_integer(mpfr('5.6'))
+
+
+def test_is_lessgreater():
+    pynan = float('nan')
+    rnan = mpfr('nan')
+
+    assert not is_lessgreater(rnan, pynan)
+    assert not is_lessgreater(rnan, 5)
+    assert not is_lessgreater(5, pynan)
+    assert not is_lessgreater(5, 5)
+    assert not is_lessgreater(5, mpq(5/1))
+    assert not is_lessgreater(-5, float(-5))
+    assert is_lessgreater(-5, mpfr(4))
+
+    pytest.raises(TypeError, lambda: is_lessgreater(mpfr(0), mpc(4,1)))
+
+    class Spam:
+        def __mpfr__(self):
+            return
+
+    pytest.raises(TypeError, lambda: is_lessgreater(2, Spam()))
+
+
+def test_is_unordered():
+    pynan = float('nan')
+    rnan = mpfr('nan')
+    rinf = mpfr('inf')
+
+    assert not is_unordered(-5, float(-5))
+
+    pytest.raises(TypeError, lambda: is_unordered(mpfr(0), mpc(4,1)))
+
+    assert not is_unordered(-rinf, 0.0)
+    assert is_unordered(rnan, pynan)
+    assert is_unordered(rnan, 5)
+    assert is_unordered(5, pynan)
+
+    class Spam:
+        def __mpfr__(self):
+            return
+
+    pytest.raises(TypeError, lambda: is_unordered(2, Spam()))
 
 
 def test_f2q():
