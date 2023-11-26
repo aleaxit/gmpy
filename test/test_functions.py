@@ -28,6 +28,42 @@ from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, bincoef,
                    t_mod, t_mod_2exp, tan, tanh, zero)
 
 
+def test_exp():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+    ctx = gmpy2.get_context()
+
+    assert ctx.exp(10.5) == mpfr('36315.502674246636')
+    assert gmpy2.exp(mpfr(1)) == mpfr('2.7182818284590451')
+
+    assert gmpy2.exp2(r) == mpfr('48.502930128332729')
+    assert gmpy2.exp10(r) == mpfr('398107.17055349692')
+    assert gmpy2.exp2(r2) == mpfr('42.224253144732629')
+    assert gmpy2.exp10(r2) == mpfr('251188.6431509582')
+    assert gmpy2.exp2(f) == mpfr('1.515716566510398')
+    assert gmpy2.exp10(f) == mpfr('3.9810717055349722')
+    assert gmpy2.expm1(r) == mpfr('269.42640742615254')
+    assert gmpy2.expm1(r2) == mpfr('220.40641620418717')
+    assert gmpy2.expm1(f) == mpfr('0.82211880039050889')
+    assert gmpy2.eint(r) == mpfr('63.101785974299247')
+
+
+def test_log():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+    ctx = gmpy2.get_context()
+
+    assert ctx.log(mpfr(2)) == mpfr('0.69314718055994529')
+    assert ctx.log(mpfr(1)) == mpfr('0.0')
+    assert gmpy2.log10(mpfr(10)) == mpfr('1.0')
+    assert gmpy2.log2(r) == mpfr('2.4854268271702415')
+    assert gmpy2.log2(r2) == mpfr('2.4329594072761065')
+    assert gmpy2.log2(f) == mpfr('-0.73696559416620622')
+    assert gmpy2.log1p(r) == mpfr('1.8870696490323797')
+    assert gmpy2.log1p(r2) == mpfr('1.8562979903656263')
+    assert gmpy2.log1p(f) == mpfr('0.47000362924573552')
+
+
 def test_root():
     assert root(zero(1), 2) == mpfr('0.0')
     assert root(zero(-1), 2) == mpfr('-0.0')
@@ -44,6 +80,10 @@ def test_root():
     pytest.raises(OverflowError, lambda: root(2, -2))
     pytest.raises(TypeError, lambda: root(2, 0.5))
 
+    ctx = gmpy2.get_context()
+
+    pytest.raises(TypeError, lambda: ctx.root(mpfr(25)))
+
 
 def test_rootn():
     assert rootn(zero(1), 2) == mpfr('0.0')
@@ -52,6 +92,34 @@ def test_rootn():
     assert rootn(zero(-1), 4) == mpfr('0.0')
     assert rootn(zero(-1), 5) == mpfr('-0.0')
     assert rootn(zero(-1), 6) == mpfr('0.0')
+
+    ctx = gmpy2.get_context()
+
+    pytest.raises(TypeError, lambda: ctx.rootn(5.5))
+    pytest.raises(TypeError, lambda: ctx.rootn(mpc(4,1), 4))
+
+    assert ctx.rootn(mpfr(25), 4) == mpfr('2.2360679774997898')
+
+    pytest.raises(TypeError, lambda: ctx.rootn(mpfr(25), 4.0))
+
+
+def test_sqrt():
+    ctx = gmpy2.get_context()
+
+    assert gmpy2.sqrt(float(25)) == mpfr('5.0')
+    assert 19.5 ** 2 == 380.25
+    assert ctx.sqrt(mpfr(380.25)) == mpfr('19.5')
+
+    ctx.allow_complex = True
+
+    assert ctx.sqrt(mpfr(-380.25)) == mpc('0.0+19.5j')
+
+    ctx.allow_complex = False
+
+    assert is_nan(ctx.sqrt(mpfr(-380.25)))
+    assert ctx.sqrt(complex(16,4)) == mpc('4.0306589103067649+0.4961967868047123j')
+    assert ctx.sqrt(mpc(16,4)) == mpc('4.0306589103067649+0.4961967868047123j')
+    assert gmpy2.rec_sqrt(mpfr('380.25')) == mpfr('0.05128205128205128')
 
 
 def test_maxnum():
@@ -1546,3 +1614,220 @@ def test_legendre():
     pytest.raises(ValueError, lambda: legendre(10,-3))
     pytest.raises(TypeError, lambda: legendre(3))
     pytest.raises(TypeError, lambda: legendre())
+
+
+def test_fsum():
+    assert gmpy2.fsum([]) == mpfr('0.0')
+    assert gmpy2.fsum([4, 5, 6]) == mpfr('15.0')
+    assert gmpy2.fsum(range(13)) == mpfr('78.0')
+
+    pytest.raises(TypeError, lambda: gmpy2.fsum(1))
+
+
+def test_next_toward():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    pytest.raises(TypeError, lambda: gmpy2.next_toward())
+    pytest.raises(TypeError, lambda: gmpy2.next_toward(r))
+
+    assert gmpy2.next_toward(r, r2) == mpfr('5.5999999999999988')
+    assert gmpy2.next_toward(r, f) == mpfr('5.5999999999999988')
+
+
+def test_next_above():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    pytest.raises(TypeError, lambda: gmpy2.next_above())
+    pytest.raises(TypeError, lambda: gmpy2.next_above(r, r2))
+
+    assert gmpy2.next_above(r) == mpfr('5.6000000000000005')
+    assert gmpy2.next_above(r2) == mpfr('5.4000000000000012')
+    assert gmpy2.next_above(f) == mpfr('0.60000000000000009')
+
+
+def test_factorial():
+    ctx = gmpy2.get_context()
+
+    assert gmpy2.factorial(0) == mpfr('1.0')
+
+    pytest.raises(TypeError, lambda: gmpy2.factorial(-0.0))
+
+    assert gmpy2.factorial(2) == mpfr('2.0')
+
+    pytest.raises(TypeError, lambda: gmpy2.factorial('fred'))
+
+    assert gmpy2.factorial(123) == mpfr('1.2146304367025329e+205')
+    assert gmpy2.factorial(123456) == mpfr('2.6040699049291379e+574964')
+    assert gmpy2.factorial(123456789) == mpfr('inf')
+
+    pytest.raises(OverflowError, lambda: gmpy2.factorial(1234567899999999999999))
+
+    assert gmpy2.factorial(mpz(5)) == mpfr('120.0')
+    assert ctx.factorial(4) == mpfr('24.0')
+
+
+def test_round2():
+    r = mpfr(1.65656565)
+
+    assert gmpy2.round2(r, 2) == mpfr('1.5',2)
+    assert gmpy2.round2(r, 5) == mpfr('1.69',5)
+    assert gmpy2.round2(r) == mpfr('1.6565656499999999')
+    assert gmpy2.round2(mpq('1/3')) == mpfr('0.33333333333333331')
+    assert gmpy2.round2(mpq('1/3'), 30) == mpfr('0.33333333349',30)
+
+    pytest.raises(ValueError, lambda: gmpy2.round2(r, -5))
+    pytest.raises(TypeError, lambda: gmpy2.round2(mpc(4, 4), 5))
+
+    assert gmpy2.round2(mpz(5), 5) == mpfr('5.0',5)
+
+    pytest.raises(TypeError, lambda: gmpy2.round2(5, 6, 5))
+    pytest.raises(TypeError, lambda: gmpy2.round2())
+
+
+def test_reldiff():
+    assert gmpy2.reldiff(mpfr(2.5), mpfr(17.5)) == mpfr('6.0')
+
+
+def test_modf():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    pytest.raises(TypeError, lambda: gmpy2.modf(r, r2))
+
+    assert gmpy2.modf(0.8) == (mpfr('0.0'), mpfr('0.80000000000000004'))
+    assert gmpy2.modf(r) == (mpfr('5.0'), mpfr('0.59999999999999964'))
+    assert gmpy2.modf(-r2) == (mpfr('-5.0'), mpfr('-0.40000000000000036'))
+
+    assert gmpy2.fmod(mpfr(25), mpfr(2.5)) == mpfr('0.0')
+    assert gmpy2.fmod(mpfr(25), 5.0) == mpfr('0.0')
+
+    pytest.raises(TypeError, lambda: gmpy2.fmod(mpfr(25)))
+
+
+def test_remquo():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    pytest.raises(TypeError, lambda: gmpy2.remquo())
+    pytest.raises(TypeError, lambda: gmpy2.remquo(r))
+
+    assert gmpy2.remquo(r, f) == (mpfr('0.19999999999999984'), 9)
+    assert gmpy2.remquo(r, r2) == (mpfr('0.19999999999999929'), 1)
+
+
+def test_frexp():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    pytest.raises(TypeError, lambda: gmpy2.frexp())
+    pytest.raises(TypeError, lambda: gmpy2.frexp(r, r2))
+
+    assert gmpy2.frexp(r) == (3, mpfr('0.69999999999999996'))
+    assert gmpy2.frexp(r2) == (3, mpfr('0.67500000000000004'))
+    assert gmpy2.frexp(f) == (0, mpfr('0.59999999999999998'))
+
+
+def test_rint():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+
+    assert gmpy2.rint(r) == mpfr('6.0')
+    assert gmpy2.rint(r2) == mpfr('5.0')
+
+
+def test_rint_ceil():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    assert gmpy2.rint_ceil(r) == mpfr('6.0') == gmpy2.ceil(r)
+    assert gmpy2.rint_ceil(r2) == mpfr('6.0') == gmpy2.ceil(r2)
+    assert gmpy2.rint_ceil(f) == mpfr('1.0') == gmpy2.ceil(f)
+
+
+def test_rint_floor():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    assert gmpy2.rint_floor(r) == mpfr('5.0') == gmpy2.floor(r)
+    assert gmpy2.rint_floor(r2) == mpfr('5.0') == gmpy2.floor(r2)
+    assert gmpy2.rint_floor(f) == mpfr('0.0') == gmpy2.floor(f)
+
+
+def test_rint_round():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    assert gmpy2.rint_round(r) == mpfr('6.0')
+    assert gmpy2.rint_round(r2) == mpfr('5.0')
+    assert gmpy2.rint_round(f) == mpfr('1.0')
+
+
+def test_rint_trunc():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    assert gmpy2.rint_trunc(r) == mpfr('5.0') == gmpy2.trunc(r)
+    assert gmpy2.rint_trunc(r2) == mpfr('5.0') == gmpy2.trunc(r2)
+    assert gmpy2.rint_trunc(f) == mpfr('0.0') == gmpy2.trunc(f)
+
+
+def test_round_away():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    assert gmpy2.round_away(r) == mpfr('6.0')
+    assert gmpy2.round_away(r2) == mpfr('5.0')
+    assert gmpy2.round_away(f) == mpfr('1.0')
+
+
+def test_gamma_funcs():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+
+    assert gmpy2.gamma(r) == mpfr('61.55391500628923')
+    assert gmpy2.lngamma(r) == mpfr('4.1199134575335288')
+    assert gmpy2.digamma(r) == mpfr('1.6308319195144647')
+
+    pytest.raises(TypeError, lambda: gmpy2.lgamma())
+    pytest.raises(TypeError, lambda: gmpy2.lgamma(r, r2))
+
+    assert gmpy2.lgamma(r) == (mpfr('4.1199134575335288'), 1)
+    assert is_nan(gmpy2.lgamma(mpfr('nan'))[0])
+    assert gmpy2.lgamma(mpfr('inf')) == (mpfr('inf'), 1)
+
+
+def test_bessel_funcs():
+    r = mpfr('5.6')
+
+    assert gmpy2.j0(r) == mpfr('0.026970884685114358')
+    assert gmpy2.j1(r) == mpfr('-0.33433283629100752')
+    assert gmpy2.y0(r) == mpfr('-0.33544418124531583')
+    assert gmpy2.y1(r) == mpfr('-0.056805614399479849')
+
+    assert gmpy2.jn(5, 43.2) == mpfr('-0.11672089168206982')
+
+    pytest.raises(TypeError, lambda: gmpy2.jn(1.2,43.2))
+
+    assert gmpy2.yn(5,43.2) == mpfr('-0.034805474763124698')
+
+    pytest.raises(TypeError, lambda: gmpy2.yn(43.2, 5.5))
+
+
+def test_other_funcs():
+    r, r2 = mpfr('5.6'), mpfr(5.4)
+    f = 0.6
+
+    pytest.raises(TypeError, lambda: gmpy2.agm(mpc(4,4), 5))
+
+    assert gmpy2.frac(r) == mpfr('0.59999999999999964')
+    assert gmpy2.frac(r2) == mpfr('0.40000000000000036')
+    assert gmpy2.frac(f) == mpfr('0.59999999999999998')
+    assert gmpy2.cbrt(r) == mpfr('1.7758080034852013')
+    assert gmpy2.cbrt(r2) == mpfr('1.7544106429277198')
+    assert gmpy2.cbrt(f) == mpfr('0.84343266530174921')
+    assert gmpy2.li2(r) == mpfr('1.6186578451141254')
+    assert gmpy2.zeta(r) == mpfr('1.02337547922703')
+    assert gmpy2.erf(r) == mpfr('0.99999999999999767')
+    assert gmpy2.erfc(r) == mpfr('2.382836284583028e-15')
+    assert gmpy2.ai(r) == mpfr('2.6500613296849995e-05')
+    assert gmpy2.remainder(mpfr(5), mpfr(3.2)) == mpfr('-1.4000000000000004')
