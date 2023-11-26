@@ -205,6 +205,7 @@ def test_mpfr_create():
     assert mpfr(1.0/7).digits(2) == ('100100100100100100100101', -2, 24)
     assert mpfr(1.0/7, precision=0) == mpfr('0.142857149',24)
     assert repr(mpfr(1.0/7, precision=1)) == "mpfr('0.14285714285714285')"
+    assert repr(mpfr(1.0/7, precision=5)) == "mpfr('0.141',5)"
 
 
 @settings(max_examples=1000)
@@ -323,6 +324,8 @@ def test_mpfr_format():
 
     assert '{:.10f}'.format(r) == '5.6000000000'
     assert '{:.10f.}'.format(r) == '5.6000000000'
+
+    assert "{:.0f}".format(mpfr('123')) == '123.0'
 
     pytest.raises(ValueError, lambda: '{:Z.}'.format(r))
     pytest.raises(ValueError, lambda: '{:->}'.format(r))
