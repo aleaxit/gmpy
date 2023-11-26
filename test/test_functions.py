@@ -4,24 +4,26 @@ import pytest
 
 import gmpy2
 from gmpy2 import (acos, acosh, asin, asinh, atan, atan2, atanh, bincoef,
-                   c_div, c_divmod, c_mod, can_round, check_range, comb,
-                   context, copy_sign, cos, cosh, cot, coth, csc, csch,
-                   degrees, divexact, divm, double_fac, f2q, f_div, f_divmod,
-                   f_mod, fac, fib, fib2, fma, fmma, fmms, fms, free_cache,
-                   from_binary, gcd, gcdext, get_context, get_emax_max,
-                   get_emin_min, get_exp, ieee, inf, invert, iroot, iroot_rem,
-                   is_bpsw_prp, is_euler_prp, is_extra_strong_lucas_prp,
-                   is_fermat_prp, is_fibonacci_prp, is_finite, is_infinite,
-                   is_lucas_prp, is_nan, is_selfridge_prp, is_strong_bpsw_prp,
-                   is_strong_lucas_prp, is_strong_prp, is_strong_selfridge_prp,
-                   is_zero, isqrt, isqrt_rem, jacobi, kronecker, lcm, legendre,
-                   lucas, lucas2, maxnum, minnum, mpc, mpfr,
-                   mpfr_from_old_binary, mpq, mpq_from_old_binary, mpz,
-                   mpz_from_old_binary, multi_fac, nan, next_prime, norm,
-                   phase, polar, powmod, powmod_sec, primorial, proj, radians,
-                   rect, remove, root, root_of_unity, rootn, sec, sech,
-                   set_context, set_exp, set_sign, sign, sin, sin_cos, sinh,
-                   sinh_cosh, t_div, t_divmod, t_mod, tan, tanh, zero)
+                   c_div, c_div_2exp, c_divmod, c_divmod_2exp, c_mod,
+                   c_mod_2exp, can_round, check_range, comb, context,
+                   copy_sign, cos, cosh, cot, coth, csc, csch, degrees,
+                   divexact, divm, double_fac, f2q, f_div, f_div_2exp,
+                   f_divmod, f_divmod_2exp, f_mod, f_mod_2exp, fac, fib, fib2,
+                   fma, fmma, fmms, fms, free_cache, from_binary, gcd, gcdext,
+                   get_context, get_emax_max, get_emin_min, get_exp, ieee, inf,
+                   invert, iroot, iroot_rem, is_bpsw_prp, is_euler_prp,
+                   is_extra_strong_lucas_prp, is_fermat_prp, is_fibonacci_prp,
+                   is_finite, is_infinite, is_lucas_prp, is_nan,
+                   is_selfridge_prp, is_strong_bpsw_prp, is_strong_lucas_prp,
+                   is_strong_prp, is_strong_selfridge_prp, is_zero, isqrt,
+                   isqrt_rem, jacobi, kronecker, lcm, legendre, lucas, lucas2,
+                   maxnum, minnum, mpc, mpfr, mpfr_from_old_binary, mpq,
+                   mpq_from_old_binary, mpz, mpz_from_old_binary, multi_fac,
+                   nan, next_prime, norm, phase, polar, powmod, powmod_sec,
+                   primorial, proj, radians, rect, remove, root, root_of_unity,
+                   rootn, sec, sech, set_context, set_exp, set_sign, sign, sin,
+                   sin_cos, sinh, sinh_cosh, t_div, t_div_2exp, t_divmod,
+                   t_divmod_2exp, t_mod, t_mod_2exp, tan, tanh, zero)
 
 
 def test_root():
@@ -811,6 +813,19 @@ def test_c_divmod():
     assert c_divmod(-b,-a) == (mpz(4), mpz(36))
 
 
+def test_c_divmod_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: c_divmod_2exp(1))
+    pytest.raises(TypeError, lambda: c_divmod_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: c_divmod_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: c_divmod_2exp(a,-16))
+
+    assert c_divmod_2exp(a,0) == (mpz(123456), mpz(0))
+    assert c_divmod_2exp(a,16) == (mpz(2), mpz(-7616))
+    assert c_divmod_2exp(-a,16) == (mpz(-1), mpz(-57920))
+
+
 def test_c_div():
     a = mpz(123)
     b = mpz(456)
@@ -823,6 +838,19 @@ def test_c_div():
     assert c_div(b,-a) == mpz(-3)
     assert c_div(-b,a) == mpz(-3)
     assert c_div(-b,-a) == mpz(4)
+
+
+def test_c_div_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: c_div_2exp(1))
+    pytest.raises(TypeError, lambda: c_div_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: c_div_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: c_div_2exp(a, -16))
+
+    assert c_div_2exp(a,0) == mpz(123456)
+    assert c_div_2exp(a,16) == mpz(2)
+    assert c_div_2exp(-a,16) == mpz(-1)
 
 
 def test_c_mod():
@@ -839,6 +867,19 @@ def test_c_mod():
     assert c_mod(-b,-a) == mpz(36)
 
 
+def test_c_mod_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: c_mod_2exp(1))
+    pytest.raises(TypeError, lambda: c_mod_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: c_mod_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: c_mod_2exp(a, -16))
+
+    assert c_mod_2exp(a,0) == mpz(0)
+    assert c_mod_2exp(a,16) == mpz(-7616)
+    assert c_mod_2exp(-a,16) == mpz(-57920)
+
+
 def test_f_divmod():
     a = mpz(123)
     b = mpz(456)
@@ -851,6 +892,19 @@ def test_f_divmod():
     assert f_divmod(b,-a) == (mpz(-4), mpz(-36))
     assert f_divmod(-b,a) == (mpz(-4), mpz(36))
     assert f_divmod(-b,-a) == (mpz(3), mpz(-87))
+
+
+def test_f_divmod_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: f_divmod_2exp(1))
+    pytest.raises(TypeError, lambda: f_divmod_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: f_divmod_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: f_divmod_2exp(a,-16))
+
+    assert f_divmod_2exp(a,0) == (mpz(123456), mpz(0))
+    assert f_divmod_2exp(a,16) == (mpz(1), mpz(57920))
+    assert f_divmod_2exp(-a,16) == (mpz(-2), mpz(7616))
 
 
 def test_f_div():
@@ -867,6 +921,19 @@ def test_f_div():
     assert f_div(-b,-a) == mpz(3)
 
 
+def test_f_div_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: f_div_2exp(1))
+    pytest.raises(TypeError, lambda: f_div_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: f_div_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: f_div_2exp(a, -16))
+
+    assert f_div_2exp(a,0) == mpz(123456)
+    assert f_div_2exp(a,16) == mpz(1)
+    assert f_div_2exp(-a,16) == mpz(-2)
+
+
 def test_f_mod():
     a = mpz(123)
     b = mpz(456)
@@ -879,6 +946,19 @@ def test_f_mod():
     assert f_mod(b,-a) == mpz(-36)
     assert f_mod(-b,a) == mpz(36)
     assert f_mod(-b,-a) == mpz(-87)
+
+
+def test_f_mod_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: f_mod_2exp(1))
+    pytest.raises(TypeError, lambda: f_mod_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: f_mod_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: f_mod_2exp(a, -16))
+
+    assert f_mod_2exp(a,0) == mpz(0)
+    assert f_mod_2exp(a,16) == mpz(57920)
+    assert f_mod_2exp(-a,16) == mpz(7616)
 
 
 def test_t_divmod():
@@ -895,6 +975,19 @@ def test_t_divmod():
     assert t_divmod(-b,-a) == (mpz(3), mpz(-87))
 
 
+def test_t_divmod_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: t_divmod_2exp(1))
+    pytest.raises(TypeError, lambda: t_divmod_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: t_divmod_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: t_divmod_2exp(a,-16))
+
+    assert t_divmod_2exp(a,0) == (mpz(123456), mpz(0))
+    assert t_divmod_2exp(a,16) == (mpz(1), mpz(57920))
+    assert t_divmod_2exp(-a,16) == (mpz(-1), mpz(-57920))
+
+
 def test_t_div():
     a = mpz(123)
     b = mpz(456)
@@ -909,6 +1002,19 @@ def test_t_div():
     assert t_div(-b,-a) == mpz(3)
 
 
+def test_t_div_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: t_div_2exp(1))
+    pytest.raises(TypeError, lambda: t_div_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: t_div_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: t_div_2exp(a, -16))
+
+    assert t_div_2exp(a,0) == mpz(123456)
+    assert t_div_2exp(a,16) == mpz(1)
+    assert t_div_2exp(-a,16) == mpz(-1)
+
+
 def test_t_mod():
     a = mpz(123)
     b = mpz(456)
@@ -921,6 +1027,19 @@ def test_t_mod():
     assert t_mod(b,-a) == mpz(87)
     assert t_mod(-b,a) == mpz(-87)
     assert t_mod(-b,-a) == mpz(-87)
+
+
+def test_t_mod_2exp():
+    a = mpz(123456)
+
+    pytest.raises(TypeError, lambda: t_mod_2exp(1))
+    pytest.raises(TypeError, lambda: t_mod_2exp(1, 'a'))
+    pytest.raises(TypeError, lambda: t_mod_2exp('a', 16))
+    pytest.raises(OverflowError, lambda: t_mod_2exp(a, -16))
+
+    assert t_mod_2exp(a,0) == mpz(0)
+    assert t_mod_2exp(a,16) == mpz(57920)
+    assert t_mod_2exp(-a,16) == mpz(-57920)
 
 
 def test_get_max_precision():
