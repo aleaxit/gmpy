@@ -18,7 +18,7 @@ jobs:
           allow-prereleases: true
       - run: pip install --upgrade pip
       - run: pip --verbose install --editable .[tests]
-      - run: python test/runtests.py
+      - run: pytest test/
       - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
         if: ${{ matrix.python-version != '3.13' }}
 
@@ -44,7 +44,7 @@ jobs:
           pip --verbose install --editable .[docs,tests]
       - name: Tests
         run: |
-          python test/runtests.py
+          pytest test/
           PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
       - name: Building docs
         if: matrix.python-version == 3.11
@@ -59,7 +59,7 @@ jobs:
           pip uninstall -y gmpy2
           python setup.py clean
           CFLAGS="-coverage" python setup.py develop
-          python test/runtests.py
+          pytest test/
           PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
           lcov --capture --directory . --no-external --output-file build/coverage.info
           genhtml build/coverage.info --output-directory build/coverage
@@ -103,5 +103,5 @@ jobs:
             python-pip
       - run: pip install --upgrade pip
       - run: pip --verbose install -e .[tests]
-      - run: python test/runtests.py
+      - run: pytest test/
       - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py

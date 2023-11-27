@@ -20,7 +20,7 @@ jobs:
           CIBW_SKIP: pp*
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build.sh
           CIBW_TEST_EXTRAS: tests
-          CIBW_TEST_COMMAND: python {package}/test/runtests.py
+          CIBW_TEST_COMMAND: pytest {package}/test/
 
       - uses: actions/upload-artifact@v3
         with:
@@ -45,7 +45,7 @@ jobs:
           CIBW_SKIP: pp*
           CIBW_ARCHS_MACOS: arm64
           CIBW_TEST_EXTRAS: tests
-          CIBW_TEST_COMMAND: python {package}/test/runtests.py
+          CIBW_TEST_COMMAND: pytest {package}/test/
 
       - uses: actions/upload-artifact@v3
         with:
