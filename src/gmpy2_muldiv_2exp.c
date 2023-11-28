@@ -46,9 +46,11 @@ GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     mpfr_clear_flags();
@@ -88,9 +90,11 @@ GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     if (is_negative) {
@@ -167,9 +171,11 @@ GMPy_Real_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     mpfr_clear_flags();
@@ -196,9 +202,11 @@ GMPy_Complex_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     result->rc = mpc_div_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
@@ -249,4 +257,3 @@ GMPy_Context_Div_2exp(PyObject *self, PyObject *args)
                                 PyTuple_GET_ITEM(args, 1),
                                 context);
 }
-
