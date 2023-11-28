@@ -28,13 +28,19 @@ static PyObject *
 GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result, *tempx;
-    unsigned long exp = 0;
+    long exp = 0;
+    int is_negative = 0;
 
     CHECK_CONTEXT(context);
 
-    exp = GMPy_Integer_AsUnsignedLong(y);
-    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
-        return NULL;
+    exp = (long)GMPy_Integer_AsUnsignedLong(y);
+    if (exp == -1 && PyErr_Occurred()) {
+        is_negative = 1;
+        PyErr_Clear();
+        exp = GMPy_Integer_AsLong(y);
+        if (exp == -1 && PyErr_Occurred()) {
+            return NULL;
+        }
     }
 
     result = GMPy_MPFR_New(0, context);
@@ -47,7 +53,14 @@ GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 
     mpfr_clear_flags();
 
-    result->rc = mpfr_mul_2ui(result->f, tempx->f, exp, GET_MPFR_ROUND(context));
+    if (is_negative) {
+        result->rc = mpfr_mul_2si(result->f, tempx->f, exp,
+                                  GET_MPFR_ROUND(context));
+    }
+    else {
+        result->rc = mpfr_mul_2ui(result->f, tempx->f, (unsigned long)exp,
+                                  GET_MPFR_ROUND(context));
+    }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
@@ -57,13 +70,19 @@ static PyObject *
 GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result, *tempx;
-    unsigned long exp = 0;
+    long exp = 0;
+    int is_negative = 0;
 
     CHECK_CONTEXT(context);
 
-    exp = GMPy_Integer_AsUnsignedLong(y);
-    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
-        return NULL;
+    exp = (long)GMPy_Integer_AsUnsignedLong(y);
+    if (exp == -1 && PyErr_Occurred()) {
+        is_negative = 1;
+        PyErr_Clear();
+        exp = GMPy_Integer_AsLong(y);
+        if (exp == -1 && PyErr_Occurred()) {
+            return NULL;
+        }
     }
 
     result = GMPy_MPC_New(0, 0, context);
@@ -74,7 +93,14 @@ GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
     }
 
-    result->rc = mpc_mul_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
+    if (is_negative) {
+        result->rc = mpc_mul_2si(result->c, tempx->c, exp,
+                                 GET_MPC_ROUND(context));
+    }
+    else {
+        result->rc = mpc_mul_2ui(result->c, tempx->c, exp,
+                                 GET_MPC_ROUND(context));
+    }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
