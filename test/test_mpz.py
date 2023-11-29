@@ -1736,3 +1736,10 @@ def test_mpz_hamdist():
 
     raises(TypeError, lambda: gmpy2.hamdist(mpq(14,2), 5))
     raises(TypeError, lambda: gmpy2.hamdist(5,6,5))
+
+
+def test_issue_339():
+    samples = map(mpz, [13157547707030902665, 1070317427780135395,
+                        18019609787501108695, 3978762157568107671,
+                        14444587867185512177])
+    assert all((2*q).is_divisible(q) for q in samples)
