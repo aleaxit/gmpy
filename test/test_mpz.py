@@ -9,9 +9,9 @@ from pytest import mark, raises
 from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import (cmp, cmp_abs, from_binary, is_nan, mp_version, mpc, mpfr,
-                   mpq, mpz, mpz_random, mpz_rrandomb, mpz_urandomb, pack,
-                   random_state, to_binary, unpack, xmpz)
+from gmpy2 import (cmp, cmp_abs, from_binary, is_nan, is_prime, mp_version,
+                   mpc, mpfr, mpq, mpz, mpz_random, mpz_rrandomb, mpz_urandomb,
+                   next_prime, pack, random_state, to_binary, unpack, xmpz)
 
 
 def test_mpz_to_bytes_interface():
@@ -1743,3 +1743,11 @@ def test_issue_339():
                         18019609787501108695, 3978762157568107671,
                         14444587867185512177])
     assert all((2*q).is_divisible(q) for q in samples)
+
+
+def test_issue_312():
+    assert not is_prime(-7)
+    assert not is_prime(mpz(-7))
+    assert not is_prime(1 - 2**4423)
+    assert all(not is_prime(-a) for a in range(8))
+    assert next_prime(-8) == 2
