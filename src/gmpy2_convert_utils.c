@@ -119,6 +119,21 @@ GMPy_Integer_AsUnsignedLong(PyObject *x)
     return GMPy_Integer_AsUnsignedLongWithType(x, GMPy_ObjectType(x));
 }
 
+static long
+GMPy_Integer_AsUnsignedLongOrLong(PyObject *x, int *is_signed)
+{
+    long result = (long)GMPy_Integer_AsUnsignedLong(x);
+    if (result == -1 && PyErr_Occurred()) {
+        *is_signed = 1;
+        PyErr_Clear();
+        result = GMPy_Integer_AsLong(x);
+        if (result == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+    }
+    return result;
+}
+
 static unsigned long
 GMPy_Integer_AsUnsignedLongWithType_v2(PyObject *x, int xtype)
 {

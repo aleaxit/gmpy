@@ -326,12 +326,16 @@ def test_muldiv_2exp():
 
     assert gmpy2.div_2exp(r, z) == mpfr('0.94999999999999996')
     assert gmpy2.div_2exp(r, 3) == mpfr('0.94999999999999996')
+    assert gmpy2.div_2exp(r, -5) == mpfr('243.19999999999999')
 
-    pytest.raises(OverflowError, lambda: gmpy2.div_2exp(r, -5))
+    pytest.raises(OverflowError, lambda: gmpy2.div_2exp(r, 10**100))
+    pytest.raises(OverflowError, lambda: gmpy2.div_2exp(r, -10**100))
     pytest.raises(TypeError, lambda: gmpy2.div_2exp(z, r))
     pytest.raises(TypeError, lambda: gmpy2.div_2exp('not', 5))
     pytest.raises(TypeError, lambda: ctx.div_2exp(r, z, 45))
 
     assert ctx.div_2exp(c, z) == mpc('0.5+0.5j')
+    assert ctx.div_2exp(c, -5) == mpc('128.0+128.0j')
 
-    pytest.raises(OverflowError, lambda: ctx.div_2exp(c, -5))
+    pytest.raises(OverflowError, lambda: ctx.div_2exp(c, 10**100))
+    pytest.raises(OverflowError, lambda: ctx.div_2exp(c, -10**100))
