@@ -40,8 +40,6 @@ static long            GMPy_Integer_AsLong(PyObject *x);
 static unsigned long   GMPy_Integer_AsUnsignedLongWithType(PyObject *x, int xtype);
 static unsigned long   GMPy_Integer_AsUnsignedLong(PyObject *x);
 static long            GMPy_Integer_AsUnsignedLongOrLong(PyObject *x, int *is_signed);
-static unsigned long   GMPy_Integer_AsUnsignedLongWithType_v2(PyObject *x, int xtype);
-static unsigned long   GMPy_Integer_AsUnsignedLong_v2(PyObject *x);
 
 static PY_LONG_LONG    GMPy_Integer_AsLongLongWithType(PyObject *x, int xtype);
 static PY_LONG_LONG    GMPy_Integer_AsLongLong(PyObject *x);
