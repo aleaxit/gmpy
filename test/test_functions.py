@@ -289,6 +289,10 @@ def test_powmod_sec():
     assert powmod(-3,3,7) == mpz(1)
     assert powmod(3,-3,7) == mpz(6)
 
+    pytest.raises(TypeError, lambda: powmod_sec(1,2))
+    pytest.raises(TypeError, lambda: powmod_sec(1.2,3,4))
+    pytest.raises(TypeError, lambda: powmod_sec(1,2.3,4))
+    pytest.raises(TypeError, lambda: powmod_sec(1,2,3.4))
     pytest.raises(ValueError, lambda: powmod_sec(3,-3,7))
     pytest.raises(ValueError, lambda: powmod_sec(3,4,8))
 

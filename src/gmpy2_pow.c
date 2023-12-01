@@ -695,7 +695,9 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
     }
 
     if (!(result = GMPy_MPZ_New(NULL))) {
+        /* LCOV_EXCL_START */
         goto err;
+        /* LCOV_EXCL_STOP */
     }
 
     x = PyTuple_GET_ITEM(args, 0);
@@ -714,7 +716,9 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
     }
 
     if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, NULL))) {
+        /* LCOV_EXCL_START */
         goto err;
+        /* LCOV_EXCL_STOP */
     }
 
     /* Validate exponent. It must be > 0. */
@@ -725,7 +729,9 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
     }
 
     if (!(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, NULL))) {
+        /* LCOV_EXCL_START */
         goto err;
+        /* LCOV_EXCL_STOP */
     }
 
     if (!(mpz_sgn(tempy->z) == 1)) {
@@ -740,7 +746,9 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
     }
 
     if (!(tempm = GMPy_MPZ_From_IntegerWithType(m, mtype, NULL))) {
+        /* LCOV_EXCL_START */
         goto err;
+        /* LCOV_EXCL_STOP */
     }
 
     if (mpz_even_p(tempm->z)) {
