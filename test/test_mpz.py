@@ -9,9 +9,9 @@ from pytest import mark, raises
 from supportclasses import a, b, c, d, q, z
 
 import gmpy2
-from gmpy2 import (cmp, cmp_abs, from_binary, is_nan, mp_version, mpc, mpfr,
-                   mpq, mpz, mpz_random, mpz_rrandomb, mpz_urandomb, pack,
-                   random_state, to_binary, unpack, xmpz)
+from gmpy2 import (cmp, cmp_abs, from_binary, is_nan, is_prime, mp_version,
+                   mpc, mpfr, mpq, mpz, mpz_random, mpz_rrandomb, mpz_urandomb,
+                   next_prime, pack, random_state, to_binary, unpack, xmpz)
 
 
 def test_mpz_to_bytes_interface():
@@ -1178,6 +1178,7 @@ def test_mpz_ipow():
 
 
 def test_lucasu():
+    assert gmpy2.lucasu(2,4,0) == mpz(0)
     assert gmpy2.lucasu(2,4,1) == mpz(1)
 
     raises(ValueError, lambda: gmpy2.lucasu(2,1,1))
@@ -1189,6 +1190,7 @@ def test_lucasu():
     raises(TypeError, lambda: gmpy2.lucasu(2,4,None))
     raises(ValueError, lambda: gmpy2.lucasu(mpz(2), mpz(1), mpz(7)))
 
+    assert gmpy2.lucasu_mod(3,2,0,7) == mpz(0)
     assert gmpy2.lucasu_mod(3,2,5,7) == mpz(3)
     assert gmpy2.lucasu_mod(3,2,555,777777777) == mpz(387104641)
 
@@ -1199,9 +1201,12 @@ def test_lucasu():
     raises(TypeError, lambda: gmpy2.lucasv(4,'b',2))
     raises(TypeError, lambda: gmpy2.lucasv(4,3,'c'))
 
+    assert gmpy2.lucasv(4,3,0) == mpz(2)
     assert gmpy2.lucasv(4,3,7) == mpz(2188)
     assert gmpy2.lucasv(4,3,8) == mpz(6562)
 
+    assert gmpy2.lucasv_mod(4,3,0,2) == mpz(0)
+    assert gmpy2.lucasv_mod(4,3,0,3) == mpz(2)
     assert gmpy2.lucasv_mod(4,3,55,123456) == mpz(35788)
     assert gmpy2.lucasv_mod(4,3,56,123456) == mpz(107362)
     assert gmpy2.lucasv_mod(4,3,57,123456) == mpz(75172)
@@ -1736,3 +1741,18 @@ def test_mpz_hamdist():
 
     raises(TypeError, lambda: gmpy2.hamdist(mpq(14,2), 5))
     raises(TypeError, lambda: gmpy2.hamdist(5,6,5))
+
+
+def test_issue_339():
+    samples = map(mpz, [13157547707030902665, 1070317427780135395,
+                        18019609787501108695, 3978762157568107671,
+                        14444587867185512177])
+    assert all((2*q).is_divisible(q) for q in samples)
+
+
+def test_issue_312():
+    assert not is_prime(-7)
+    assert not is_prime(mpz(-7))
+    assert not is_prime(1 - 2**4423)
+    assert all(not is_prime(-a) for a in range(8))
+    assert next_prime(-8) == 2

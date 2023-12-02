@@ -90,6 +90,11 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
     mpz_set_si(qh, 1);
     mpz_set_si(tmp, 0);
 
+    if (mpz_sgn(k->z) == 0) {
+        mpz_set_si(uh, 0);
+        goto end;
+    }
+
     s = mpz_scan1(k->z, 0);
     for (j = mpz_sizeinbase(k->z,2)-1; j >= s+1; j--) {
         /* ql = ql*qh */
@@ -161,6 +166,7 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
+  end:
     if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
@@ -252,6 +258,11 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
     mpz_set_si(qh, 1);
     mpz_set_si(tmp, 0);
 
+    if (mpz_sgn(k->z) == 0) {
+        mpz_set_si(uh, 0);
+        goto end;
+    }
+
     s = mpz_scan1(k->z, 0);
     for (j = mpz_sizeinbase(k->z,2)-1; j >= s+1; j--) {
         /* ql = ql*qh (mod n) */
@@ -333,6 +344,7 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
+  end:
     if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
@@ -413,6 +425,10 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
     mpz_set_si(qh, 1);
     mpz_set_si(tmp,0);
 
+    if (mpz_sgn(k->z) == 0) {
+        goto end;
+    }
+
     s = mpz_scan1(k->z, 0);
     for (j = mpz_sizeinbase(k->z,2)-1; j >= s+1; j--) {
         /* ql = ql*qh */
@@ -470,6 +486,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
+  end:
     if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
@@ -558,6 +575,10 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
     mpz_set_si(qh, 1);
     mpz_set_si(tmp,0);
 
+    if (mpz_sgn(k->z) == 0) {
+        goto end;
+    }
+
     s = mpz_scan1(k->z, 0);
     for (j = mpz_sizeinbase(k->z,2)-1; j >= s+1; j--) {
         /* ql = ql*qh (mod n) */
@@ -622,6 +643,7 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
+  end:
     if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
