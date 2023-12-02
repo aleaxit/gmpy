@@ -1,3 +1,4 @@
+import ctypes
 from fractions import Fraction
 
 import pytest
@@ -1566,6 +1567,12 @@ def test_iroot():
                                    ((mpz(3), False), (mpz(4), False)),
                                    ((mpz(2), False), (mpz(3), False))]
     assert iroot(9,2) == (mpz(3), True)
+
+    ULONG_MAX = ctypes.c_ulong(-1).value
+
+    assert iroot(4,ULONG_MAX) == (mpz(1), False)
+
+    pytest.raises(OverflowError, lambda: iroot(4,ULONG_MAX+1))
 
 
 def test_iroot_rem():

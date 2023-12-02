@@ -103,7 +103,7 @@ static PyObject *
 GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
 {
     unsigned long n;
-    int exact;
+    int exact, is_signed = 0;
     MPZ_Object *root = NULL, *tempx = NULL;
     PyObject *result = NULL;
 
@@ -115,8 +115,11 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_Integer_AsUnsignedLong_v2(PyTuple_GET_ITEM(args, 1));
-    if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
+    n = (unsigned long)GMPy_Integer_AsUnsignedLongOrLong(PyTuple_GET_ITEM(args, 1), &is_signed);
+    if ((n == (unsigned long)(-1)) && PyErr_Occurred()) {
+        return NULL;
+    }
+    if (is_signed || !n) {
         VALUE_ERROR("n must be > 0");
         return NULL;
     }

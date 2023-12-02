@@ -28,26 +28,36 @@ static PyObject *
 GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result, *tempx;
-    unsigned long exp = 0;
+    long exp;
+    int is_signed = 0;
 
     CHECK_CONTEXT(context);
 
-    exp = GMPy_Integer_AsUnsignedLong(y);
-    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
+    exp = GMPy_Integer_AsUnsignedLongOrLong(y, &is_signed);
+    if (exp == -1 && PyErr_Occurred()) {
         return NULL;
     }
 
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     mpfr_clear_flags();
 
-    result->rc = mpfr_mul_2ui(result->f, tempx->f, exp, GET_MPFR_ROUND(context));
+    if (is_signed) {
+        result->rc = mpfr_mul_2si(result->f, tempx->f, exp,
+                                  GET_MPFR_ROUND(context));
+    }
+    else {
+        result->rc = mpfr_mul_2ui(result->f, tempx->f, (unsigned long)exp,
+                                  GET_MPFR_ROUND(context));
+    }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
@@ -57,24 +67,34 @@ static PyObject *
 GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result, *tempx;
-    unsigned long exp = 0;
+    long exp;
+    int is_signed = 0;
 
     CHECK_CONTEXT(context);
 
-    exp = GMPy_Integer_AsUnsignedLong(y);
-    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
+    exp = GMPy_Integer_AsUnsignedLongOrLong(y, &is_signed);
+    if (exp == -1 && PyErr_Occurred()) {
         return NULL;
     }
 
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
-    result->rc = mpc_mul_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
+    if (is_signed) {
+        result->rc = mpc_mul_2si(result->c, tempx->c, exp,
+                                 GET_MPC_ROUND(context));
+    }
+    else {
+        result->rc = mpc_mul_2ui(result->c, tempx->c, exp,
+                                 GET_MPC_ROUND(context));
+    }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
@@ -129,26 +149,36 @@ static PyObject *
 GMPy_Real_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result, *tempx;
-    unsigned long exp = 0;
+    long exp;
+    int is_signed = 0;
 
     CHECK_CONTEXT(context);
 
-    exp = GMPy_Integer_AsUnsignedLong(y);
-    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
+    exp = GMPy_Integer_AsUnsignedLongOrLong(y, &is_signed);
+    if (exp == -1 && PyErr_Occurred()) {
         return NULL;
     }
 
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     mpfr_clear_flags();
 
-    result->rc = mpfr_div_2ui(result->f, tempx->f, exp, GET_MPFR_ROUND(context));
+    if (is_signed) {
+        result->rc = mpfr_div_2si(result->f, tempx->f, exp,
+                                  GET_MPFR_ROUND(context));
+    }
+    else  {
+        result->rc = mpfr_div_2ui(result->f, tempx->f, exp,
+                                  GET_MPFR_ROUND(context));
+    }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
@@ -158,24 +188,34 @@ static PyObject *
 GMPy_Complex_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result, *tempx;
-    unsigned long exp = 0;
+    long exp;
+    int is_signed = 0;
 
     CHECK_CONTEXT(context);
 
-    exp = GMPy_Integer_AsUnsignedLong(y);
-    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
+    exp = GMPy_Integer_AsUnsignedLongOrLong(y, &is_signed);
+    if (exp == -1 && PyErr_Occurred()) {
         return NULL;
     }
 
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
-    result->rc = mpc_div_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
+    if (is_signed) {
+        result->rc = mpc_div_2si(result->c, tempx->c, exp,
+                                 GET_MPC_ROUND(context));
+    }
+    else {
+        result->rc = mpc_div_2ui(result->c, tempx->c, exp,
+                                 GET_MPC_ROUND(context));
+    }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
@@ -223,4 +263,3 @@ GMPy_Context_Div_2exp(PyObject *self, PyObject *args)
                                 PyTuple_GET_ITEM(args, 1),
                                 context);
 }
-

@@ -119,62 +119,19 @@ GMPy_Integer_AsUnsignedLong(PyObject *x)
     return GMPy_Integer_AsUnsignedLongWithType(x, GMPy_ObjectType(x));
 }
 
-static unsigned long
-GMPy_Integer_AsUnsignedLongWithType_v2(PyObject *x, int xtype)
+static long
+GMPy_Integer_AsUnsignedLongOrLong(PyObject *x, int *is_signed)
 {
-    if IS_TYPE_PyInteger(xtype) {
-        if (_PyLong_IsNegative(((PyLongObject*)x))) {
-            VALUE_ERROR("n must be > 0");
-            return (unsigned long)-1;
-        }
-
-        return PyLong_AsUnsignedLong(x);
-    }
-
-    if (IS_TYPE_MPZANY(xtype)) {
-        if (mpz_sgn(MPZ(x)) < 0) {
-            VALUE_ERROR("n must be > 0");
-            return (unsigned long)-1;
-        }
-
-        if (mpz_fits_ulong_p(MPZ(x))) {
-            return mpz_get_ui(MPZ(x));
-        }
-        else {
-            OVERFLOW_ERROR("value could not be converted to C long");
-            return (unsigned long)-1;
+    long result = (long)GMPy_Integer_AsUnsignedLong(x);
+    if (result == -1 && PyErr_Occurred()) {
+        *is_signed = 1;
+        PyErr_Clear();
+        result = GMPy_Integer_AsLong(x);
+        if (result == -1 && PyErr_Occurred()) {
+            return -1;
         }
     }
-
-    if (IS_TYPE_HAS_MPZ(xtype)) {
-        unsigned long result = 0;
-        PyObject *temp_mpz = PyObject_CallMethod(x, "__mpz__", NULL);
-
-        if ((temp_mpz != NULL) && MPZ_Check(temp_mpz)) {
-            if (mpz_sgn(MPZ(temp_mpz)) < 0) {
-                VALUE_ERROR("n must be > 0");
-                return (unsigned long)-1;
-            }
-
-            if (mpz_fits_ulong_p(MPZ(temp_mpz))) {
-                result = mpz_get_ui(MPZ(temp_mpz));
-            }
-            else {
-                OVERFLOW_ERROR("value could not be converted to C long");
-                result = (unsigned long)-1;
-            }
-        }
-        Py_XDECREF(temp_mpz);
-        return result;
-    }
-    TYPE_ERROR("could not convert object to integer");
-    return (unsigned long)-1;
-}
-
-static unsigned long
-GMPy_Integer_AsUnsignedLong_v2(PyObject *x)
-{
-    return GMPy_Integer_AsUnsignedLongWithType_v2(x, GMPy_ObjectType(x));
+    return result;
 }
 
 #define PY_ABS_LLONG_MIN (0-(unsigned PY_LONG_LONG)PY_LLONG_MIN)
