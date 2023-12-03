@@ -68,13 +68,13 @@ def run_test(function, big_list, e, m, threads, release_gil = True):
     return time.time() - walltime_start, total_thread_time
 
 if __name__ == "__main__":
-    big_list, e, m = create_tests(10000, 1024)
+    big_list, e, m = create_tests(1000000, 1024)
 
     # Run a baseline test with releasing the GIL.
     # print("Baseline test without releasing the GIL. ", powmod_list_gil(big_list, e, m)[0])
 
     # Specify the number of threads to use.
-    test_threads = [1,2,4,8,12,16]
+    test_threads = list(range(8,57))
     # The following demo code is disabled by default. It high-lights the inefficiency of 
     # releasing the GIL for functions that execute fairly quicky
     for i in range(0):

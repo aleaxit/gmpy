@@ -49,7 +49,7 @@ set to 100. When the block is finished, the original context is restored.
     1.4142135623730951
     >>> with gmpy2.local_context(gmpy2.context(), precision=100):
     ...   print(gmpy2.sqrt(2))
-    ...   get_context().precision += 100
+    ...   gmpy2.get_context().precision += 100
     ...   print(gmpy2.sqrt(2))
     ...
     1.4142135623730950488016887242092
