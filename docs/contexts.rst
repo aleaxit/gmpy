@@ -78,10 +78,11 @@ the use of `local_context`.
 Nested contexts and coding style
 --------------------------------
 
-The `with ... as ctx:` coding style is commonly used. It does not behave
+The ``with ... as ctx:`` coding style is commonly used. It does not behave
 as expected with nested contexts. The first example shows the unexpected
-behavior. The precision of `sqrt(2)` is correct since the global context
-is properly undated. But `ctx` is not updated properly.
+behavior. The precision of sqrt(2) is correct since the global context
+is properly undated. But ctx is not updated when the block exits. You
+should always use get_context() to refer to the currently active context.
 
 .. doctest::
 
@@ -117,6 +118,6 @@ Comments on the ieee context
 ----------------------------
 
 Contexts that implement the standard *single*, *double*, and *quadruple*
-precision floating point types can be created using `ieee(32)`, `ieee(64)`,
-and `ieee(128)`. Higher precisions such as `ieee(1024)` are also supported.
+precision floating point types can be created using ieee(32), ieee(64),
+and ieee(128). Higher precisions such as ieee(1024) are also supported.
 
