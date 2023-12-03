@@ -186,6 +186,7 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     gmpy_context ctx;
+    PyObject *token;
 } CTXT_Object;
 
 typedef struct {

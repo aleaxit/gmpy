@@ -83,6 +83,7 @@ GMPy_CTXT_New(void)
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
         result->ctx.allow_release_gil = 0;
+        result->token = NULL;
     }
     return (PyObject*)result;
 };
@@ -93,16 +94,31 @@ GMPy_CTXT_Dealloc(CTXT_Object *self)
     PyObject_Del(self);
 };
 
-PyDoc_STRVAR(GMPy_doc_set_context,
-"set_context(context, /) -> None\n\n"
-"Activate a context object controlling gmpy2 arithmetic.\n");
-
 /* Begin support for context vars. */
 
-static PyObject *
-GMPy_init_current_context(void)
+PyDoc_STRVAR(GMPy_doc_get_context,
+"get_context() -> context\n\n"
+"Return a reference to the current context.");
+
+static inline PyObject *
+GMPy_CTXT_Get(void)
 {
-    PyObject *tl_context = GMPy_CTXT_New();
+    PyObject *tl_context;
+
+    if (PyContextVar_Get(current_context_var, NULL, &tl_context) < 0) {
+        return NULL;
+    }
+
+    if (tl_context != NULL) {
+        return tl_context;
+    }
+
+    /* Since there is no existing context, and no default value, let's
+     * just create a new one.
+     */
+
+    tl_context = GMPy_CTXT_New();
+
     if (tl_context == NULL) {
         return NULL;
     }
@@ -117,20 +133,9 @@ GMPy_init_current_context(void)
     return tl_context;
 }
 
-static inline PyObject *
-GMPy_current_context(void)
-{
-    PyObject *tl_context;
-    if (PyContextVar_Get(current_context_var, NULL, &tl_context) < 0) {
-        return NULL;
-    }
-
-    if (tl_context != NULL) {
-        return tl_context;
-    }
-
-    return GMPy_init_current_context();
-}
+PyDoc_STRVAR(GMPy_doc_set_context,
+"set_context(context, /) -> None\n\n"
+"Activate a context object controlling gmpy2 arithmetic.\n");
 
 /* Set the thread local context to a new context, decrement old reference */
 static PyObject *
@@ -148,10 +153,48 @@ GMPy_CTXT_Set(PyObject *self, PyObject *v)
     if (tok == NULL) {
         return NULL;
     }
+
     Py_DECREF(tok);
 
     Py_RETURN_NONE;
 }
+
+#if 1
+static PyObject *
+GMPy_CTXT_Enter(PyObject *self, PyObject *args)
+{
+    PyObject *tok = NULL;
+    PyObject *result = NULL;
+
+    result = GMPy_CTXT_Copy(self, NULL);
+    if (!result) {
+        return NULL;
+    }
+
+    Py_INCREF(result);
+    tok = PyContextVar_Set(current_context_var, result);
+    Py_DECREF(result);
+
+    if (tok == NULL) {
+        return NULL;
+    }
+
+    ((CTXT_Object*)self)->token = tok;
+
+    return result;
+}
+
+static PyObject *
+GMPy_CTXT_Exit(PyObject *self, PyObject *args)
+{
+    int res = PyContextVar_Reset(current_context_var, ((CTXT_Object*)self)->token);
+    if (res == -1) {
+        SYSTEM_ERROR("Unexpected failure in restoring context.");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+#endif
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
 "ieee(size, /, subnormalize=True) -> context\n\n"
@@ -353,21 +396,6 @@ GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
     return PyUnicode_FromString("<gmpy2.ContextManagerObject>");
 }
 
-PyDoc_STRVAR(GMPy_doc_get_context,
-"get_context() -> context\n\n"
-"Return a reference to the current context.");
-
-static PyObject *
-GMPy_CTXT_Get(PyObject *self, PyObject *args)
-{
-    CTXT_Object *context;
-
-    context = (CTXT_Object *)GMPy_current_context();
-
-    /* Py_XINCREF((PyObject*)context);*/
-    return (PyObject*)context;
-}
-
 PyDoc_STRVAR(GMPy_doc_context_copy,
 "context.copy() -> context\n\n"
 "Return a copy of a context.");
@@ -377,7 +405,10 @@ GMPy_CTXT_Copy(PyObject *self, PyObject *other)
 {
     CTXT_Object *result;
 
-    result = (CTXT_Object*)GMPy_CTXT_New();
+    if(!(result = (CTXT_Object*)GMPy_CTXT_New())) {
+        return NULL;
+    }
+
     result->ctx = ((CTXT_Object*)self)->ctx;
     return (PyObject*)result;
 }
@@ -745,8 +776,9 @@ GMPy_CTXT_Manager_Enter(PyObject *self, PyObject *args)
     PyObject *temp;
 
     temp = GMPy_CTXT_Set(NULL, (PyObject*)((CTXT_Manager_Object*)self)->new_context);
-    if (!temp)
+    if (!temp) {
         return NULL;
+    }
     Py_DECREF(temp);
 
     Py_INCREF((PyObject*)(((CTXT_Manager_Object*)self)->new_context));
@@ -759,39 +791,9 @@ GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args)
     PyObject *temp;
 
     temp = GMPy_CTXT_Set(NULL, (PyObject*)((CTXT_Manager_Object*)self)->old_context);
-    if (!temp)
+    if (!temp) {
         return NULL;
-    Py_DECREF(temp);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-GMPy_CTXT_Enter(PyObject *self, PyObject *args)
-{
-    PyObject *temp;
-    PyObject *result;
-
-    result = GMPy_CTXT_Copy(self, NULL);
-    if (!result)
-        return NULL;
-
-    temp = GMPy_CTXT_Set(NULL, result);
-    if (!temp)
-        return NULL;
-    Py_DECREF(temp);
-
-    return result;
-}
-
-static PyObject *
-GMPy_CTXT_Exit(PyObject *self, PyObject *args)
-{
-    PyObject *temp;
-
-    temp = GMPy_CTXT_Set(NULL, self);
-    if (!temp)
-        return NULL;
+    }
     Py_DECREF(temp);
 
     Py_RETURN_NONE;
@@ -1394,7 +1396,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "y0", GMPy_Context_Y0, METH_O, GMPy_doc_context_y0 },
     { "y1", GMPy_Context_Y1, METH_O, GMPy_doc_context_y1 },
     { "zeta", GMPy_Context_Zeta, METH_O, GMPy_doc_context_zeta },
-    { "__enter__", GMPy_CTXT_Enter, METH_NOARGS, NULL },
+    { "__enter__", GMPy_CTXT_Enter, METH_VARARGS, NULL },
     { "__exit__", GMPy_CTXT_Exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }
 };
@@ -1415,8 +1417,8 @@ static PyTypeObject CTXT_Type =
 
 static PyMethodDef GMPyContextManager_methods[] =
 {
-    { "__enter__", GMPy_CTXT_Manager_Enter, METH_NOARGS, NULL },
-    { "__exit__", GMPy_CTXT_Manager_Exit, METH_VARARGS, NULL },
+    { "__enter__", (PyCFunction)GMPy_CTXT_Manager_Enter, METH_NOARGS, NULL },
+    { "__exit__", (PyCFunction)GMPy_CTXT_Manager_Exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }
 };
 

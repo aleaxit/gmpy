@@ -47,7 +47,7 @@ static PyTypeObject CTXT_Manager_Type;
 /* CHECK_CONTEXT returns a borrowed reference. */
 #define CHECK_CONTEXT(context)                          \
     if (!context) {                                     \
-        context = (CTXT_Object*)GMPy_current_context(); \
+        context = (CTXT_Object*)GMPy_CTXT_Get(); \
         if (context == NULL) {                          \
             return NULL;                                \
         }                                               \
@@ -56,7 +56,7 @@ static PyTypeObject CTXT_Manager_Type;
 
 #define CHECK_CONTEXT_M1(context)                          \
     if (!context) {                                        \
-        context = (CTXT_Object*)GMPy_current_context();    \
+        context = (CTXT_Object*)GMPy_CTXT_Get();    \
         if (context == NULL) {                             \
             return -1;                                     \
         }                                                  \
@@ -95,7 +95,7 @@ static PyObject *    GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_New(void);
 static void          GMPy_CTXT_Dealloc(CTXT_Object *self);
 static PyObject *    GMPy_CTXT_Repr_Slot(CTXT_Object *self);
-static PyObject *    GMPy_CTXT_Get(PyObject *self, PyObject *args);
+static PyObject *    GMPy_CTXT_Get(void);
 static PyObject *    GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *    GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs);
 static PyObject *    GMPy_CTXT_Set(PyObject *self, PyObject *other);
@@ -104,8 +104,6 @@ static PyObject *    GMPy_CTXT_Copy(PyObject *self, PyObject *other);
 static PyObject *    GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *    GMPy_CTXT_Enter(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_Exit(PyObject *self, PyObject *args);
-
-static PyObject *    GMPy_current_context(void);
 
 #ifdef __cplusplus
 }

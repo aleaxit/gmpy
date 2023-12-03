@@ -156,6 +156,40 @@ def test_local_context():
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
 
+def test_nested_context():
+    set_context(context())
+    
+    r = [get_context().precision]
+    
+    with ieee(128):
+        r.append(get_context().precision)
+        with ieee(256):
+            r.append(get_context().precision)
+            with ieee(512):
+                r.append(get_context().precision)
+            r.append(get_context().precision)
+        r.append(get_context().precision)
+    r.append(get_context().precision)
+    assert r == [53, 113, 237, 489, 237, 113, 53]
+
+
+def test_nested_local_context():
+    set_context(context())
+    
+    r = [get_context().precision]
+    
+    with local_context(ieee(128)):
+        r.append(get_context().precision)
+        with local_context(ieee(256)):
+            r.append(get_context().precision)
+            with local_context(ieee(512)):
+                r.append(get_context().precision)
+            r.append(get_context().precision)
+        r.append(get_context().precision)
+    r.append(get_context().precision)
+    assert r == [53, 113, 237, 489, 237, 113, 53]
+
+
 def test_context_repr():
     ctx = get_context()
     assert repr(ctx) == \
