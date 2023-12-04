@@ -117,8 +117,9 @@ will be returned.
     >>> sqrt(mpfr(-2))
     mpc('0.0+1.4142135623730951j')
 
-Contexts can also be used in conjunction with Python's :keyword:`with`
-statement to temporarily change the context settings for a block of code.
+Contexts can also be used as context managers in conjunction with Python's
+:keyword:`with` statement to temporarily change the current context settings
+for a block of code.
 
 .. doctest::
 
