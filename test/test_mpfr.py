@@ -262,7 +262,7 @@ def test_mpfr_to_from_binary():
     assert x.rc == 1
     y = from_binary(to_binary(x))
     assert x == y and y.rc == 1
-    with gmpy2.local_context() as ctx:
+    with gmpy2.context() as ctx:
         ctx.precision = 20
         x = gmpy2.const_pi()
         assert x == from_binary(to_binary(x))
@@ -546,11 +546,11 @@ def test_mpfr_divmod():
     assert ctx.divzero is False
     assert all(map(ctx.is_nan, divmod(mpfr(1.2), mpfr(0))))
 
-    with gmpy2.local_context(trap_divzero=True):
+    with gmpy2.context(trap_divzero=True):
         pytest.raises(gmpy2.DivisionByZeroError, lambda: divmod(mpfr(1), mpfr(0)))
-    with gmpy2.local_context(trap_invalid=True):
+    with gmpy2.context(trap_invalid=True):
         pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(gmpy2.nan(), mpfr(1)))
-    with gmpy2.local_context(trap_invalid=True):
+    with gmpy2.context(trap_invalid=True):
         pytest.raises(gmpy2.InvalidOperationError, lambda: divmod(mpfr(1), gmpy2.inf()))
 
     assert divmod(mpfr(111), mpfr(-222)) == (mpfr('-1.0'), mpfr('-111.0'))

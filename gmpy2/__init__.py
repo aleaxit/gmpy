@@ -11,16 +11,7 @@ except ImportError:
 
 
 def local_context(*args, **kwargs):
-    """
-    local_context(**kwargs) -> context
-    local_context(context, /, **kwargs) -> context
-
-    Create a context manager object that will restore the current context
-    when the 'with ...' block terminates. The temporary context for the
-    'with ...' block is based on the current context if no context is
-    specified. Keyword arguments are supported and will modify the
-    temporary new context.
-    """
+    """Alias of `context()`, for compatibility."""
     import warnings
     warnings.warn("local_context() is deprecated, use context() instead",
                   DeprecationWarning)

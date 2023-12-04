@@ -390,7 +390,7 @@ def test_mpc_div():
     assert mpc('2.0+2.0j') / r == mpc('1.3333333333333333+1.3333333333333333j')
     assert mpc(15,15) / cx == mpc('0.26147449224372299-0.059971213817367662j')
 
-    with gmpy2.local_context(trap_divzero=True):
+    with gmpy2.context(trap_divzero=True):
         with pytest.raises(gmpy2.DivisionByZeroError):
             mpc(15, 15)/mpc(0)
 

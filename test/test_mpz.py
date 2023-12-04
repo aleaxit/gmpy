@@ -1087,7 +1087,7 @@ def test_mpz_truediv():
     raises(TypeError, lambda: ctx.div(a, 'str'))
     raises(TypeError, lambda: a / 'str')
 
-    with gmpy2.local_context(rational_division=True):
+    with gmpy2.context(rational_division=True):
         assert mpz(1)/mpz(2) == mpq(1, 2)
 
     assert a / float('Inf') == mpfr('0.0')

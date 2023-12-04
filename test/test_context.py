@@ -1,8 +1,7 @@
 import pytest
 
 import gmpy2
-from gmpy2 import (context, get_context, ieee, local_context, mpc, mpfr, mpz,
-                   set_context)
+from gmpy2 import context, get_context, ieee, mpc, mpfr, mpz, set_context
 
 
 def test_context_abs():
@@ -113,10 +112,10 @@ def test_get_context():
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
 
-def test_local_context():
+def test_context():
     set_context(context())
 
-    with local_context() as ctx:
+    with context() as ctx:
         assert ctx.precision == 53
         ctx.precision += 20
         assert ctx.precision == 73
@@ -126,7 +125,7 @@ def test_local_context():
     assert (ctx.precision == 53 and ctx.emax == 1073741823 and
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
-    with local_context(ieee(64)) as ctx:
+    with context(ieee(64)) as ctx:
         assert (ctx.precision == 53 and ctx.emax == 1024 and
                 ctx.emin == -1073 and ctx.subnormalize)
 
@@ -145,7 +144,7 @@ def test_local_context():
     assert (ctx.precision == 53 and ctx.emax == 1073741823 and
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
-    with local_context(precision=200) as ctx:
+    with context(precision=200) as ctx:
         assert ctx.precision == 200
         ctx.precision += 100
         assert ctx.precision == 300
@@ -173,16 +172,16 @@ def test_nested_context():
     assert r == [53, 113, 237, 489, 237, 113, 53]
 
 
-def test_nested_local_context():
+def test_nested_context():
     set_context(context())
     
     r = [get_context().precision]
     
-    with local_context(ieee(128)):
+    with context(ieee(128)):
         r.append(get_context().precision)
-        with local_context(ieee(256)):
+        with context(ieee(256)):
             r.append(get_context().precision)
-            with local_context(ieee(512)):
+            with context(ieee(512)):
                 r.append(get_context().precision)
             r.append(get_context().precision)
         r.append(get_context().precision)
