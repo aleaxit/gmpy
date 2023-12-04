@@ -617,6 +617,44 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 }
 
+PyDoc_STRVAR(GMPy_doc_local_context2,
+"helper function for local_context");
+
+
+static PyObject *
+GMPy_CTXT_Local_Context2(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    CTXT_Object *result = NULL, *temp = NULL;
+
+
+    if (PyTuple_GET_SIZE(args) == 0) {
+        if (!(temp = (CTXT_Object*)GMPy_CTXT_Get())) {
+            return NULL;
+        }
+        if (!(result = (CTXT_Object*)GMPy_CTXT_Copy(temp, NULL))) {
+            return NULL;
+        }
+        Py_DECREF((PyObject*)temp);
+    }
+    else if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
+        result = (CTXT_Object*)GMPy_CTXT_Copy(PyTuple_GET_ITEM(args, 0), NULL);
+    }
+    else {
+        VALUE_ERROR("_local_context() only supports [[context][,keyword]] arguments");
+        return NULL;
+    }
+
+    if (!_parse_context_args(result, kwargs)) {
+        /* There was an error parsing the keyword arguments. */
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+    else {
+        /* Parsing was successful. */
+        return (PyObject*)result;
+    }
+}
+
 PyDoc_STRVAR(GMPy_doc_context,
 "context() -> context\n\n"
 "Return a new context for controlling MPFR and MPC arithmetic. To load\n"

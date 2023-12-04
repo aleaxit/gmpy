@@ -888,6 +888,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "lgamma", GMPy_Context_Lgamma, METH_O, GMPy_doc_function_lgamma },
     { "li2", GMPy_Context_Li2, METH_O, GMPy_doc_function_li2 },
     { "lngamma", GMPy_Context_Lngamma, METH_O, GMPy_doc_function_lngamma },
+    { "_local_context", (PyCFunction)GMPy_CTXT_Local_Context2, METH_VARARGS | METH_KEYWORDS, GMPy_doc_local_context2 },
     { "local_context", (PyCFunction)GMPy_CTXT_Local, METH_VARARGS | METH_KEYWORDS, GMPy_doc_local_context },
     { "log", GMPy_Context_Log, METH_O, GMPy_doc_function_log },
     { "log1p", GMPy_Context_Log1p, METH_O, GMPy_doc_function_log1p },
