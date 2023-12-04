@@ -38,7 +38,6 @@
  *   GMPy_CTXT_Get
  *   GMPy_CTXT_Copy
  *   GMPy_CTXT_ieee
- *   GMPy_CTXT_Local
  *   GMPy_CTXT_Context
  *   GMPy_CTXT_Repr_Slot
  *   GMPy_CTXT_Enter
@@ -561,190 +560,12 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     return 1;
 }
 
-PyDoc_STRVAR(GMPy_doc_local_context,
-"local_context(**kwargs) -> context\n"
-"local_context(context, /, **kwargs) -> context\n\n"
-"Create a context manager object that will restore the current context\n"
-"when the 'with ...' block terminates. The temporary context for the\n"
-"'with ...' block is based on the current context if no context is\n"
-"specified. Keyword arguments are supported and will modify the\n"
-"temporary new context.");
-
-static PyObject *
-GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
-{
-    CTXT_Manager_Object *result;
-    int arg_context = 0;
-    CTXT_Object *context = NULL, *temp;
-
-    CHECK_CONTEXT(context);
-
-    if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
-        arg_context = 1;
-    }
-    else if (PyTuple_GET_SIZE(args)) {
-        VALUE_ERROR("local_context() only supports [context[,keyword]] arguments");
-        return NULL;
-    }
-
-    if (!(result = (CTXT_Manager_Object*)GMPy_CTXT_Manager_New()))
-        return NULL;
-
-    if (arg_context) {
-        temp = (CTXT_Object*)PyTuple_GET_ITEM(args, 0);
-        result->new_context = temp;
-        Py_INCREF((PyObject*)(result->new_context));
-    }
-    else {
-        result->new_context = context;
-        Py_INCREF((PyObject*)(result->new_context));
-    }
-
-    result->old_context = (CTXT_Object*)GMPy_CTXT_Copy((PyObject*)context, NULL);
-    if (!(result->old_context)) {
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-
-    if (!_parse_context_args(result->new_context, kwargs)) {
-        /* There was an error parsing the keyword arguments. */
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-    else {
-        /* Parsing was successful. */
-        return (PyObject*)result;
-    }
-}
-
 PyDoc_STRVAR(GMPy_doc_context,
-"context() -> context\n\n"
-"Return a new context for controlling MPFR and MPC arithmetic. To load\n"
-"the new context, use set_context(). Options can only be specified as\n"
-"keyword arguments.\n\n"
-"Options\n"
-" * precision:         precision, in bits, of an MPFR result\n"
-" * real_prec:         precision, in bits, of Re(MPC); -1 implies use mpfr_prec\n"
-" * imag_prec:         precision, in bits, of Im(MPC); -1 implies use real_prec\n"
-" * round:             rounding mode for MPFR\n"
-" * real_round:        rounding mode for Re(MPC); -1 implies use mpfr_round\n"
-" * imag_round:        rounding mode for Im(MPC); -1 implies use real_round\n"
-" * e_max:             maximum allowed exponent\n"
-" * e_min:             minimum allowed exponent\n"
-" * subnormalize:      if True, subnormalized results can be returned\n"
-" * trap_underflow:    if True, raise exception for underflow; if False, set underflow flag\n"
-" * trap_overflow:     if True, raise exception for overflow; if False, set overflow flag and return Inf or -Inf\n"
-" * trap_inexact:      if True, raise exception for inexact result; if False, set inexact flag\n"
-" * trap_invalid:      if True, raise exception for invalid operation; if False, set invalid flag and return NaN\n"
-" * trap_erange:       if True, raise exception for range error; if False, set erange flag\n"
-" * trap_divzero:      if True, raise exception for division by zero; if False, set divzero flag and return Inf or -Inf\n"
-" * allow_complex:     if True, allow mpfr functions to return mpc; if False, mpfr functions cannot return an mpc\n"
-" * rational_division: if True, mpz/mpz returns an mpq; if False, mpz/mpz follows default behavior\n"
-" * allow_release_gil: if True, mpq operations may release the GIL; if False, mpq operations may not release the GIL\n");
-#if 0
-"\nMethods\n"
-"    abs(x)          return absolute value of x\n"
-"    acos(x)         return inverse cosine of x\n"
-"    acosh(x)        return inverse hyperbolic cosine of x\n"
-"    add(x,y)        return x + y\n"
-"    agm(x,y)        return arthimetic-geometric mean of x and y\n"
-"    ai(x)           return the Airy function of x\n"
-"    asin(x)         return inverse sine of x\n"
-"    asinh(x)        return inverse hyperbolic sine of x\n"
-"    atan(x)         return inverse tangent of x\n"
-"    atan2(y,x)      return inverse tangent of (y / x)\n"
-"    atanh(x)        return inverse hyperbolic tangent of x\n"
-"    cbrt(x)         return cube root of x\n"
-"    ceil(x)         return ceiling of x\n"
-"    check_range(x)  return value with exponents within current range\n"
-"    clear_flags()   clear all exception flags\n"
-"    const_catalan() return Catalan constant (0.91596559...)\n"
-"    const_euler()   return Euler contstant (0.57721566...)\n"
-"    const_log()     return natural log of 2 (0.69314718...)\n"
-"    const_pi()      return Pi (3.14159265...)\n"
-"    copy()          return a copy of the context\n"
-"    cos(x)          return cosine of x\n"
-"    cosh(x)         return hyperbolic cosine of x\n"
-"    cot(x)          return cotangent of x\n"
-"    coth(x)         return hyperbolic cotangent of x\n"
-"    csc(x)          return cosecant of x\n"
-"    csch(x)         return hyperbolic cosecant of x\n"
-"    degrees(x)      convert value in radians to degrees\n"
-"    digamma(x)      return the digamma of x\n"
-"    div(x,y)        return x / y\n"
-"    divmod(x,y)     return integer quotient and remainder\n"
-"    div_2exp(x,n)   return x / 2**n)\n"
-"    eint(x)         return exponential integral of x\n"
-"    erf(x)          return error function of x\n"
-"    erfc(x)         return complementary error function of x\n"
-"    exp(x)          return e**x\n"
-"    exp10(x)        return 10**x\n"
-"    exp2(x)         return 2**x\n"
-"    expm1(x)        return e**x - 1\n"
-"    factorial(n)    return floating-point approximation to n!\n"
-"    floor(x)        return floor of x\n"
-"    fma(x,y,z)      return correctly rounded (x * y) + z\n"
-"    fmod(x,y)       return x - int(x / y) * y, rounding to 0\n"
-"    fms(x,y,z)      return correctly rounded (x * y) - z\n"
-"    fsum(i)         return accurate sum of iterable i\n"
-"    gamma(x)        return gamma of x\n"
-"    hypot(y,x)      return square root of (x**2 + y**2)\n"
-"    is_finite(x)    return True if x is finite\n"
-"    is_infinite(x)  return True if x is +INF or -INF\n"
-"    is_nan(x)       return True if x in Not_A_Number\n"
-"    is_zero(x)      return True if x is 0\n"
-"    j0(x)           return Bessel of first kind of order 0 of x\n"
-"    j1(x)           return Bessel of first kind of order 1 of x\n"
-"    jn(n,x)         return Bessel of first kind of order n of x\n"
-"    lgamma(x)       return tuple (log(abs(gamma(x)), sign(gamma(x)))\n"
-"    li2(x)          return real part of dilogarithm of x\n"
-"    lngamma(x)      return logarithm of gamma of x\n"
-"    log(x)          return natural logarithm of x\n"
-"    log10(x)        return base-10 logarithm of x\n"
-"    log2(x)         return base-2 logarithm of x\n"
-"    max2(x,y)       return maximum of x and y, rounded to context\n"
-"    mpc(...)        create a new instance of an mpc\n"
-"    mpfr(...)       create a new instance of an mpfr\n"
-"    minus(x)        return -x\n"
-"    min2(x,y)       return minimum of x and y, rounded to context\n"
-"    mul(x,y)        return x * y\n"
-"    mul_2exp(x,n)   return x * 2**n\n"
-"    next_above(x)   return next mpfr towards +Infinity\n"
-"    next_below(x)   return next mpfr towards -Infinity\n"
-"    plus(x)         return +x\n"
-"    pow(x,y)        return x ** y\n"
-"    radians(x)      convert value in degrees to radians\n"
-"    rec_sqrt(x)     return 1 / sqrt(x)\n"
-"    rel_diff(x,y)   return abs(x - y) / x\n"
-"    remainder(x,y)  return x - int(x / y) * y, rounding to even\n"
-"    remquo(x,y)     return tuple of remainder(x,y) and low bits of\n"
-"                    the quotient\n"
-"    rint(x)         return x rounded to integer with current rounding\n"
-"    rint_ceil(x)    ...\n"
-"    rint_floor(x)   ...\n"
-"    rint_round(x)   ...\n"
-"    rint_trunc(x)   ...\n"
-"    root(x,n)       return the n-th of x\n"
-"    root_of_unity() return the k-th power of the n-th root of mpc(1)\n"
-"    round2(x,n)     return x rounded to n bits.\n"
-"    round_away(x)   return x rounded to integer, ties away from 0\n"
-"    sec(x)          return secant of x\n"
-"    sech(x)         return hyperbolic secant of x\n"
-"    sin(x)          return sine of x\n"
-"    sin_cos(x)      return tuple (sin(x), cos(x))\n"
-"    sinh(x)         return hyperbolic sine of x\n"
-"    sinh_cosh(x)    return tuple (sinh(x), cosh(x))\n"
-"    sqrt(x)         return square root of x\n"
-"    square(x)       return x * x\n"
-"    sub(x)          return x - y\n"
-"    tan(x)          return tangent of x\n"
-"    tanh(x)         return hyperbolic tangent of x\n"
-"    trunc(x)        return x rounded towards 0\n"
-"    y0(x)           return Bessel of second kind of order 0 of x\n"
-"    y1(x)           return Bessel of second kind of order 1 of x\n"
-"    yn(n,x)         return Bessel of second kind of order n of x\n"
-"    zeta(x)         return Riemann zeta of x"
-#endif
+"context(**kwargs)\n"
+"context(ctx, /, **kwargs)\n\n"
+"Return a new context for controlling gmpy2 arithmetic, based either\n"
+"on the current context or on a ctx value.  Context options additionally\n"
+"can be overriden by keyword arguments.");
 
 static PyObject *
 GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)
@@ -1411,13 +1232,13 @@ static PyTypeObject CTXT_Type =
 {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "gmpy2.context",
-    .tp_basicsize = sizeof(CTXT_Object),    
-    .tp_dealloc = (destructor) GMPy_CTXT_Dealloc,      
-    .tp_repr = (reprfunc) GMPy_CTXT_Repr_Slot,       
-    .tp_flags = Py_TPFLAGS_DEFAULT,                   
-    .tp_doc = "GMPY2 Context Object",               
-    .tp_methods = GMPyContext_methods,                
-    .tp_getset = GMPyContext_getseters,                
+    .tp_basicsize = sizeof(CTXT_Object),
+    .tp_dealloc = (destructor) GMPy_CTXT_Dealloc,
+    .tp_repr = (reprfunc) GMPy_CTXT_Repr_Slot,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = GMPy_doc_context,
+    .tp_methods = GMPyContext_methods,
+    .tp_getset = GMPyContext_getseters,
     .tp_new = GMPy_CTXT_Context,
 };
 
@@ -1431,7 +1252,7 @@ static PyMethodDef GMPyContextManager_methods[] =
 static PyTypeObject CTXT_Manager_Type =
 {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "gmpy2.ContextManagerObject",               
+    .tp_name = "gmpy2.ContextManagerObject",
     .tp_basicsize = sizeof(CTXT_Manager_Object),
     .tp_dealloc = (destructor) GMPy_CTXT_Manager_Dealloc,
     .tp_repr = (reprfunc) GMPy_CTXT_Manager_Repr_Slot,
