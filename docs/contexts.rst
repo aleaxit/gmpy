@@ -11,6 +11,8 @@ return a reference to the active context. Note that contexts are mutable:
 modifying the reference returned by `get_context()` will modify the active
 context until a new context is enabled with `set_context()`. The
 `~context.copy()` method of a context will return a copy of the context.
+Contexts that implement the standard *single* (32), *double* (64), and
+*quadruple* (128) precision floating point types can be created using `ieee()`.
 
 Context Type
 ------------
@@ -113,11 +115,3 @@ This example uses the recommended coding style.
     53 1.4142135623730951
     113 1.41421356237309504880168872420969798
     53 1.4142135623730951
-
-Comments on the ieee context
-----------------------------
-
-Contexts that implement the standard *single*, *double*, and *quadruple*
-precision floating point types can be created using ieee(32), ieee(64),
-and ieee(128). Higher precisions such as ieee(1024) are also supported.
-
