@@ -43,11 +43,6 @@
  *   GMPy_CTXT_Enter
  *   GMPy_CTXT_Exit
  *   GMPy_CTXT_Clear_Flags
- *   GMPy_CTXT_Manager_New
- *   GMPy_CTXT_Manager_Dealloc
- *   GMPy_CTXT_Manager_Repr_Slot
- *   GMPy_CTXT_Manager_Enter
- *   GMPy_CTXT_Manager_Exit
  *     plus getters & setters....
  *
  * Internal functions
@@ -280,27 +275,6 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
     return (PyObject*)result;
 }
 
-/* Create and delete ContextManager objects. */
-
-static PyObject *
-GMPy_CTXT_Manager_New(void)
-{
-    PyObject *result;
-
-    result = (PyObject*)PyObject_New(CTXT_Manager_Object, &CTXT_Manager_Type);
-    ((CTXT_Manager_Object*)(result))->new_context = NULL;
-    ((CTXT_Manager_Object*)(result))->old_context = NULL;
-    return result;
-}
-
-static void
-GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self)
-{
-    Py_XDECREF(self->new_context);
-    Py_XDECREF(self->old_context);
-    PyObject_Del(self);
-}
-
 /* Helper function to convert to convert a rounding mode to a string. */
 
 static PyObject *
@@ -387,12 +361,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     Py_DECREF(format);
     Py_DECREF(tuple);
     return result;
-}
-
-static PyObject *
-GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
-{
-    return PyUnicode_FromString("<gmpy2.ContextManagerObject>");
 }
 
 PyDoc_STRVAR(GMPy_doc_context_copy,
@@ -595,35 +563,6 @@ GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)
         /* Parsing was successful. */
         return (PyObject*)result;
     }
-}
-
-static PyObject *
-GMPy_CTXT_Manager_Enter(PyObject *self, PyObject *args)
-{
-    PyObject *temp;
-
-    temp = GMPy_CTXT_Set(NULL, (PyObject*)((CTXT_Manager_Object*)self)->new_context);
-    if (!temp) {
-        return NULL;
-    }
-    Py_DECREF(temp);
-
-    Py_INCREF((PyObject*)(((CTXT_Manager_Object*)self)->new_context));
-    return (PyObject*)(((CTXT_Manager_Object*)self)->new_context);
-}
-
-static PyObject *
-GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args)
-{
-    PyObject *temp;
-
-    temp = GMPy_CTXT_Set(NULL, (PyObject*)((CTXT_Manager_Object*)self)->old_context);
-    if (!temp) {
-        return NULL;
-    }
-    Py_DECREF(temp);
-
-    Py_RETURN_NONE;
 }
 
 PyDoc_STRVAR(GMPy_doc_context_clear_flags,
@@ -1240,23 +1179,4 @@ static PyTypeObject CTXT_Type =
     .tp_methods = GMPyContext_methods,
     .tp_getset = GMPyContext_getseters,
     .tp_new = GMPy_CTXT_Context,
-};
-
-static PyMethodDef GMPyContextManager_methods[] =
-{
-    { "__enter__", (PyCFunction)GMPy_CTXT_Manager_Enter, METH_NOARGS, NULL },
-    { "__exit__", (PyCFunction)GMPy_CTXT_Manager_Exit, METH_VARARGS, NULL },
-    { NULL, NULL, 1 }
-};
-
-static PyTypeObject CTXT_Manager_Type =
-{
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "gmpy2.ContextManagerObject",
-    .tp_basicsize = sizeof(CTXT_Manager_Object),
-    .tp_dealloc = (destructor) GMPy_CTXT_Manager_Dealloc,
-    .tp_repr = (reprfunc) GMPy_CTXT_Manager_Repr_Slot,
-    .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_doc = "GMPY2 Context manager",
-    .tp_methods = GMPyContextManager_methods,
 };

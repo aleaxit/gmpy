@@ -42,7 +42,6 @@ extern "C" {
 /* The actual typedefs have been moved to gmpy2_types.h. */
 
 static PyTypeObject CTXT_Type;
-static PyTypeObject CTXT_Manager_Type;
 
 /* CHECK_CONTEXT returns a borrowed reference. */
 #define CHECK_CONTEXT(context)                          \
@@ -71,7 +70,6 @@ static PyTypeObject CTXT_Manager_Type;
     } \
 
 #define CTXT_Check(v) (((PyObject*)v)->ob_type == &CTXT_Type)
-#define CTXT_Manager_Check(v) (((PyObject*)v)->ob_type == &CTXT_Manager_Type)
 
 #define GET_MPFR_PREC(c) (c->ctx.mpfr_prec)
 #define GET_REAL_PREC(c) ((c->ctx.real_prec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->ctx.real_prec)
@@ -85,12 +83,6 @@ static PyTypeObject CTXT_Manager_Type;
 
 #define GET_THREAD_MODE(c) (c->ctx.allow_release_gil)
 
-
-static PyObject *    GMPy_CTXT_Manager_New(void);
-static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);
-static PyObject *    GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self);
-static PyObject *    GMPy_CTXT_Manager_Enter(PyObject *self, PyObject *args);
-static PyObject *    GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args);
 
 static PyObject *    GMPy_CTXT_New(void);
 static void          GMPy_CTXT_Dealloc(CTXT_Object *self);

@@ -1057,11 +1057,6 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         return NULL;;
         /* LCOV_EXCL_STOP */
     }
-    if (PyType_Ready(&CTXT_Manager_Type) < 0) {
-        /* LCOV_EXCL_START */
-        return NULL;;
-        /* LCOV_EXCL_STOP */
-    }
     if (PyType_Ready(&MPC_Type) < 0) {
         /* LCOV_EXCL_START */
         return NULL;;
@@ -1280,7 +1275,6 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     GMPy_C_API[MPC_Type_NUM] = (void*)&MPC_Type;
     GMPy_C_API[XMPC_Type_NUM] = (void*)&MPC_Type;
     GMPy_C_API[CTXT_Type_NUM] = (void*)&CTXT_Type;
-    GMPy_C_API[CTXT_Manager_Type_NUM] = (void*)&CTXT_Manager_Type;
     GMPy_C_API[RandomState_Type_NUM] = (void*)&RandomState_Type;
 
     GMPy_C_API[GMPy_MPZ_New_NUM] = (void*)GMPy_MPZ_New;
