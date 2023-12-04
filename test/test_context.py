@@ -78,6 +78,9 @@ def test_context():
             ctx.emin == -1073741823 and not ctx.subnormalize and
             ctx.real_prec == 100 and ctx.imag_prec == 200)
 
+    pytest.raises(ValueError, lambda: context(1, 2))
+    pytest.raises(ValueError, lambda: context(spam=123))
+
 
 def test_get_context():
     set_context(context())

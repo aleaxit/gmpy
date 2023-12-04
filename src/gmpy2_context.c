@@ -543,7 +543,9 @@ GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 
     if (PyTuple_GET_SIZE(args) == 0) {
         if (!(result = (CTXT_Object*)GMPy_CTXT_New())) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
     }
     else if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
