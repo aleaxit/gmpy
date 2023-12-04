@@ -749,15 +749,21 @@ PyDoc_STRVAR(GMPy_doc_context,
 static PyObject *
 GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 {
-    CTXT_Object *result;
+    CTXT_Object *result = NULL;
 
-    if (PyTuple_GET_SIZE(args)) {
-        VALUE_ERROR("context() only supports keyword arguments");
+
+    if (PyTuple_GET_SIZE(args) == 0) {
+        if (!(result = (CTXT_Object*)GMPy_CTXT_New())) {
+            return NULL;
+        }
+    }
+    else if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
+        result = (CTXT_Object*)GMPy_CTXT_Copy(PyTuple_GET_ITEM(args, 0), NULL);
+    }
+    else {
+        VALUE_ERROR("context() only supports [[context][,keyword]] arguments");
         return NULL;
     }
-
-    if (!(result = (CTXT_Object*)GMPy_CTXT_New()))
-        return NULL;
 
     if (!_parse_context_args(result, kwargs)) {
         /* There was an error parsing the keyword arguments. */
