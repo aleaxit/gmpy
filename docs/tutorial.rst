@@ -122,13 +122,15 @@ statement to temporarily change the context settings for a block of code.
 
 .. doctest::
 
-    >>> with local_context() as ctx:
+    >>> print(const_pi())
+    3.1415926535897931
+    >>> with context(precision=100) as ctx:
     ...   print(const_pi())
     ...   ctx.precision += 20
     ...   print(const_pi())
     ...
-    3.1415926535897931
-    3.1415926535897932384628
+    3.1415926535897932384626433832793
+    3.1415926535897932384626433832795028847
     >>> print(const_pi())
     3.1415926535897931
 
