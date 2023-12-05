@@ -567,7 +567,7 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
         }
     }
     else {
-        VALUE_ERROR("_local_context() only supports [[context][,keyword]] arguments");
+        VALUE_ERROR("local_context() only supports [[context][,keyword]] arguments");
         return NULL;
     }
 

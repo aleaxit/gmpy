@@ -118,7 +118,7 @@ def test_get_context():
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
 
-def test_context():
+def test_context_2():
     set_context(context())
 
     with context() as ctx:
@@ -178,16 +178,16 @@ def test_nested_context():
     assert r == [53, 113, 237, 489, 237, 113, 53]
 
 
-def test_nested_context():
+def test_nested_local_context():
     set_context(context())
 
     r = [get_context().precision]
 
-    with context(ieee(128)):
+    with local_context(ieee(128)):
         r.append(get_context().precision)
-        with context(ieee(256)):
+        with local_context(ieee(256)):
             r.append(get_context().precision)
-            with context(ieee(512)):
+            with local_context(ieee(512)):
                 r.append(get_context().precision)
             r.append(get_context().precision)
         r.append(get_context().precision)
@@ -270,10 +270,14 @@ def test_local_context_deprecated():
 
 @pytest.mark.filterwarnings("ignore:.*:DeprecationWarning")
 def test_local_context():
-    get_context().precision = 123
+    ctx_orig = get_context()
+    ctx_orig.precision = 123
     with context() as ctx:
         assert ctx.precision == 53
     with local_context() as ctx:
+        assert ctx.precision == 123
+        ctx.precision = 321
+    with local_context(ctx_orig) as ctx:
         assert ctx.precision == 123
 
     pytest.raises(ValueError, lambda: local_context(1, 2))
