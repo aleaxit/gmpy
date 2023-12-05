@@ -1,6 +1,5 @@
 from .gmpy2 import *
 from .gmpy2 import __version__
-from .gmpy2 import _local_context
 # Internal variables/functions are not imported by * above.
 # These are used by some python level functions and are needed
 # at the top level.
@@ -9,11 +8,3 @@ try:
     from .gmpy2 import _C_API, _mpmath_normalize, _mpmath_create
 except ImportError:
     from .gmpy2 import _mpmath_normalize, _mpmath_create
-
-
-def local_context(*args, **kwargs):
-    """Alias of `context()`, for compatibility."""
-    import warnings
-    warnings.warn("local_context() is deprecated, use context() instead",
-                  DeprecationWarning)
-    return context(*args, **kwargs)

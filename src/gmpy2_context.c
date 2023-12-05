@@ -528,26 +528,43 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     return 1;
 }
 
-PyDoc_STRVAR(GMPy_doc_local_context2,
-"helper function for local_context");
+PyDoc_STRVAR(GMPy_doc_local_context,
+"local_context(**kwargs) -> context\n"
+"local_context(context, /, **kwargs) -> context\n\n"
+"Return a new context for controlling gmpy2 arithmetic, based either\n"
+"on the current context or on a ctx value.  Context options additionally\n"
+"can be overriden by keyword arguments.");
 
 static PyObject *
-GMPy_CTXT_Local_Context2(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     CTXT_Object *result = NULL, *temp = NULL;
 
+    if (PyErr_WarnFormat(PyExc_DeprecationWarning, 1,
+                         "local_context() is deprecated, "
+                         "use context(get_context()) instead.")) {
+        return NULL;
+    }
 
     if (PyTuple_GET_SIZE(args) == 0) {
         if (!(temp = (CTXT_Object*)GMPy_CTXT_Get())) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
         if (!(result = (CTXT_Object*)GMPy_CTXT_Copy(temp, NULL))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
         Py_DECREF((PyObject*)temp);
     }
     else if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
-        result = (CTXT_Object*)GMPy_CTXT_Copy(PyTuple_GET_ITEM(args, 0), NULL);
+        if (!(result = (CTXT_Object*)GMPy_CTXT_Copy(PyTuple_GET_ITEM(args, 0), NULL))) {
+            /* LCOV_EXCL_START */
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
     }
     else {
         VALUE_ERROR("_local_context() only supports [[context][,keyword]] arguments");
@@ -569,8 +586,8 @@ PyDoc_STRVAR(GMPy_doc_context,
 "context(**kwargs)\n"
 "context(ctx, /, **kwargs)\n\n"
 "Return a new context for controlling gmpy2 arithmetic, based either\n"
-"on the current context or on a ctx value.  Context options additionally\n"
-"can be overriden by keyword arguments.");
+"on the default context or on a given by ctx value.  Context options\n"
+"additionally can be overriden by keyword arguments.");
 
 static PyObject *
 GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)
@@ -586,7 +603,11 @@ GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)
         }
     }
     else if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
-        result = (CTXT_Object*)GMPy_CTXT_Copy(PyTuple_GET_ITEM(args, 0), NULL);
+        if (!(result = (CTXT_Object*)GMPy_CTXT_Copy(PyTuple_GET_ITEM(args, 0), NULL))) {
+            /* LCOV_EXCL_START */
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
     }
     else {
         VALUE_ERROR("context() only supports [[context][,keyword]] arguments");

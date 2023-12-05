@@ -1,7 +1,10 @@
+import warnings
+
 import pytest
 
 import gmpy2
-from gmpy2 import context, get_context, ieee, mpc, mpfr, mpz, set_context
+from gmpy2 import (context, get_context, ieee, local_context, mpc, mpfr, mpz,
+                   set_context)
 
 
 def test_context_abs():
@@ -160,9 +163,9 @@ def test_context():
 
 def test_nested_context():
     set_context(context())
-    
+
     r = [get_context().precision]
-    
+
     with ieee(128):
         r.append(get_context().precision)
         with ieee(256):
@@ -177,9 +180,9 @@ def test_nested_context():
 
 def test_nested_context():
     set_context(context())
-    
+
     r = [get_context().precision]
-    
+
     with context(ieee(128)):
         r.append(get_context().precision)
         with context(ieee(256)):
@@ -254,3 +257,24 @@ def test_context_repr():
  erange=False,\n        trap_divzero=False, divzero=False,\n\
         allow_complex=False,\n        rational_division=False,\n\
         allow_release_gil=False)"""
+
+
+def test_local_context_deprecated():
+    with pytest.deprecated_call():
+        local_context()
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        pytest.raises(DeprecationWarning, lambda: local_context())
+
+
+@pytest.mark.filterwarnings("ignore:.*:DeprecationWarning")
+def test_local_context():
+    get_context().precision = 123
+    with context() as ctx:
+        assert ctx.precision == 53
+    with local_context() as ctx:
+        assert ctx.precision == 123
+
+    pytest.raises(ValueError, lambda: local_context(1, 2))
+    pytest.raises(ValueError, lambda: local_context(spam=123))
