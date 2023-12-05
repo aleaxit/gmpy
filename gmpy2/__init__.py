@@ -1,5 +1,6 @@
 from .gmpy2 import *
 from .gmpy2 import __version__
+from .gmpy2 import _local_context
 # Internal variables/functions are not imported by * above.
 # These are used by some python level functions and are needed
 # at the top level.
