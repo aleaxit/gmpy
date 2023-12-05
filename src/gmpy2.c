@@ -888,7 +888,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "lgamma", GMPy_Context_Lgamma, METH_O, GMPy_doc_function_lgamma },
     { "li2", GMPy_Context_Li2, METH_O, GMPy_doc_function_li2 },
     { "lngamma", GMPy_Context_Lngamma, METH_O, GMPy_doc_function_lngamma },
-    { "_local_context", (PyCFunction)GMPy_CTXT_Local_Context2, METH_VARARGS | METH_KEYWORDS, GMPy_doc_local_context2 },
     { "local_context", (PyCFunction)GMPy_CTXT_Local, METH_VARARGS | METH_KEYWORDS, GMPy_doc_local_context },
     { "log", GMPy_Context_Log, METH_O, GMPy_doc_function_log },
     { "log1p", GMPy_Context_Log1p, METH_O, GMPy_doc_function_log1p },
@@ -1055,11 +1054,6 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&CTXT_Type) < 0) {
-        /* LCOV_EXCL_START */
-        return NULL;;
-        /* LCOV_EXCL_STOP */
-    }
-    if (PyType_Ready(&CTXT_Manager_Type) < 0) {
         /* LCOV_EXCL_START */
         return NULL;;
         /* LCOV_EXCL_STOP */
@@ -1282,7 +1276,6 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     GMPy_C_API[MPC_Type_NUM] = (void*)&MPC_Type;
     GMPy_C_API[XMPC_Type_NUM] = (void*)&MPC_Type;
     GMPy_C_API[CTXT_Type_NUM] = (void*)&CTXT_Type;
-    GMPy_C_API[CTXT_Manager_Type_NUM] = (void*)&CTXT_Manager_Type;
     GMPy_C_API[RandomState_Type_NUM] = (void*)&RandomState_Type;
 
     GMPy_C_API[GMPy_MPZ_New_NUM] = (void*)GMPy_MPZ_New;

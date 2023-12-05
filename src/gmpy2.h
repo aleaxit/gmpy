@@ -120,7 +120,6 @@ extern "C" {
  *    MPC_Object
  *    XMPC_Object        (mutable version of MPC_Object)
  *    CTXT_Object
- *    CTXT_Manager_Object
  *    RandomState_Object
  */
 
@@ -189,14 +188,6 @@ typedef struct {
     PyObject *token;
 } CTXT_Object;
 
-typedef struct {
-    PyObject_HEAD
-    CTXT_Object *new_context; /* Context that will be returned when
-                               * __enter__ is called. */
-    CTXT_Object *old_context; /* Context that will restored when
-                               * __exit__ is called. */
-} CTXT_Manager_Object;
-
 #define MPZ(obj)  (((MPZ_Object*)(obj))->z)
 #define MPQ(obj)  (((MPQ_Object*)(obj))->q)
 #define MPFR(obj) (((MPFR_Object*)(obj))->f)
@@ -213,7 +204,6 @@ typedef struct {
 #define MPC_Type_NUM          6
 #define XMPC_Type_NUM         7
 #define CTXT_Type_NUM         8
-#define CTXT_Manager_Type_NUM 9
 #define RandomState_Type_NUM  10
 
 /* The following functions are found in gmpy2_cache. */

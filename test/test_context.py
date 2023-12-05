@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 
 import gmpy2
@@ -79,6 +81,9 @@ def test_context():
             ctx.emin == -1073741823 and not ctx.subnormalize and
             ctx.real_prec == 100 and ctx.imag_prec == 200)
 
+    pytest.raises(ValueError, lambda: context(1, 2))
+    pytest.raises(ValueError, lambda: context(spam=123))
+
 
 def test_get_context():
     set_context(context())
@@ -113,10 +118,10 @@ def test_get_context():
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
 
-def test_local_context():
+def test_context_2():
     set_context(context())
 
-    with local_context() as ctx:
+    with context() as ctx:
         assert ctx.precision == 53
         ctx.precision += 20
         assert ctx.precision == 73
@@ -126,7 +131,7 @@ def test_local_context():
     assert (ctx.precision == 53 and ctx.emax == 1073741823 and
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
-    with local_context(ieee(64)) as ctx:
+    with context(ieee(64)) as ctx:
         assert (ctx.precision == 53 and ctx.emax == 1024 and
                 ctx.emin == -1073 and ctx.subnormalize)
 
@@ -145,7 +150,7 @@ def test_local_context():
     assert (ctx.precision == 53 and ctx.emax == 1073741823 and
             ctx.emin == -1073741823 and not ctx.subnormalize)
 
-    with local_context(precision=200) as ctx:
+    with context(precision=200) as ctx:
         assert ctx.precision == 200
         ctx.precision += 100
         assert ctx.precision == 300
@@ -158,9 +163,9 @@ def test_local_context():
 
 def test_nested_context():
     set_context(context())
-    
+
     r = [get_context().precision]
-    
+
     with ieee(128):
         r.append(get_context().precision)
         with ieee(256):
@@ -175,9 +180,9 @@ def test_nested_context():
 
 def test_nested_local_context():
     set_context(context())
-    
+
     r = [get_context().precision]
-    
+
     with local_context(ieee(128)):
         r.append(get_context().precision)
         with local_context(ieee(256)):
@@ -252,3 +257,28 @@ def test_context_repr():
  erange=False,\n        trap_divzero=False, divzero=False,\n\
         allow_complex=False,\n        rational_division=False,\n\
         allow_release_gil=False)"""
+
+
+def test_local_context_deprecated():
+    with pytest.deprecated_call():
+        local_context()
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        pytest.raises(DeprecationWarning, lambda: local_context())
+
+
+@pytest.mark.filterwarnings("ignore:.*:DeprecationWarning")
+def test_local_context():
+    ctx_orig = get_context()
+    ctx_orig.precision = 123
+    with context() as ctx:
+        assert ctx.precision == 53
+    with local_context() as ctx:
+        assert ctx.precision == 123
+        ctx.precision = 321
+    with local_context(ctx_orig) as ctx:
+        assert ctx.precision == 123
+
+    pytest.raises(ValueError, lambda: local_context(1, 2))
+    pytest.raises(ValueError, lambda: local_context(spam=123))

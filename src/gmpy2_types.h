@@ -95,14 +95,6 @@ typedef struct {
     gmpy_context ctx;
 } CTXT_Object;
 
-typedef struct {
-    PyObject_HEAD
-    CTXT_Object *new_context; /* Context that will be returned when
-                               * __enter__ is called. */
-    CTXT_Object *old_context; /* Context that will restored when
-                               * __exit__ is called. */
-} CTXT_Manager_Object;
-
 
 #ifdef __cplusplus
 }
