@@ -42,7 +42,7 @@ templates_path = ['_templates']
 
 # General information about the project.
 project = gmpy2.__package__
-copyright = '2012 - 2022, Case Van Horsen'
+copyright = '2012 - 2023, Case Van Horsen'
 
 gmpy2_version = packaging.version.parse(gmpy2.__version__)
 
