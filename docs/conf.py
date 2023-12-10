@@ -1,21 +1,27 @@
-# -*- coding: utf-8 -*-
-#
-# gmpy2 documentation build configuration file.
-#
-# This file is execfile()d with the current directory set to its containing dir.
+"""
+gmpy2 documentation build configuration file.
 
-import sys, os
-import gmpy2
+This file is execfile()d with the current directory set to its containing dir.
+
+The contents of this file are pickled, so don't put values in the namespace
+that aren't pickleable (module imports are okay, they're removed
+automatically).
+"""
+
+import os
+import sys
+
 import packaging.version
+
+import gmpy2
 
 if sys.version_info < (3, 9):
     raise RuntimeError("Python version >= 3.9 required to build docs.")
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath',
-              'sphinx.ext.intersphinx', 'sphinx_rtd_theme',
-              'sphinx.ext.doctest']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath', 'sphinx.ext.doctest',
+              'sphinx.ext.intersphinx', 'sphinx_rtd_theme']
 
 # The name of a reST role (builtin or Sphinx extension) to use as the
 # default role, that is, for text marked up `like this`.
@@ -55,30 +61,18 @@ version = f"{gmpy2_version.major}.{gmpy2_version.minor}"
 # The full version, including alpha/beta/rc tags.
 release = gmpy2.__version__
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-exclude_patterns = ['_build']
-
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'sphinx_rtd_theme'
 
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'gmpy2doc'
-
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [
-  ('index', 'gmpy2.tex', 'gmpy2 Documentation',
-   'Case Van Horsen', 'manual'),
-]
+latex_documents = [('index', 'gmpy2.tex', 'gmpy2 Documentation',
+                    'Case Van Horsen', 'manual')]
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'gmpy2', 'gmpy2 Documentation',
-     ['Case Van Horsen'], 3)
-]
+man_pages = [('index', 'gmpy2', 'gmpy2 Documentation', ['Case Van Horsen'], 3)]
 
 # Python code that is treated like it were put in a testcleanup directive
 # for *every* file that is tested, and for every group.
