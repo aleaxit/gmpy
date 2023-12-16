@@ -178,6 +178,7 @@ def test_nested_context():
     assert r == [53, 113, 237, 489, 237, 113, 53]
 
 
+@pytest.mark.filterwarnings("ignore:local_context().*:DeprecationWarning")
 def test_nested_local_context():
     set_context(context())
 
@@ -268,7 +269,7 @@ def test_local_context_deprecated():
         pytest.raises(DeprecationWarning, lambda: local_context())
 
 
-@pytest.mark.filterwarnings("ignore:.*:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:local_context().*:DeprecationWarning")
 def test_local_context():
     ctx_orig = get_context()
     ctx_orig.precision = 123
