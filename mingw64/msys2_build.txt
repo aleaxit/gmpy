@@ -97,26 +97,22 @@ Visual Studio Steps
 
 7.  Compile Windows binary wheels
 
-      py -3.12 -m pip install --upgrade pip setuptools wheel pytest hypothesis build
+      py -3.12 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
       py -3.12 -m build --wheel
       py -3.12 -m pip install dist\gmpy2-2.2.0a2-cp312-cp312-win_amd64.whl --force-reinstall
 
-      py -3.11 -m pip install --upgrade pip setuptools wheel pytest hypothesis build
+      py -3.11 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
       py -3.11 -m build --wheel
       py -3.11 -m pip install dist\gmpy2-2.2.0a2-cp311-cp311-win_amd64.whl --force-reinstall
 
-      py -3.10 -m pip install --upgrade pip setuptools wheel pytest hypothesis build
+      py -3.10 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
       py -3.10 -m build --wheel
       py -3.10 -m pip install dist\gmpy2-2.2.0a2-cp310-cp310-win_amd64.whl --force-reinstall
 
-      py -3.9 -m pip install --upgrade pip setuptools wheel pytest hypothesis build
+      py -3.9 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
       py -3.9 -m build --wheel
       py -3.9 -m pip install dist\gmpy2-2.2.0a2-cp39-cp39-win_amd64.whl --force-reinstall
 
-      py -3.8 -m pip install --upgrade pip setuptools wheel pytest hypothesis build
+      py -3.8 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
       py -3.8 -m build --wheel
       py -3.8 -m pip install dist\gmpy2-2.2.0a2-cp38-cp38-win_amd64.whl --force-reinstall
-
-      py -3.7 -m pip install --upgrade pip setuptools wheel pytest hypothesis build
-      py -3.7 -m build --wheel
-      py -3.7 -m pip install dist\gmpy2-2.2.0a2-cp37-cp37m-win_amd64.whl --force-reinstall            

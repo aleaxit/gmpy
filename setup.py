@@ -88,9 +88,9 @@ class Gmpy2Build(build_ext):
 extensions = [
     Extension('gmpy2.gmpy2',
               sources=sources,
-              include_dirs=['./src'] + (['gmpy2'] if ON_WINDOWS else []),
-              libraries=['mpc','mpfr','gmp'] + ([] if ON_WINDOWS else ['m']),
-              library_dirs=(['gmpy2'] if ON_WINDOWS else []),
+              include_dirs=['./src'] + (['./gmpy2'] if ON_WINDOWS else []),
+              libraries=['mpc','mpfr','gmp'] if ON_WINDOWS else ['mpc','mpfr','gmp','m'],
+              library_dirs=(['./gmpy2'] if ON_WINDOWS else []),
               extra_compile_args=_comp_args,
               )
 ]

@@ -49,7 +49,7 @@ try:
         raise SystemExit('compilation failed')
 
 
-    if subprocess.call([sys.executable, '-c', 'import test_cython; test_cython.run()']):
+    if subprocess.call([sys.executable, '-c', 'import gmpy2; import test_cython; test_cython.run()']):
         raise SystemExit('cython test failed')
 
 finally:
