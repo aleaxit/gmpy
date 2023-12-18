@@ -95,7 +95,7 @@ PyDoc_STRVAR(GMPy_doc_get_context,
 "Return a reference to the current context.");
 
 static inline PyObject *
-GMPy_CTXT_Get(void)
+GMPy_CTXT_Get(PyObject *self, PyObject *args)
 {
     PyObject *tl_context;
 
@@ -538,7 +538,8 @@ PyDoc_STRVAR(GMPy_doc_local_context,
 static PyObject *
 GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    CTXT_Object *result = NULL, *temp = NULL;
+    CTXT_Object *result = NULL;
+    PyObject *temp = NULL;
 
     if (PyErr_WarnFormat(PyExc_DeprecationWarning, 1,
                          "local_context() is deprecated, "
@@ -547,7 +548,7 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (PyTuple_GET_SIZE(args) == 0) {
-        if (!(temp = (CTXT_Object*)GMPy_CTXT_Get())) {
+        if (!(temp = GMPy_CTXT_Get(NULL, NULL))) {
             /* LCOV_EXCL_START */
             return NULL;
             /* LCOV_EXCL_STOP */
@@ -557,7 +558,7 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-        Py_DECREF((PyObject*)temp);
+        Py_DECREF(temp);
     }
     else if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
         if (!(result = (CTXT_Object*)GMPy_CTXT_Copy(PyTuple_GET_ITEM(args, 0), NULL))) {
