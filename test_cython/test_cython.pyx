@@ -1,4 +1,3 @@
-# distutils: libraries = gmp mpfr mpc
 from gmpy2 cimport *
 
 import_gmpy2()
