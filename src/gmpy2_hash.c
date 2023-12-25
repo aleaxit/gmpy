@@ -24,11 +24,6 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if PY_VERSION_HEX >= 0x030D0000
-# define Py_BUILD_CORE
-# include <internal/pycore_pyhash.h>
-#endif
-
 static Py_hash_t
 GMPy_MPZ_Hash_Slot(MPZ_Object *self)
 {
