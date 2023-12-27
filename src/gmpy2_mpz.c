@@ -109,7 +109,7 @@ static PyMethodDef GMPy_MPZ_methods[] = {
     { "is_prime", GMPy_MPZ_Method_IsPrime, METH_VARARGS, GMPy_doc_mpz_method_is_prime },
     { "is_probab_prime", (PyCFunction)GMPy_MPZ_Method_IsProbabPrime, METH_FASTCALL, GMPy_doc_mpz_method_is_probab_prime },
     { "is_square", GMPy_MPZ_Method_IsSquare, METH_NOARGS, GMPy_doc_mpz_method_is_square },
-    { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
+    { "num_digits", (PyCFunction)GMPy_MPZ_Method_NumDigits, METH_FASTCALL, GMPy_doc_mpz_method_num_digits },
     { "as_integer_ratio", GMPy_MPZ_Method_As_Integer_Ratio, METH_NOARGS, GMPy_doc_mpz_method_as_integer_ratio },
     { "to_bytes", (PyCFunction)GMPy_MPZ_Method_To_Bytes, METH_FASTCALL | METH_KEYWORDS, GMPy_doc_mpz_method_to_bytes },
     { "from_bytes", (PyCFunction)GMPy_MPZ_Method_From_Bytes, METH_FASTCALL | METH_KEYWORDS | METH_CLASS, GMPy_doc_mpz_method_from_bytes },

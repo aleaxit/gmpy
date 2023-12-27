@@ -38,13 +38,14 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_num_digits,
 "value returned may be 1 too large.");
 
 static PyObject *
-GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args)
+GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *const *args,
+                          Py_ssize_t nargs)
 {
     long base = 10;
     PyObject *result;
 
-    if (PyTuple_GET_SIZE(args) == 1) {
-        base = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
+    if (nargs == 1) {
+        base = PyLong_AsLong(args[0]);
         if (base == -1 && PyErr_Occurred()) {
             return NULL;
         }
@@ -60,21 +61,20 @@ GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *const *args,
+                            Py_ssize_t nargs)
 {
     long base = 10;
-    Py_ssize_t argc;
     MPZ_Object *temp;
     PyObject *result;
 
-    argc = PyTuple_GET_SIZE(args);
-    if (argc == 0 || argc > 2) {
+    if (nargs == 0 || nargs > 2) {
         TYPE_ERROR("num_digits() requires 'mpz',['int'] arguments");
         return NULL;
     }
 
-    if (argc == 2) {
-        base = PyLong_AsLong(PyTuple_GET_ITEM(args, 1));
+    if (nargs == 2) {
+        base = PyLong_AsLong(args[1]);
         if (base == -1 && PyErr_Occurred()) {
             return NULL;
         }
@@ -85,7 +85,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(temp = GMPy_MPZ_From_Integer(args[0], NULL))) {
         return NULL;
     }
 
@@ -100,22 +100,20 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_iroot,
 "iff the root is exact. x >= 0. n > 0.");
 
 static PyObject *
-GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *const *args,
+                        Py_ssize_t nargs)
 {
     unsigned long n;
     int exact, is_signed = 0;
     MPZ_Object *root = NULL, *tempx = NULL;
     PyObject *result = NULL;
 
-    if ((PyTuple_GET_SIZE(args) != 2) ||
-        ((!IS_INTEGER(PyTuple_GET_ITEM(args, 0))) ||
-         (!IS_INTEGER(PyTuple_GET_ITEM(args, 1))))) {
-
+    if (nargs != 2 || !IS_INTEGER(args[0]) || !IS_INTEGER(args[1])) {
         TYPE_ERROR("iroot() requires 'int','int' arguments");
         return NULL;
     }
 
-    n = (unsigned long)GMPy_Integer_AsUnsignedLongOrLong(PyTuple_GET_ITEM(args, 1), &is_signed);
+    n = (unsigned long)GMPy_Integer_AsUnsignedLongOrLong(args[1], &is_signed);
     if ((n == (unsigned long)(-1)) && PyErr_Occurred()) {
         return NULL;
     }
@@ -124,7 +122,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         /* LCOV_EXCL_START */
         return NULL;
         /* LCOV_EXCL_STOP */
@@ -161,27 +159,25 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_iroot_rem,
 "root of x and x=y**n + r. x >= 0. n > 0.");
 
 static PyObject *
-GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *const *args,
+                           Py_ssize_t nargs)
 {
     unsigned long n;
     MPZ_Object *root = NULL, *rem = NULL, *tempx = NULL;
     PyObject *result = NULL;
 
-    if ((PyTuple_GET_SIZE(args) != 2) ||
-        ((!IS_INTEGER(PyTuple_GET_ITEM(args, 0))) ||
-         (!IS_INTEGER(PyTuple_GET_ITEM(args, 1))))) {
-
+    if (nargs != 2 || !IS_INTEGER(args[0]) || !IS_INTEGER(args[1])) {
         TYPE_ERROR("iroot_rem() requires 'int','int' arguments");
         return NULL;
     }
 
-    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
+    n = GMPy_Integer_AsUnsignedLong(args[1]);
     if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
         VALUE_ERROR("n must be > 0");
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         /* LCOV_EXCL_START */
         return NULL;
         /* LCOV_EXCL_STOP */
