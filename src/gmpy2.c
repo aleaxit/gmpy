@@ -814,8 +814,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "unpack", GMPy_MPZ_unpack, METH_VARARGS, doc_unpack },
     { "version", GMPy_get_version, METH_NOARGS, GMPy_doc_version },
     { "xbit_mask", GMPy_XMPZ_Function_XbitMask, METH_O, GMPy_doc_xmpz_function_xbit_mask },
-    { "_mpmath_normalize", (PyCFunction)(void(*)(void))Pympz_mpmath_normalize_fast, METH_FASTCALL, doc_mpmath_normalizeg },
-    { "_mpmath_create", (PyCFunction)(void(*)(void))Pympz_mpmath_create_fast, METH_FASTCALL, doc_mpmath_create },
+    { "_mpmath_normalize", (PyCFunction)Pympz_mpmath_normalize_fast, METH_FASTCALL, doc_mpmath_normalizeg },
+    { "_mpmath_create", (PyCFunction)Pympz_mpmath_create_fast, METH_FASTCALL, doc_mpmath_create },
 
     { "acos", GMPy_Context_Acos, METH_O, GMPy_doc_function_acos },
     { "acosh", GMPy_Context_Acosh, METH_O, GMPy_doc_function_acosh },

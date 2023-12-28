@@ -94,7 +94,7 @@ PyDoc_STRVAR(doc_mpmath_normalizeg,
 "_mpmath_normalize(...): helper function for mpmath.");
 
 static PyObject *
-Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
+Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     long sign = 0;
     long carry = 0;
@@ -103,7 +103,7 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
     MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
     Py_UCS4 rnd = 0;
 
-    if (PyVectorcall_NARGS(nargs) == 6) {
+    if (nargs == 6) {
         /* Need better error-checking here. Under Python 3.0, overflow into
            C-long is possible. */
         sign = mpmath_get_sign(args[0]);
@@ -270,24 +270,21 @@ PyDoc_STRVAR(doc_mpmath_create,
 "_mpmath_create(...): helper function for mpmath.");
 
 static PyObject *
-Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
+Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     long sign, carry = 0;
     mp_bitcnt_t zbits, bc = 0, prec = 0, shift = 0;
-    Py_ssize_t n = 0;
     PyObject *exp = NULL, *newexp = NULL, *newexp2 = NULL, *tmp = NULL;
     MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
 
     Py_UCS4 rnd = (Py_UCS4)'f';
 
-    n = PyVectorcall_NARGS(nargs);
-
-    if (n < 2) {
+    if (nargs < 2) {
         TYPE_ERROR("mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
         return NULL;
     }
 
-    switch (n) {
+    switch (nargs) {
         case 4:
             rnd = PyString_1Char(args[3]);
         case 3:

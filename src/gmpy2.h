@@ -71,10 +71,6 @@ extern "C" {
 #  error "GMPY2 requires Python 3.7 or later."
 #endif
 
-#if PY_VERSION_HEX < 0x03080000
-#  define PyVectorcall_NARGS(n) (n)
-#endif
-
 /* Include headers for GMP, MPFR, and MPC. */
 
 #include <gmp.h>
