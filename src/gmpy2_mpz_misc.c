@@ -240,18 +240,19 @@ GMPy_MPZ_Method_Trunc(PyObject *self, PyObject *other)
 PyDoc_STRVAR(GMPy_doc_mpz_method_round, "Round an mpz to power of 10.");
 
 static PyObject *
-GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
+GMPy_MPZ_Method_Round(PyObject *self, PyObject *const *args,
+                      Py_ssize_t nargs)
 {
     Py_ssize_t round_digits;
     MPZ_Object *result;
     mpz_t temp, rem;
 
-    if (PyTuple_GET_SIZE(args) == 0) {
+    if (nargs == 0) {
         Py_INCREF(self);
         return self;
     }
 
-    round_digits = GMPy_Integer_AsSsize_t(PyTuple_GET_ITEM(args, 0));
+    round_digits = GMPy_Integer_AsSsize_t(args[0]);
     if (round_digits == -1 && PyErr_Occurred()) {
         TYPE_ERROR("__round__() requires 'int' argument");
         return NULL;
@@ -382,7 +383,8 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_gcdext,
 "and g == a*s + b*t.");
 
 static PyObject *
-GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_GCDext(PyObject *self, PyObject * const *args,
+                         Py_ssize_t nargs)
 {
     PyObject *arg0, *arg1, *result = NULL;
     MPZ_Object *g = NULL, *s = NULL, *t = NULL, *tempa = NULL, *tempb = NULL;
@@ -390,7 +392,7 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
 
     CHECK_CONTEXT(context);
 
-    if(PyTuple_GET_SIZE(args) != 2) {
+    if(nargs != 2) {
         TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
         return NULL;
     }
@@ -409,8 +411,8 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
         /* LCOV_EXCL_STOP */
     }
 
-    arg0 = PyTuple_GET_ITEM(args, 0);
-    arg1 = PyTuple_GET_ITEM(args, 1);
+    arg0 = args[0];
+    arg1 = args[1];
 
     if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
@@ -448,7 +450,8 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_divm,
 "exception if no such value x exists.");
 
 static PyObject *
-GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Divm(PyObject *self, PyObject * const *args,
+                       Py_ssize_t nargs)
 {
     MPZ_Object *result = NULL, *num = NULL, *den = NULL, *mod = NULL;
     mpz_t numz, denz, modz, gcdz;
@@ -457,7 +460,7 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
 
     CHECK_CONTEXT(context);
 
-    if (PyTuple_GET_SIZE(args) != 3) {
+    if (nargs != 3) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         return NULL;
     }
@@ -468,9 +471,9 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
         /* LCOV_EXCL_STOP */
     }
 
-    if (!(num = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
-        !(den = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
-        !(mod = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL))) {
+    if (!(num = GMPy_MPZ_From_Integer(args[0], NULL)) ||
+        !(den = GMPy_MPZ_From_Integer(args[1], NULL)) ||
+        !(mod = GMPy_MPZ_From_Integer(args[2], NULL))) {
 
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         Py_XDECREF((PyObject*)num);
@@ -602,22 +605,23 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_multi_fac,
 "factorial is defined as n*(n-m)*(n-2m)...");
 
 static PyObject *
-GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *const *args,
+                           Py_ssize_t nargs)
 {
     MPZ_Object *result = NULL;
     unsigned long n, m;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("multi_fac() requires 2 integer arguments");
         return NULL;
     }
 
-    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 0));
+    n = GMPy_Integer_AsUnsignedLong(args[0]);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
 
-    m = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
+    m = GMPy_Integer_AsUnsignedLong(args[1]);
     if (m == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -747,12 +751,13 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_comb,
 "time'. k >= 0. Same as bincoef(n, k)");
 
 static PyObject *
-GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject * const *args,
+                          Py_ssize_t nargs)
 {
     MPZ_Object *result = NULL, *tempx;
     unsigned long n, k;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("bincoef() requires two integer arguments");
         return NULL;
     }
@@ -763,13 +768,13 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
         /* LCOV_EXCL_STOP */
     }
 
-    k = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
+    k = GMPy_Integer_AsUnsignedLong(args[1]);
     if (k == (unsigned long)(-1) && PyErr_Occurred()) {
         Py_DECREF((PyObject*)result);
         return NULL;
     }
 
-    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 0));
+    n = GMPy_Integer_AsUnsignedLong(args[0]);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         /* Since we plan to skip the else clause and continue,
          * we need to clear the error since we aren't acting on it.
@@ -782,7 +787,7 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
         return (PyObject*)result;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         Py_DECREF((PyObject*)result);
         return NULL;
     }
@@ -874,13 +879,14 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_remove,
 "possible. m is the multiplicity f in x. f > 1.");
 
 static PyObject *
-GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Remove(PyObject *self, PyObject * const *args,
+                         Py_ssize_t nargs)
 {
     MPZ_Object *result = NULL, *tempx = NULL, *tempf = NULL;
     PyObject *x, *f;
     size_t multiplicity;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("remove() requires 'mpz','mpz' arguments");
         return NULL;
     }
@@ -891,8 +897,8 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
         /* LCOV_EXCL_STOP */
     }
 
-    x = PyTuple_GET_ITEM(args, 0);
-    f = PyTuple_GET_ITEM(args, 1);
+    x = args[0];
+    f = args[1];
 
     if (MPZ_Check(x) && MPZ_Check(f)) {
         if (mpz_cmp_si(MPZ(f), 2) < 0) {
