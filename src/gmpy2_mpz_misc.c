@@ -941,13 +941,14 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_invert,
 "inverse exists.");
 
 static PyObject *
-GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Invert(PyObject *self, PyObject * const *args,
+                         Py_ssize_t nargs)
 {
     PyObject *x, *y;
     MPZ_Object *result = NULL, *tempx = NULL, *tempy = NULL;
     int success;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
         return NULL;
     }
@@ -958,8 +959,8 @@ GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args)
         /* LCOV_EXCL_STOP */
     }
 
-    x = PyTuple_GET_ITEM(args, 0);
-    y = PyTuple_GET_ITEM(args, 1);
+    x = args[0];
+    y = args[1];
 
     if (MPZ_Check(x) && MPZ_Check(y)) {
         if (mpz_sgn(MPZ(y)) == 0) {
@@ -1011,12 +1012,13 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_divexact,
 "division but requires the remainder is zero!");
 
 static PyObject *
-GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Divexact(PyObject *self, PyObject * const *args,
+                           Py_ssize_t nargs)
 {
     PyObject *x, *y;
     MPZ_Object *result, *tempx= NULL, *tempy = NULL;
 
-    if(PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
         return NULL;
     }
@@ -1027,8 +1029,8 @@ GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
         /* LCOV_EXCL_STOP */
     }
 
-    x = PyTuple_GET_ITEM(args, 0);
-    y = PyTuple_GET_ITEM(args, 1);
+    x = args[0];
+    y = args[1];
 
     if (MPZ_Check(x) && MPZ_Check(y)) {
         if (mpz_sgn(MPZ(y)) == 0) {
@@ -1114,27 +1116,28 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_is_divisible,
 "Returns `True` if x is divisible by d, else return `False`.");
 
 static PyObject *
-GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject * const * args,
+                              Py_ssize_t nargs)
 {
     unsigned long temp;
     int res = 0;
     MPZ_Object *tempx, *tempd;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("is_divisible() requires 2 integer arguments");
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         return NULL;
     }
 
-    temp = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
+    temp = GMPy_Integer_AsUnsignedLong(args[1]);
     if (temp == (unsigned long)-1 && PyErr_Occurred()) {
         PyErr_Clear();
         /* Implement mpz_divisible_p here. */
 
-        if (!(tempd = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
+        if (!(tempd = GMPy_MPZ_From_Integer(args[1], NULL))) {
             TYPE_ERROR("is_divisible() requires 2 integer arguments");
             Py_DECREF((PyObject*)tempx);
             return NULL;
@@ -1196,19 +1199,20 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_is_congruent,
 "Returns `True` if x is congruent to y modulo m, else return `False`.");
 
 static PyObject *
-GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject * const *args,
+                              Py_ssize_t nargs)
 {
     int res;
     MPZ_Object *tempx = NULL, *tempy = NULL, *tempm = NULL;
 
-    if (PyTuple_GET_SIZE(args) != 3) {
+    if (nargs != 3) {
         TYPE_ERROR("is_congruent() requires 3 integer arguments");
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
-        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
-        !(tempm = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(args[1], NULL)) ||
+        !(tempm = GMPy_MPZ_From_Integer(args[2], NULL))) {
 
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)tempy);
