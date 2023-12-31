@@ -106,7 +106,7 @@ static PyMethodDef GMPy_MPZ_methods[] = {
     { "is_even", GMPy_MPZ_Method_IsEven, METH_NOARGS, GMPy_doc_mpz_method_is_even },
     { "is_odd", GMPy_MPZ_Method_IsOdd, METH_NOARGS, GMPy_doc_mpz_method_is_odd },
     { "is_power", GMPy_MPZ_Method_IsPower, METH_NOARGS, GMPy_doc_mpz_method_is_power },
-    { "is_prime", GMPy_MPZ_Method_IsPrime, METH_VARARGS, GMPy_doc_mpz_method_is_prime },
+    { "is_prime", (PyCFunction)GMPy_MPZ_Method_IsPrime, METH_FASTCALL, GMPy_doc_mpz_method_is_prime },
     { "is_probab_prime", (PyCFunction)GMPy_MPZ_Method_IsProbabPrime, METH_FASTCALL, GMPy_doc_mpz_method_is_probab_prime },
     { "is_square", GMPy_MPZ_Method_IsSquare, METH_NOARGS, GMPy_doc_mpz_method_is_square },
     { "num_digits", (PyCFunction)GMPy_MPZ_Method_NumDigits, METH_FASTCALL, GMPy_doc_mpz_method_num_digits },

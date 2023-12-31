@@ -1321,22 +1321,20 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_is_prime,
 "to n Miller-Rabin tests are performed.");
 
 static PyObject *
-GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject * const *args,
+                          Py_ssize_t nargs)
 {
     int i;
     unsigned long reps = 25;
     MPZ_Object* tempx;
-    Py_ssize_t argc;
 
-    argc = PyTuple_GET_SIZE(args);
-
-    if (argc == 0 || argc > 2) {
+    if (nargs == 0 || nargs > 2) {
         TYPE_ERROR("is_prime() requires 'mpz'[,'int'] arguments");
         return NULL;
     }
 
-    if (PyTuple_GET_SIZE(args) == 2) {
-        reps = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
+    if (nargs == 2) {
+        reps = GMPy_Integer_AsUnsignedLong(args[1]);
         if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
             return NULL;
         }
@@ -1346,7 +1344,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
         }
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL))) {
         return NULL;
     }
 
@@ -1371,21 +1369,19 @@ PyDoc_STRVAR(GMPy_doc_mpz_method_is_prime,
 "to n Miller-Rabin tests are performed.");
 
 static PyObject *
-GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args)
+GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject * const *args,
+                        Py_ssize_t nargs)
 {
     int i;
     unsigned long reps = 25;
-    Py_ssize_t argc;
 
-    argc = PyTuple_GET_SIZE(args);
-
-    if (argc > 1) {
+    if (nargs > 1) {
         TYPE_ERROR("is_prime() takes at most 1 argument");
         return NULL;
     }
 
-    if (PyTuple_GET_SIZE(args) == 1) {
-        reps = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 0));
+    if (nargs == 1) {
+        reps = GMPy_Integer_AsUnsignedLong(args[0]);
         if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
             return NULL;
         }
@@ -1559,18 +1555,19 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_jacobi,
 "Return the Jacobi symbol (x|y). y must be odd and >0.");
 
 static PyObject *
-GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *const *args,
+                         Py_ssize_t nargs)
 {
     MPZ_Object *tempx = NULL, *tempy = NULL;
     long res;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("jacobi() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
-        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(args[1], NULL))) {
 
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)tempy);
@@ -1595,18 +1592,19 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_legendre,
 "Return the Legendre symbol (x|y). y is assumed to be an odd prime.");
 
 static PyObject *
-GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Legendre(PyObject *self, PyObject * const *args,
+                           Py_ssize_t nargs)
 {
     MPZ_Object *tempx = NULL, *tempy = NULL;
     long res;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("legendre() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
-        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(args[1], NULL))) {
 
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)tempy);
@@ -1631,18 +1629,19 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_kronecker,
 "Return the Kronecker-Jacobi symbol (x|y).");
 
 static PyObject *
-GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject * const *args,
+                            Py_ssize_t nargs)
 {
     MPZ_Object *tempx = NULL, *tempy = NULL;
     long res;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
+    if (nargs != 2) {
         TYPE_ERROR("kronecker() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
-        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(args[0], NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(args[1], NULL))) {
 
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)tempy);
