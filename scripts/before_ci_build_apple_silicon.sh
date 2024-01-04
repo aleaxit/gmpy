@@ -24,5 +24,7 @@ if [ ! -f finish_before_ci_build ]; then
   fi
   touch finish_before_ci_build
 else
-  echo "has finished before ci build"
+  (cd gmp-*[0-9] && make install)
+  (cd mpfr-*[0-9] && make install)
+  (cd mpc-*[0-9] && make install)
 fi
