@@ -301,6 +301,9 @@ def test_mpfr_mpmath():
     assert mpfr(c, precision=10)._mpf_ == (1, mpz(804), -8, 10)
     assert mpmath.mpf(mpfr(c, precision=10), prec=10) == mpmath.mpf(c, prec=10)
     assert mpfr(d)._mpf_ == (0, mpz(0), 1, 1)
+    pytest.raises(TypeError, lambda: gmpy2._mpmath_create(1))
+    pytest.raises(ValueError, lambda: gmpy2._mpmath_create(1, 1, -1))
+    pytest.raises(TypeError, lambda: mpmath.mpf(("!", 1,)))
 
 
 def test_mpfr_format():
