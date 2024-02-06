@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2023 Case Van Horsen                                   *
+ * Copyright 2008 - 2024 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -46,54 +46,54 @@ static PyObject * GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const
 static PyObject * GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Trunc(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Method_Round(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_Round(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static Py_ssize_t GMPy_MPZ_Method_Length(MPZ_Object *self);
 static PyObject * GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item);
 static PyObject * GMPy_MPZ_Method_IsSquare(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Method_IsProbabPrime(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Method_IsEven(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_IsOdd(PyObject *self, PyObject *other);
 static PyObject * GMPy_MP_Method_Conjugate(PyObject *self, PyObject *args);
 
-static PyObject * GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_GCD(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_LCM(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
-static PyObject * GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_GCDext(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_Divm(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_Primorial(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_DoubleFac(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_Fib(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_Lucas(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_Isqrt(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsqrtRem(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_Remove(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_Invert(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_Divexact(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_IsProbabPrime(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other);
 #if (__GNU_MP_VERSION > 6) || (__GNU_MP_VERSION == 6 &&  __GNU_MP_VERSION_MINOR >= 3)
 static PyObject * GMPy_MPZ_Function_PrevPrime(PyObject *self, PyObject *other);
 #endif
-static PyObject * GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_Legendre(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
+static PyObject * GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject * const *args, Py_ssize_t nargs);
 static PyObject * GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other);
 

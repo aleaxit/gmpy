@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2023 Case Van Horsen                                   *
+ * Copyright 2008 - 2024 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -107,7 +107,7 @@ static PyMethodDef GMPy_XMPZ_methods [] =
     { "iter_clear", (PyCFunction)GMPy_XMPZ_Method_IterClear, METH_VARARGS | METH_KEYWORDS, GMPy_doc_xmpz_method_iter_clear },
     { "iter_set", (PyCFunction)GMPy_XMPZ_Method_IterSet, METH_VARARGS | METH_KEYWORDS, GMPy_doc_xmpz_method_iter_set },
     { "make_mpz", GMPy_XMPZ_Method_MakeMPZ, METH_NOARGS, GMPy_doc_xmpz_method_make_mpz },
-    { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
+    { "num_digits", (PyCFunction)GMPy_MPZ_Method_NumDigits, METH_FASTCALL, GMPy_doc_mpz_method_num_digits },
     { "num_limbs", GMPy_XMPZ_Method_NumLimbs, METH_NOARGS, GMPy_doc_xmpz_method_num_limbs },
     { "limbs_read", GMPy_XMPZ_Method_LimbsRead, METH_NOARGS, GMPy_doc_xmpz_method_limbs_read },
     { "limbs_write", GMPy_XMPZ_Method_LimbsWrite, METH_O, GMPy_doc_xmpz_method_limbs_write },

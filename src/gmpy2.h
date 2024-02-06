@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2023 Case Van Horsen                                   *
+ * Copyright 2008 - 2024 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -69,10 +69,6 @@ extern "C" {
 
 #if PY_VERSION_HEX < 0x03070000
 #  error "GMPY2 requires Python 3.7 or later."
-#endif
-
-#if PY_VERSION_HEX < 0x03080000
-#  define PyVectorcall_NARGS(n) (n)
 #endif
 
 /* Include headers for GMP, MPFR, and MPC. */

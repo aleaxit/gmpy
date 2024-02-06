@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2023 Case Van Horsen                                   *
+ * Copyright 2008 - 2024 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -152,44 +152,6 @@ extern "C" {
 #  define GET_OB_DIGIT(obj) obj->ob_digit
 #  define _PyLong_IsNegative(obj) (Py_SIZE(obj) < 0)
 #  define _PyLong_DigitCount(obj) (_PyLong_IsNegative(obj)? -Py_SIZE(obj):Py_SIZE(obj))
-#endif
-
-#if PY_VERSION_HEX >= 0x030D0000
-
-#define MAX_LONG_DIGITS \
-    ((PY_SSIZE_T_MAX - offsetof(PyLongObject, long_value.ob_digit))/sizeof(digit))
-
-PyLongObject *
-_PyLong_New(Py_ssize_t size)
-{
-    assert(size >= 0);
-    PyLongObject *result;
-    if (size > (Py_ssize_t)MAX_LONG_DIGITS) {
-        PyErr_SetString(PyExc_OverflowError,
-                        "too many digits in integer");
-        return NULL;
-    }
-    /* Fast operations for single digit integers (including zero)
-     * assume that there is always at least one digit present. */
-    Py_ssize_t ndigits = size ? size : 1;
-    /* Number of bytes needed is: offsetof(PyLongObject, ob_digit) +
-       sizeof(digit)*size.  Previous incarnations of this code used
-       sizeof() instead of the offsetof, but this risks being
-       incorrect in the presence of padding between the header
-       and the digits. */
-    result = PyObject_Malloc(offsetof(PyLongObject, long_value.ob_digit) +
-                             ndigits*sizeof(digit));
-    if (!result) {
-        PyErr_NoMemory();
-        return NULL;
-    }
-    _PyLong_SetSignAndDigitCount(result, size != 0, size);
-    PyObject_Init((PyObject*)result, &PyLong_Type);
-    /* The digit has to be initialized explicitly to avoid
-     * use-of-uninitialized-value. */
-    result->long_value.ob_digit[0] = 0;
-    return result;
-}
 #endif
 
 /* Since the macros are used in gmpy2's codebase, these functions are skipped

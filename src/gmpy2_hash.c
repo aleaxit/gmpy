@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2023 Case Van Horsen                                   *
+ * Copyright 2008 - 2024 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -23,11 +23,6 @@
  * You should have received a copy of the GNU Lesser General Public        *
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-#if PY_VERSION_HEX >= 0x030D0000
-# define Py_BUILD_CORE
-# include <internal/pycore_pyhash.h>
-#endif
 
 static Py_hash_t
 GMPy_MPZ_Hash_Slot(MPZ_Object *self)

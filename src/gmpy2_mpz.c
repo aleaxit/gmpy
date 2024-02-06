@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2023 Case Van Horsen                                   *
+ * Copyright 2008 - 2024 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -88,7 +88,7 @@ static PyMethodDef GMPy_MPZ_methods[] = {
     { "__format__", GMPy_MPZ_Format, METH_VARARGS, GMPy_doc_mpz_format },
     { "__ceil__", GMPy_MPZ_Method_Ceil, METH_NOARGS, GMPy_doc_mpz_method_ceil },
     { "__floor__", GMPy_MPZ_Method_Floor, METH_NOARGS, GMPy_doc_mpz_method_floor },
-    { "__round__", GMPy_MPZ_Method_Round, METH_VARARGS, GMPy_doc_mpz_method_round },
+    { "__round__", (PyCFunction)GMPy_MPZ_Method_Round, METH_FASTCALL, GMPy_doc_mpz_method_round },
     { "__sizeof__", GMPy_MPZ_Method_SizeOf, METH_NOARGS, GMPy_doc_mpz_method_sizeof },
     { "__trunc__", GMPy_MPZ_Method_Trunc, METH_NOARGS, GMPy_doc_mpz_method_trunc },
     { "bit_clear", GMPy_MPZ_bit_clear_method, METH_O, doc_bit_clear_method },
@@ -106,10 +106,10 @@ static PyMethodDef GMPy_MPZ_methods[] = {
     { "is_even", GMPy_MPZ_Method_IsEven, METH_NOARGS, GMPy_doc_mpz_method_is_even },
     { "is_odd", GMPy_MPZ_Method_IsOdd, METH_NOARGS, GMPy_doc_mpz_method_is_odd },
     { "is_power", GMPy_MPZ_Method_IsPower, METH_NOARGS, GMPy_doc_mpz_method_is_power },
-    { "is_prime", GMPy_MPZ_Method_IsPrime, METH_VARARGS, GMPy_doc_mpz_method_is_prime },
+    { "is_prime", (PyCFunction)GMPy_MPZ_Method_IsPrime, METH_FASTCALL, GMPy_doc_mpz_method_is_prime },
     { "is_probab_prime", (PyCFunction)GMPy_MPZ_Method_IsProbabPrime, METH_FASTCALL, GMPy_doc_mpz_method_is_probab_prime },
     { "is_square", GMPy_MPZ_Method_IsSquare, METH_NOARGS, GMPy_doc_mpz_method_is_square },
-    { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
+    { "num_digits", (PyCFunction)GMPy_MPZ_Method_NumDigits, METH_FASTCALL, GMPy_doc_mpz_method_num_digits },
     { "as_integer_ratio", GMPy_MPZ_Method_As_Integer_Ratio, METH_NOARGS, GMPy_doc_mpz_method_as_integer_ratio },
     { "to_bytes", (PyCFunction)GMPy_MPZ_Method_To_Bytes, METH_FASTCALL | METH_KEYWORDS, GMPy_doc_mpz_method_to_bytes },
     { "from_bytes", (PyCFunction)GMPy_MPZ_Method_From_Bytes, METH_FASTCALL | METH_KEYWORDS | METH_CLASS, GMPy_doc_mpz_method_from_bytes },
