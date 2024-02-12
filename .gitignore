@@ -8,10 +8,11 @@ MANIFEST
 .vscode/
 # Ignore files cached by Hypothesis (including examples directory so far)
 .hypothesis/
-# Ignore any of the Windows libraries that are copies to gmpy2 directory.
+# Ignore any of the Windows libraries that are copied to gmpy2 directory.
 gmpy2/gmp.h
 gmpy2/gmp.lib
 gmpy2/libgcc_s_seh-1.dll
+gmpy2/libgmpy2_*.dll
 gmpy2/libgmp-10.dll
 gmpy2/libmpc-3.dll
 gmpy2/libmpfr-6.dll

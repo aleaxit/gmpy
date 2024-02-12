@@ -9,7 +9,7 @@ _comp_args = ["DSHARED=1"]
 sources = ['src/gmpy2.c']
 winlibs = ['gmp.h','mpfr.h','mpc.h',
            'gmp.lib','mpfr.lib','mpc.lib',
-           'libgmp-10.dll','libmpfr-6.dll','libmpc-3.dll',
+           'libgmpy2_2_2_gmp-10.dll','libgmpy2_2_2_mpfr-6.dll','libgmpy2_2_2_mpc-3.dll',
            'libgcc_s_seh-1.dll','libwinpthread-1.dll']
 
 # Copy the pre-built Windows libraries to the 'gmpy2' directory'.
