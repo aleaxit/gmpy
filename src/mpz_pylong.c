@@ -11,6 +11,9 @@
  *
  */
 
+
+#include "pythoncapi_compat.h"
+
 /* This file created by merging mpn_pylong and mpz_pylong. Permission
  * was granted by the original author to make this code available under
  * the LGPLv2+ license.
@@ -262,12 +265,12 @@ PyObject *
 mpz_get_PyLong(mpz_srcptr z)
 {
     size_t size = mpn_pylong_size(z->_mp_d, ABS(z->_mp_size));
-    PyLongObject *lptr = PyObject_NEW_VAR(PyLongObject, &PyLong_Type, size);
+    PyLongObject *lptr = PyObject_NewVar(PyLongObject, &PyLong_Type, size);
 
     if (lptr != NULL) {
         mpn_get_pylong(lptr->ob_digit, size, z->_mp_d, ABS(z->_mp_size));
         if (z->_mp_size < 0)
-            Py_SIZE(lptr) = -(Py_SIZE(lptr));
+            Py_SET_SIZE(lptr, -(Py_SIZE(lptr)));
     }
 
     return (PyObject*)lptr;

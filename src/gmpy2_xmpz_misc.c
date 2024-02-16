@@ -24,6 +24,9 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+
+#include "pythoncapi_compat.h"
+
 PyDoc_STRVAR(GMPy_doc_xmpz_function_xbit_mask,
 "xbit_mask(n, /) -> xmpz\n\n"
 "Return an 'xmpz' exactly n bits in length with all bits set.\n");
@@ -234,7 +237,7 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
         Py_ssize_t cur, i, seq_len, start, stop, step, slicelength, temp;
 
         seq_len = mpz_sizeinbase(self->z, 2);
-        if (((PySliceObject*)item)->stop != Py_None) {
+        if (!Py_IsNone(((PySliceObject*)item)->stop)) {
             /* If a fixed endpoint is specified, and the endpoint is greater
              * than the length of the xmpz object, allow the underlying xmpz
              * object to be made larger.
@@ -336,7 +339,7 @@ static void
 GMPy_Iter_Dealloc(GMPy_Iter_Object *self)
 {
     Py_XDECREF((PyObject*)self->bitmap);
-    PyObject_Del(self);
+    PyObject_Free(self);
 };
 
 static PyObject *
