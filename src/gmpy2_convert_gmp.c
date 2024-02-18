@@ -53,7 +53,7 @@ GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
     }
 
     len = _PyLong_DigitCount(templong);
-    negative = _PyLong_IsNegative(templong);
+    negative = _PyLong_Sign(obj) < 0;
 
     switch (len) {
     case 1:
@@ -83,7 +83,7 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
     PyLongObject *templong = (PyLongObject*)obj;
 
     len = _PyLong_DigitCount(templong);
-    negative = _PyLong_IsNegative(templong);
+    negative = _PyLong_Sign(obj) < 0;
 
     switch (len) {
     case 1:
@@ -394,7 +394,7 @@ GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
     }
 
     len = _PyLong_DigitCount(templong);
-    negative = _PyLong_IsNegative(templong);
+    negative = _PyLong_Sign(obj) < 0;
 
     switch (len) {
     case 1:
