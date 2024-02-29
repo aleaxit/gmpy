@@ -91,28 +91,43 @@ Visual Studio Steps
       mpfr.h
       mpfr.lib
 
-6.  Copy the contents of winlibs into gmpy2.
-
-      copy mingw64\winlibs\*.* gmpy2
-
-7.  Compile Windows binary wheels
+6.  Compile Windows binary wheels
 
       py -3.12 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
-      py -3.12 -m build --wheel
+      py -3.12 -m build --wheel --no-isolation
       py -3.12 -m pip install dist\gmpy2-2.2.0a2-cp312-cp312-win_amd64.whl --force-reinstall
 
       py -3.11 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
-      py -3.11 -m build --wheel
+      py -3.11 -m build --wheel --no-isolation
       py -3.11 -m pip install dist\gmpy2-2.2.0a2-cp311-cp311-win_amd64.whl --force-reinstall
 
       py -3.10 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
-      py -3.10 -m build --wheel
+      py -3.10 -m build --wheel --no-isolation
       py -3.10 -m pip install dist\gmpy2-2.2.0a2-cp310-cp310-win_amd64.whl --force-reinstall
 
       py -3.9 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
-      py -3.9 -m build --wheel
+      py -3.9 -m build --wheel --no-isolation
       py -3.9 -m pip install dist\gmpy2-2.2.0a2-cp39-cp39-win_amd64.whl --force-reinstall
 
       py -3.8 -m pip install --upgrade pip setuptools wheel pytest hypothesis build cython mpmath
-      py -3.8 -m build --wheel
+      py -3.8 -m build --wheel --no-isolation
       py -3.8 -m pip install dist\gmpy2-2.2.0a2-cp38-cp38-win_amd64.whl --force-reinstall
+      
+7.  Run the test suite 
+
+      cd test
+      py -3.11 -m pytest
+      
+8.  Compile the C-API demo program
+
+      cd demo
+      py -3.11 setup.py build_ext
+      cd  build\lib.win-amd64-cpython-311
+      py -3.11
+      >>> import gmpy2
+      >>> import gmpy2_demo
+      >>> dir(gmpy2_demo)
+      ['__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', 'factor']
+      >>> gmpy2_demo.factor(123456789)
+      [(mpz(3), mpz(2)), (mpz(3607), mpz(1)), (mpz(3803), mpz(1))]
+      >>>

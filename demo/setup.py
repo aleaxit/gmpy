@@ -34,5 +34,5 @@ setup (name = "gmpy2_demo",
        maintainer_email = "casevh@gmail.com",
        url = "https://github.com/aleaxit/gmpy",
 
-       ext_modules = [ gmpy_ext ]
+       ext_modules = gmpy_ext
 )

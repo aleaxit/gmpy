@@ -9,7 +9,7 @@ _comp_args = ["DSHARED=1"]
 sources = ['src/gmpy2.c']
 winlibs = ['gmp.h','mpfr.h','mpc.h',
            'gmp.lib','mpfr.lib','mpc.lib',
-           'libgmpy2_2_2_gmp-10.dll','libgmpy2_2_2_mpfr-6.dll','libgmpy2_2_2_mpc-3.dll',
+           'libgmp-10.dll','libmpfr-6.dll','libmpc-3.dll',
            'libgcc_s_seh-1.dll','libwinpthread-1.dll']
 
 # Copy the pre-built Windows libraries to the 'gmpy2' directory'.
@@ -21,6 +21,13 @@ if ON_WINDOWS:
     for filename in winlibs:
         try:
             shutil.copy(src / filename, dst / filename)
+        except(FileNotFoundError):
+            pass
+    # Also copy gmpy2.h and gmpy2.pxd to gmpy2 directory to avoid symlink
+    # issues on Windows.
+    for filename in ['gmpy2.h', 'gmpy2.pxd']:
+        try:
+            shutil.copy(Path('src') / filename, dst / filename)
         except(FileNotFoundError):
             pass
 else:
