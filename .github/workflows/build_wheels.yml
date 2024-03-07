@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-14]
+        os: [ubuntu-22.04, macos-12, macos-14]
     steps:
       - uses: actions/checkout@v3
       - if: runner.os == 'macOS'
