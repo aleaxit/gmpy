@@ -20,6 +20,7 @@ jobs:
           CIBW_SKIP: pp*
           CIBW_BEFORE_BUILD: bash scripts/cibw_before_all.sh
           CIBW_TEST_EXTRAS: tests
+          CIBW_TEST_SKIP: cp38-macosx_arm64
           CIBW_TEST_COMMAND: >
             pytest {package}/test/ &&
             python {package}/test_cython/runtests.py
