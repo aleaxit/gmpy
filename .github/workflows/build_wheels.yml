@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04, macos-12, macos-14]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - if: runner.os == 'macOS'
         run: brew install pipx
       - name: Build wheels
@@ -25,7 +25,17 @@ jobs:
             python {package}/test_cython/runtests.py
           CIBW_REPAIR_WHEEL_COMMAND: >
             bash scripts/cibw_repair_wheel_command.sh {dest_dir} {wheel}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/
+  merge:
+    runs-on: ubuntu-22.04
+    needs: build_wheels
+    steps:
+      - name: Merge Wheels
+        uses: actions/upload-artifact/merge@v4
         with:
           name: wheels
-          path: ./wheelhouse
+          pattern: wheels-*
+          delete-merged: true

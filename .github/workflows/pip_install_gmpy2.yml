@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -31,7 +31,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Libs
@@ -70,7 +70,7 @@ jobs:
           gcov_include: src/*.c
           gcov_args: --no-external
       - name: Archive build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: matrix.python-version == 3.11
         with:
           path: |
@@ -89,7 +89,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2
         name: Setup msys2
         with:
