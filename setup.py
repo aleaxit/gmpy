@@ -1,41 +1,19 @@
+import os
 import platform
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-import shutil
 from pathlib import Path
 
 ON_WINDOWS = platform.system() == 'Windows'
 _comp_args = ["DSHARED=1"]
 sources = ['src/gmpy2.c']
-winlibs = ['gmp.h','mpfr.h','mpc.h',
-           'gmp.lib','mpfr.lib','mpc.lib',
-           'libgmp-10.dll','libmpfr-6.dll','libmpc-3.dll',
-           'libgcc_s_seh-1.dll','libwinpthread-1.dll']
-
-# Copy the pre-built Windows libraries to the 'gmpy2' directory'.
-# If you're not on Windows, delete the Windows libraries from the 'gmpy2'
-# directory if the they exist.
-src = Path('mingw64') / 'winlibs'
-dst = Path('gmpy2')
-if ON_WINDOWS:
-    for filename in winlibs:
-        try:
-            shutil.copy(src / filename, dst / filename)
-        except(FileNotFoundError):
-            pass
-    # Also copy gmpy2.h and gmpy2.pxd to gmpy2 directory to avoid symlink
-    # issues on Windows.
-    for filename in ['gmpy2.h', 'gmpy2.pxd']:
-        try:
-            shutil.copy(Path('src') / filename, dst / filename)
-        except(FileNotFoundError):
-            pass
+if os.getenv('CIBUILDWHEEL'):
+    include_dirs = [os.path.join(os.path.dirname(__file__), '.local', 'include')]
+    library_dirs = [os.path.join(os.path.dirname(__file__), '.local',
+                                 'bin' if ON_WINDOWS else 'lib')]
 else:
-    for filename in winlibs:
-        try:
-            (dst / filename).unlink()
-        except(FileNotFoundError):
-            pass
+    include_dirs = []
+    library_dirs = []
 
 class Gmpy2Build(build_ext):
     description = "Build gmpy2 with custom build options"
@@ -95,9 +73,9 @@ class Gmpy2Build(build_ext):
 extensions = [
     Extension('gmpy2.gmpy2',
               sources=sources,
-              include_dirs=['./src'] + (['./gmpy2'] if ON_WINDOWS else []),
-              libraries=['mpc','mpfr','gmp'] if ON_WINDOWS else ['mpc','mpfr','gmp','m'],
-              library_dirs=(['./gmpy2'] if ON_WINDOWS else []),
+              include_dirs=include_dirs,
+              libraries=['mpc','mpfr','gmp'],
+              library_dirs=library_dirs,
               extra_compile_args=_comp_args,
               )
 ]

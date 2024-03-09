@@ -18,18 +18,13 @@ jobs:
         env:
           CIBW_PRERELEASE_PYTHONS: True
           CIBW_SKIP: pp*
-          CIBW_BEFORE_BUILD_MACOS: >
-            sudo chown -R runner:admin /usr/local/ &&
-            bash scripts/before_ci_build.sh
-          CIBW_BEFORE_BUILD: bash scripts/before_ci_build.sh
+          CIBW_BEFORE_BUILD: bash scripts/cibw_before_all.sh
           CIBW_TEST_EXTRAS: tests
           CIBW_TEST_COMMAND: >
             pytest {package}/test/ &&
             python {package}/test_cython/runtests.py
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            bash scripts/repair_ci_wheel.sh {dest_dir} {wheel}
-          CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
-            bash scripts/repair_ci_wheel.sh {dest_dir} {wheel} {delocate_archs}
+          CIBW_REPAIR_WHEEL_COMMAND: >
+            bash scripts/cibw_repair_wheel_command.sh {dest_dir} {wheel}
       - uses: actions/upload-artifact@v3
         with:
           name: wheels
