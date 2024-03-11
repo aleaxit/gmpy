@@ -45,13 +45,15 @@ Homepage = 'https://github.com/aleaxit/gmpy'
 
 [tool.setuptools]
 zip-safe = false
-include-package-data = true
 
-[tool.setuptools.packages]
-find = {namespaces = false}
+[tool.setuptools.packages.find]
+where = ['src']
 
 [tool.setuptools.package-data]
-gmpy2 = ['*.pxd', '*.h', '*.dll', '*.lib']
+gmpy2 = ['*.pxd', 'gmpy2.h', 'gmp.h', 'mpfr.h', 'mpc.h']
+
+[tool.setuptools.exclude-package-data]
+gmpy2 = ['gmpy2.c']
 
 [tool.pytest.ini_options]
 addopts = "--durations=10"

@@ -6,7 +6,7 @@ from pathlib import Path
 
 ON_WINDOWS = platform.system() == 'Windows'
 _comp_args = ["DSHARED=1"]
-sources = ['src/gmpy2.c']
+sources = ['src/gmpy2/gmpy2.c']
 if os.getenv('CIBUILDWHEEL'):
     include_dirs = [os.path.join(os.path.dirname(__file__), '.local', 'include')]
     library_dirs = [os.path.join(os.path.dirname(__file__), '.local',
@@ -71,7 +71,7 @@ class Gmpy2Build(build_ext):
         build_ext.build_extensions(self)
 
 extensions = [
-    Extension('gmpy2.gmpy2',
+    Extension('gmpy2',
               sources=sources,
               include_dirs=include_dirs,
               libraries=['mpc','mpfr','gmp'],

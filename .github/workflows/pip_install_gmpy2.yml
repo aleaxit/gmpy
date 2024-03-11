@@ -19,7 +19,7 @@ jobs:
       - run: pip install --upgrade pip
       - run: pip --verbose install --editable .[tests]
       - run: pytest test/
-      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+      - run: PYTHONPATH=`pwd`/src/gmpy2 python test_cython/runtests.py
         if: ${{ matrix.python-version != '3.13' }}
 
   linux:
@@ -45,7 +45,7 @@ jobs:
       - name: Tests
         run: |
           pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+          PYTHONPATH=`pwd`/src/gmpy2 python test_cython/runtests.py
       - name: Building docs
         if: matrix.python-version == 3.11
         run: |
@@ -60,7 +60,7 @@ jobs:
           python setup.py clean
           CFLAGS="-coverage" python setup.py develop
           pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+          PYTHONPATH=`pwd`/src/gmpy2 python test_cython/runtests.py
           lcov --capture --directory . --no-external --output-file build/coverage.info
           genhtml build/coverage.info --output-directory build/coverage
       - name: Upload coverage to Codecov
@@ -104,4 +104,4 @@ jobs:
       - run: pip install --upgrade pip
       - run: pip --verbose install -e .[tests]
       - run: pytest test/
-      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+      - run: PYTHONPATH=`pwd`/src/gmpy2 python test_cython/runtests.py
