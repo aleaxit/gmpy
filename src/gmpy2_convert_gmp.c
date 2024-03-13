@@ -42,30 +42,23 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    int negative;
-    Py_ssize_t len;
-    PyLongObject *templong = (PyLongObject*)obj;
+    int overflow;
+    long value = PyLong_AsLongAndOverflow(obj, &overflow);
 
-    len = _PyLong_DigitCount(templong);
-    negative = _PyLong_Sign(obj) < 0;
-
-    switch (len) {
-    case 1:
-        mpz_set_si(z, (sdigit)GET_OB_DIGIT(templong)[0]);
-        break;
-    case 0:
-        mpz_set_si(z, 0);
-        break;
-    default:
-        mpz_import(z, len, -1, sizeof(digit), 0,
-                   sizeof(digit)*8 - PyLong_SHIFT,
-                   GET_OB_DIGIT(templong));
+    if (!overflow) {
+        mpz_set_si(z, value);
+        return;
     }
 
-    if (negative) {
+    PyLongObject *templong = (PyLongObject*)obj;
+    Py_ssize_t len = _PyLong_DigitCount(templong);
+
+    mpz_import(z, len, -1, sizeof(digit), 0, sizeof(digit)*8 - PyLong_SHIFT,
+               GET_OB_DIGIT(templong));
+
+    if (_PyLong_Sign(obj) < 0) {
         mpz_neg(z, z);
     }
-    return;
 }
 
 static MPZ_Object *
@@ -128,14 +121,15 @@ GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context)
 static PyObject *
 GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
-    int negative;
-    size_t count, size;
-    PyLongObject *result;
+    if (mpz_fits_slong_p(obj->z)) {
+        return PyLong_FromLong(mpz_get_si(obj->z));
+    }
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
 
-    negative = mpz_sgn(obj->z) < 0;
-    size = (mpz_sizeinbase(obj->z, 2) + PyLong_SHIFT - 1) / PyLong_SHIFT;
+    size_t count, size = (mpz_sizeinbase(obj->z, 2) +
+                          PyLong_SHIFT - 1) / PyLong_SHIFT;
+    PyLongObject *result;
 
     if (!(result = _PyLong_New(size))) {
         /* LCOV_EXCL_START */
@@ -146,17 +140,11 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(digit), 0,
                sizeof(digit)*8 - PyLong_SHIFT, obj->z);
 
-    if (count == 0) {
-        GET_OB_DIGIT(result)[0] = 0;
+    for (size_t i = count; i < size; i++) {
+        GET_OB_DIGIT(result)[i] = 0;
     }
+    _PyLong_SetSignAndDigitCount(result, mpz_sgn(obj->z) < 0, count);
 
-    /* long_normalize() is file-static so we must reimplement it */
-    /* longobjp = long_normalize(longobjp); */
-    while ((size>0) && (GET_OB_DIGIT(result)[size-1] == 0)) {
-        size--;
-    }
-
-    _PyLong_SetSignAndDigitCount(result, negative, size);
     return (PyObject*)result;
 }
 
