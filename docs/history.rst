@@ -280,3 +280,210 @@ Changes in gmpy2 2.0.0b1 and earlier
 * Renamed module functions ``min()/max()`` to ``min2()/max2()``.
 * No longer conflicts with builtin :func:`min()` and :func:`max()`
 * Removed ``set_debug()`` and related functionality.
+
+Changes in gmpy 1.11
+--------------------
+
+* Recognize True/False (bug in 1.10) (casevh)
+* Optimize argument handling (casevh)
+* Added caching for mpz (casevh)
+
+Changes in gmpy 1.10
+--------------------
+
+* Remove dependancy on pymemcompat.h (casevh)
+* Remove callback (casevh)
+* Added support for -DMPIR to include MPIR instead of GMP (casevh)
+* Major code revisions to add support for Python 3.x (casevh)
+* Fixed bug in binary() and qbinary() (casevh)
+* Fixed bug in rich comparisons (casevh)
+* Added % and divmod support to mpq and mpf (casevh)
+* Changed memory allocation functions to use PyMem (casevh)
+* Removed small number interning (casevh)
+* Added tdivmod, cdivmod, and fdivmod (casevh)
+* Added more helper functions for mpmath (casevh)
+* Faster mpz<>PyLong conversion (casevh)
+* Faster hash(mpz) (casevh)
+
+Changes in gmpy 1.04
+--------------------
+
+* Avoid GMP/mingw32 bug when converting very small floats to mpz. (casevh)
+* Significant performance improvement for long->mpz and mpz->long. (casevh)
+* Added "rich comparisons" to mpz, mpq and mpf types (aleaxit)
+* Added additional tests (casevh, aleaxit)
+* Fixed bug when converting very large mpz to str (casevh)
+* Faster conversion from mpz->binary and binary->mpz (casevh)
+* Added support for pickling (casevh)
+* Added divexact (casevh)
+* Fixed mpf comparisons by rounding mpf results when GMP returns
+  a longer result. Added fround() (casevh)
+* Added bit_length (Thanks Mario Pernici)
+* Added helper functions for mpmath (casevh)
+* Faster conversion from mpq->binary and binary->mpq (casevh)
+* Recognize MPIR, mpir_version() (casevh)
+
+Changes in gmpy 1.03
+--------------------
+
+* Fixed the bug that caused crashes on gmpy.mpf(float('inf')) and
+  other such conversions, implicit and explicit
+* Fixed a bug in get_zconst's prototype affecting 64-bit machines,
+  thanks to Gary Bunting
+* Fixed a bug in hashing on 64-bit systems. hash(long) now equals
+  hash(mpz) for large values. (casevh)
+* Changed int() to return a long value instead of OverFlowError.
+  Complies with PEP 237. (casevh)
+* Added support in setup.py for darwinports/macports build of GMP
+  on MacOSX. (aleaxit)
+
+Changes in gmpy 1.02
+--------------------
+
+* fix warning in comparison of mpq's
+* added support of mpq('12.34') [[string w/o a slash, but with a dot]]
+* fixes for 64-bit build (thanks to a patch by dmcooke)
+* added experimental support for decimal.Decimal (and user-coded types)
+  via wider use of special conversion methods (if present) and their
+  sly insertion on-the-fly into the decimal.Decimal class (!)
+* two bugfixes, thanks to Simon Burton
+* Brought back into C89 compliance (thanks to Chip Turner), had
+  drifted to C99 (declarations in the middle of the code).
+* Python 2.5 support (Py_ssize_t, __index__) thanks to Chip Turner
+* Pushed coverage to 93.3% (missing only "sanity check" level error
+  tests [mostly for out-of-memory conditions], output to stderr
+  conditioned by global.debug, & a couple of very obscure cases)
+
+Changes in gmpy 1.01
+--------------------
+
+* cleanups, ensure support for Python 2.4.1 on MacOSX 10.4/XCode 2.1
+  as well as Python 2.2 and 2.3 (on MacOSX and Linux)
+* fixed memory leak on divm (thanks to mensanator@aol.com)
+* fixed bug on mpq('123') [[str2mpq on string w/o a slash]]
+* added floordiv and truediv operators, and tests for them
+* NOT tested on GMP 3 (have none left around...), ONLY on GMP 4.*
+
+Changes in gmpy 1.0
+-------------------
+
+* minor cleanups, ensure support for Python 2.3
+* fixed misdiagnosis of some argument counts in macro
+* SELF_ONE_ARG_CONVERTED (tx to Paul Rubin!)
+
+Changes in gmpy 0.9
+-------------------
+
+* change ValueError to OverflowError for 'too-large' errors
+* fix bug in mpq_pow (negative base, exp. with odd denominator)
+  (fix now corrected -- _even_ denominator is the error!)
+* fixed gcc warnings reported by K. Briggs
+* support GMP 4 (but added no GMP4-only functionality yet)
+* updated tests to 0.9, better coverage
+
+Changes in gmpy 0.8
+-------------------
+
+(again, requests & suggestions by great Pearu!)
+
+* raise test coverage 72.5% -> 90.0%
+* introduced callbacks (not documented/tested for now;
+  Pearu will test/support/document in PySymbolic)
+* some errors went undiagnosed, caused crash: now fixed
+* workaround for GMP bug(?s?) in mpz_fits\_... (?)
+* added exposure of mpf\_ sqrt and pow_ui
+
+Changes in gmpy 0.7
+-------------------
+
+Good feedback from Keith Briggs, some advice from Tim Peters and Fred Lundh ---
+thanks all!
+
+* fixed bug of '"%d" where "%ld" was meant' in many places
+  and other sundry minor warnings given by gcc
+* fixed hash (delegating to Python) so mp[nqz](x) will
+  produce the same value as hash(x) for any Python number x
+* workaround for GMP 3.1.1 bug, mpz_root wrongly returning
+  'exact' for non-exact root if dest==source, which stopped
+  needed value-error for inexact mpq**mpq operations
+* determined correct 'actual precision' of floats
+* explicitly stored precision with binary-form mpf's
+* extended explicit-bits request to all ->mpf operations
+  (good in itself, plus, preparing for future MPFR)
+* removed the limitation of no binary-form for <0 mpz
+* introduced macros to parse args, for conciseness
+
+Changes in gmpy 0.6
+-------------------
+
+(lots of good ideas from Pearu once more!-)
+
+* fixed silly bugs in kronecker and mpq_abs
+* gmpy-level workaround for scan0/scan1 bugs (?) in gmp 3.1.1
+* added qdiv; anynum->mpq substituted for all such conversions
+  (also anynum->mpz and anynum->mpf by analogy, with care!)
+* added global.fcoform for optional use of intermediate string in
+  float2mpf (used for any float->mpf conversion)
+* added set_fcoform function for global.fcoform access
+* general cleanup of sources; added alloca for msvc++;
+  - many sundry minor bugfixes & uniformization;
+  - a little useful refactoring (more would be good...)
+* added caching of mpq objects
+* power for mpq
+* stern-brocot algorithm for mpf->mpq (also exposed as f2q)
+  - also used for float->mpq
+  - with stricter tracking of mpf's requested-precision
+  - added getrprec method to mpf, getrprec module-function
+* exposed ceil, floor and trunc methods/functions for mpf's
+* changed a couple exceptions from value to zerodivision
+* added 'qual' and 'floa' options to gmpy.rand
+
+Changes in gmpy 0.5
+-------------------
+
+* added jacobi, legendre, kronecker
+* added random-number generation, seed set/save, shuffling
+* added mpq (at last!-)
+
+Changes in gmpy 0.4
+-------------------
+
+* split gmpy.c/gmpy.h introducing C-API interface (Pearu's suggestion)
+* cleanup some casts using Pearu's new macros
+* further cache-tweaks at Pearu's suggestion (macros introduced)
+* added sign (Pearu's request), getbit, setbit
+* added docstrings
+* renamed copy functions to start with _ ('internal, private')
+* added .comb as a synonym of .bincoef
+
+Changes in gmpy 0.3
+-------------------
+
+* performance tweaks via mpz-caching & fixed-constants
+* added get/set functions for zcache, zco min/max
+* added get-only function for versions (of gmp, and of gmpy)
+* removed all 'traces' of mutability (to be re-done... much later!)
+* cleaned up all of the mpz_cmp_ui(X,0) to mpz_sgn(X)
+* cleaned up Py_BuildValue usage (N vs O, explicit-() for tuples)
+* added numdigits, lowbits, root, next_prime, invert, popcount,
+* hamdist, scan0, scan1
+* renamed bin to bincoef
+
+Changes in gmpy 0.2
+-------------------
+
+15 Nov 2000
+
+* pre-alpha: bugfixes re formatting (tx, Peanu!)
+* no tags on oct() and hex() of mpz's
+* insert 'tagoff' in options (gmpy.mpz() vs mpz() in repr) (for Peanu!)
+* speedups for _nonzero & _cmp (tx, Peanu!)
+* slight speedup (7/8%?) for excess reallocs 4<->8 bytes (Peanu's help!)
+* added copy/fcopy; bin; fib; remove
+
+Changes in gmpy 0.1
+-------------------
+
+6 Nov 2000
+
+* pre-alpha --- first placed on sourceforge
