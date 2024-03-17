@@ -229,57 +229,67 @@ Changes in gmpy2 2.0.0b2
   `set_context()`/`local_context()` sequence.
 * `local_context()` now accepts an optional context.
 
-Changes in gmpy2 2.0.0b1 and earlier
-------------------------------------
+Changes in gmpy2 2.0.0b1
+------------------------
 
+* Rename to gmpy2 to allow backwards incompatible changes (casevh)
+* Renamed 'mpf' to 'mpfr' to reflect use of MPFR (casevh)
 * Renamed functions that manipulate individual bits to ``bit_XXX()`` to align
   with :meth:`~int.bit_length()`.
-* Added caching for `mpq`.
-* Added ``rootrem()``, `fib2()`, `lucas()`, `lucas2()`.
-* Support changed hash function in Python 3.2.
-* Added `is_even()`, `is_odd()`.
-* Add caching of the calculated hash value.
-* Add `xmpz` (mutable `mpz`) type.
-* Fix `mpq` formatting issue.
-* Add read/write bit access using slices to `xmpz`.
-* Add read-only bit access using slices to `mpz`.
+* Added caching for `mpq`.  (casevh)
+* Added ``rootrem()``, `fib2()`, `lucas()`, `lucas2()`.  (casevh)
+* Support changed hash function in Python 3.2.  (casevh)
+* Added `is_even()`, `is_odd()`.  (casevh)
+* Add caching of the calculated hash value.  (casevh)
+* Add `xmpz` (mutable `mpz`) type.  (casevh)
+* Fix `mpq` formatting issue.  (casevh)
+* Add read/write bit access using slices to `xmpz`.  (casevh)
+* Add read-only bit access using slices to `mpz`.  (casevh)
 * Add `pack()`/`unpack()` methods to split/join an integer into n-bit
-  chunks.
+  chunks.  (casevh)
 * Add support for MPFR (casevh)
-* Removed fcoform float conversion modifier.
-* Add support for MPC.
-* Added context manager.
-* Allow building with just GMP/MPIR if MPFR not available.
-* Allow building with GMP/MPIR and MPFR if MPC not available.
+* Removed fcoform float conversion modifier.  (casevh)
+* Add support for MPC.  (casevh)
+* Added context manager.  (casevh)
+* Allow building with just GMP/MPIR if MPFR not available.  (casevh)
+* Allow building with GMP/MPIR and MPFR if MPC not available.  (casevh)
 * Removed most instance methods in favor of gmpy2.function. The general
   guideline is that *properties* of an instance can be done via instance
   methods but *functions* that return a new result are done using
-  gmpy2.function.
+  gmpy2.function.  (casevh)
 * Added ``__ceil__()``, ``__floor__()``, and ``__trunc__()`` methods since they
   are called by :func:`math.ceil()`, :func:`math.floor()`, and
-  :func:`math.trunc()`.
-* Removed ``gmpy2.pow()`` to avoid conflicts.
-* Removed ``gmpy2._copy()`` and added `xmpz.copy()`.
-* Added support for ``__format__()``.
-* Added ``as_integer_ratio()``, ``as_mantissa_exp()``, ``as_simple_fraction()``.
-* Updated rich_compare.
-* Require MPFR 3.1.0+ to get divby0 support.
-* Added `fsum()`, `degrees()`, `radians()`.
-* Updated random number generation support.
-* Changed license to LGPL 3+.
-* Added `lucasu()`, `lucasu_mod()`, `lucasv()`, and `lucasv_mod()`.
+  :func:`math.trunc()`.  (casevh)
+* Removed ``gmpy2.pow()`` to avoid conflicts.  (casevh)
+* Removed ``gmpy2._copy()`` and added `xmpz.copy()`.  (casevh)
+* Added support for ``__format__()``.  (casevh)
+* Added ``as_integer_ratio()``, ``as_mantissa_exp()``,
+  ``as_simple_fraction()``.  (casevh)
+* Updated rich_compare.  (casevh)
+* Require MPFR 3.1.0+ to get divby0 support.  (casevh)
+* Added `fsum()`, `degrees()`, `radians()`.  (casevh)
+* Updated random number generation support.  (casevh)
+* Changed license to LGPL 3+.  (casevh)
+* Added `lucasu()`, `lucasu_mod()`, `lucasv()`, and `lucasv_mod()`.  (casevh)
   *Based on code contributed by David Cleaver.*
-* Added probable-prime tests.
+* Added probable-prime tests.  (casevh)
   *Based on code contributed by David Cleaver.*
-* Added `to_binary()`/`from_binary()`.
-* Renamed ``numdigits()`` to `~mpz.num_digits()`.
-* Added keyword precision to constants.
-* Added ``addmul()`` and ``submul()``.
-* Added ``__round__()``, `round2()`, `round_away()` for `mpfr`.
-* ``round()`` is no longer a module level function.
-* Renamed module functions ``min()/max()`` to ``min2()/max2()``.
-* No longer conflicts with builtin :func:`min()` and :func:`max()`
-* Removed ``set_debug()`` and related functionality.
+* Added `to_binary()`/`from_binary()`.  (casevh)
+* Renamed ``numdigits()`` to `~mpz.num_digits()`.  (casevh)
+* Added keyword precision to constants.  (casevh)
+* Added ``addmul()`` and ``submul()``.  (casevh)
+* Added ``__round__()``, `round2()`, `round_away()` for `mpfr`.  (casevh)
+* ``round()`` is no longer a module level function.  (casevh)
+* Renamed module functions ``min()/max()`` to ``min2()/max2()``.  (casevh)
+  No longer conflicts with builtin :func:`min()` and :func:`max()`
+* Removed ``set_debug()`` and related functionality.  (casevh)
+* Removed mpf.setprec(), use mpf.round() (casevh)
+* Fix test compatibility with Python 3.1.2 and 3.2 (casevh)
+* Remove old random number functions, to be replaced later (casevh)
+* Remove tagoff option (casevh)
+* Debug messages only available if compiled with -DDEBUG (casevh)
+* Renamed context() -> local_context(), new_context() -> context() (casevh)
+* Added get_context() (casevh)
 
 Changes in gmpy 1.11
 --------------------
