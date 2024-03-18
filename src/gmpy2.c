@@ -56,50 +56,6 @@
  *
  ************************************************************************
  *
- *   2.0.0b2
- *   Allow xmpz slice assignment to increase length of xmpz instance by
- *      specifying a value for stop (casevh)
- *   Fixed ref-count bug in several is_xxx_prp tests (casevh)
- *   Added iter_bits, iter_clear, iter_set methods to xmpz (casevh)
- *   Added powmod() for easy access to three argument pow() (casevh)
- *   Removed addmul() and submul() since they are slower than (casevh)
- *      just using Python code
- *   Bug fix in gcd_ext when both arguments are not mpz (casevh)
- *   Added ieee() to create contexts for 32, 64, or 128 bit floats (casevh)
- *   Bug fix in context() not setting emax/emin correctly if they (casevh)
- *      had been changed earlier
- *   Contexts can be directly used in with statement without (casevh)
- *      requiring set_context()/local_context() sequence
- *   local_context() now accepts an optional context (casevh)
- *
- *   2.0.0b3
- *   mp_version(), mpc_version(), and mpfr_version() shouldn't (casevh)
- *      return Unicode on Python 2.x
- *   Fix warnings when shifting 32-bit integer by 32 bits (casevh)
- *   Faster conversion of Fraction to gmpy2 types (casevh)
- *   Fix conversion with Decimal, especially on Python 3.3 (casevh)
- *   Consistently return OverflowError when converting "inf" (casevh)
- *   Fix mpz.__format__() with # code (casevh)
- *   Add is_infinite(), deprecate is_inf() (casevh)
- *   Add is_finite(), deprecate is_number() (casevh)
- *   Fixed issues with mpc() and various is_XXX() functions (casevh)
- *   Fixed error handling with mpc(); mpc(1,"nan") is properly (casevh)
- *      handled
- *   Added caching for mpc objects; faster when real and  (casevh)
- *      imaginary precisions are equal
- *   Add optimal path for mpfr/mpc + - * / when both operands (casevh)
- *      have the same type
- *   Fix mpfr + float segmentation fault (casevh)
- *
- *   2.0.0b4
- *   Add __ceil__, __floor__, __trunc__, __round__ to mpz & mpq (casevh)
- *   Add __complex__ to mpc (casevh)
- *   round(mpfr) now correctly returns an mpz (casevh)
- *   Add mpz.denominator and mpz.numerator (casevh)
- *   mpz() returns mpz(0); also xmpz, mpq, mpfr, and mpc (casevh)
- *   Fix bug when comparing mpz to mpq (with mpz on left) (casevh)
- *   Add __sizeof__ (casevh)
- *
  *   2.0.0
  *   Fix segfault in _mpmath_normalize if rnd not specified (casevh)
  *   Improved setup.py (casevh)

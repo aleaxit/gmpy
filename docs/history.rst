@@ -177,16 +177,18 @@ Changes in gmpy2 2.0.0b4
 ------------------------
 
 * Added ``__ceil__()``, ``__floor__()``, ``__trunc__()``, and ``__round__()``
-  methods to `mpz` and `mpq` types.
-* Added ``__complex__()`` to `mpc` type.
-* ``round(mpfr)`` now correctly returns an `mpz` type.
+  methods to `mpz` and `mpq` types.  (casevh)
+* Added ``__complex__()`` to `mpc` type.  (casevh)
+* ``round(mpfr)`` now correctly returns an `mpz` type.  (casevh)
+* Add mpz.denominator and mpz.numerator.  (casevh)
 * If no arguments are given to `mpz`, `mpq`, `mpfr`, `mpc`, and `xmpz`,
-  return 0 of the appropriate type.
-* Fix broken comparison between `mpz` and `mpq` when `mpz` is on the left.
+  return 0 of the appropriate type.  (casevh)
+* Fix broken comparison between `mpz` and `mpq` when `mpz` is on
+  the left.  (casevh)
 * Added ``__sizeof__()`` to all types. Note: :func:`sys.getsizeof` calls
   ``__sizeof__()`` to get the memory size of a gmpy2 object. The returned
   value reflects the size of the allocated memory which may be larger than
-  the actual minimum memory required by the object.
+  the actual minimum memory required by the object.  (casevh)
 
 Known issues in gmpy2 2.0.0b4
 -----------------------------
@@ -198,36 +200,40 @@ Changes in gmpy2 2.0.0b3
 ------------------------
 
 * `mp_version()`, `mpc_version()`, and `mpfr_version()` now return normal
-  strings on Python 2.x instead of Unicode strings.
-* Faster conversion of the standard library `~fractions.Fraction` type to `mpq`.
-* Improved conversion of the `~decimal.Decimal` type to `mpfr`.
-* Consistently return `OverflowError` when converting ``inf``.
-* Fix `mpz.__format__()` when the format code includes "#".
-* Add `is_infinite()` and deprecate ``is_inf()``.
-* Add `is_finite()` and deprecate ``is_number()``.
-* Fixed the various ``is_XXX()`` tests when used with `mpc`.
-* Added caching for `mpc` objects.
-* Faster code path for basic operation is both operands are `mpfr` or `mpc`.
-* Fix `mpfr` + `float` segmentation fault.
+  strings on Python 2.x instead of Unicode strings.  (casevh)
+* Fix warnings when shifting 32-bit integer by 32 bits.  (casevh)
+* Faster conversion of the standard library `~fractions.Fraction` type
+  to `mpq`.  (casevh)
+* Improved conversion of the `~decimal.Decimal` type to `mpfr`.  (casevh)
+* Consistently return `OverflowError` when converting ``inf``.  (casevh)
+* Fix `mpz.__format__()` when the format code includes "#".  (casevh)
+* Add `is_infinite()` and deprecate ``is_inf()``.  (casevh)
+* Add `is_finite()` and deprecate ``is_number()``.  (casevh)
+* Fixed the various ``is_XXX()`` tests when used with `mpc`.  (casevh)
+* Fixed error handling with mpc(); mpc(1,"nan") is properly handled.  (casevh)
+* Added caching for `mpc` objects.  (casevh)
+* Faster code path for basic operation is both operands are `mpfr`
+  or `mpc`.  (casevh)
+* Fix `mpfr` + `float` segmentation fault.  (casevh)
 
 Changes in gmpy2 2.0.0b2
 ------------------------
 
 * Allow `xmpz` slice assignment to increase length of `xmpz` instance by
-  specifying a value for stop.
-* Fixed reference counting bug in several ``is_xxx_prp()`` tests.
+  specifying a value for stop.  (casevh)
+* Fixed reference counting bug in several ``is_xxx_prp()`` tests.  (casevh)
 * Added `~xmpz.iter_bits()`, `~xmpz.iter_clear()`, `~xmpz.iter_set()` methods
-  to `xmpz`.
-* Added `powmod()` for easy access to three argument :func:`pow()`.
+  to `xmpz`.  (casevh)
+* Added `powmod()` for easy access to three argument :func:`pow()`.  (casevh)
 * Removed ``addmul()`` and ``submul()`` which were added in 2.0.0b1 since they
-  are slower than just using Python code.
-* Bug fix in gcd_ext when both arguments are not `mpz`.
-* Added `ieee()` to create contexts for 32, 64, or 128 bit `float`'s.
+  are slower than just using Python code.  (casevh)
+* Bug fix in gcd_ext when both arguments are not `mpz`.  (casevh)
+* Added `ieee()` to create contexts for 32, 64, or 128 bit `float`'s.  (casevh)
 * Bug fix in `context()` not setting `~context.emax`/`~context.emin` correctly
-  if they had been changed earlier.
+  if they had been changed earlier.  (casevh)
 * Contexts can be directly used in with statement without requiring
-  `set_context()`/`local_context()` sequence.
-* `local_context()` now accepts an optional context.
+  `set_context()`/`local_context()` sequence.  (casevh)
+* `local_context()` now accepts an optional context.  (casevh)
 
 Changes in gmpy2 2.0.0b1
 ------------------------
