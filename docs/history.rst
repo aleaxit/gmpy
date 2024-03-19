@@ -8,6 +8,65 @@ Changes in gmpy2 2.2.0
 
 * Added prev_prime() when GMP >= 6.3
 
+Changes in gmpy2 2.1.5
+----------------------
+
+* Version bump to fix wheel issues.  No code changes.
+
+Changes in gmpy2 2.1.4
+----------------------
+
+* Version bump to fix wheel issues.  No code changes.
+
+Changes in gmpy2 2.1.3
+----------------------
+
+* Fix mpz(-3).is_prime().
+* Add powmod_sec().
+* Fix mpfr('inf') and mpfr('nan') if subnormalization is enabled.
+* powmod() and powmod_sec() release the GIL.
+* Fix error messages for iroot(x,n) for large n.
+* Add powmod_base_list() and powmod_exp_list() (experimental).
+* Fix gmpy2.mpq(mpq, int).
+* Fix issues with INF, NAN, and mpfr("-0") when subnormalization is True
+
+Changes in gmpy2 2.1.2
+----------------------
+
+* Code cleanup.
+* Support Apple Silicon binary wheels.
+* is_prime(-2) now returns False.  Issue #312.
+
+Changes in gmpy2 2.1.1
+----------------------
+
+* Code cleanup.
+* Properly return NOTIMPLEMENTED for unsupported arguments in
+  ``**``.  Issue #319.
+
+Changes in gmpy2 2.1.0
+----------------------
+
+* Improvements to setup.py.
+* Add thread-safe contexts.
+* MPFR and MPC are now required.
+* Invalid Operation exception now raised for addition, etc.
+* inverse() now raises exception if inverse does not exist.
+* Add context methods.
+* Major code refactoring required to properly support thread-safe contexts.
+* `` __str__`` and ``__repr__`` no longer append "L" on Python 2.
+* mpq(mpfr) now returns the exact result.
+* Fix repr(mpc) for precision >325 bits.
+* Intermediate conversions of Integer to mpfr are now done with the
+  full precision of the Integer.
+* Remove support for interaction with Decimal type.
+* No longer attempt to override the memory allocation functions.
+* Register gmpy2 types into the numeric tower.
+* mpz(x) call int(x) if mpz() does not know how to convert x directly.
+* Convert `mpz` to a type using ``__new__`` instead of a factory function.
+* Bug fix for ``<<small mpfr>> ** <<small Python integer>>``.
+* Compile with Python 3.11.
+
 Changes in gmpy2 2.1.0rc2
 -------------------------
 
@@ -158,15 +217,14 @@ Changes in gmpy2 2.0.0
 ----------------------
 
 * Fix segmentation fault in ``_mpmath_normalize()`` (an undocumented helper
-  function for mpmath).
-* Improved ``setup.py``.  See below for documentation on the changes.
-* Fix issues when compiled without support for MPFR.
+  function for mpmath).  (casevh)
+* Fix issues when compiled without support for MPFR.  (casevh)
 * Conversion of too large an `mpz` to `float` now raises `OverflowError`
-  instead of returning ``inf``.
-* Renamed ``min2()/max2()`` to `minnum()`/`maxnum()`
+  instead of returning ``inf``.  (casevh)
+* Renamed ``min2()/max2()`` to `minnum()`/`maxnum()`.  (casevh)
 * The build and install process (i.e. ``setup.py``) has been completely
-  rewritten.  See the Installation section for more information.
-* `get_context()` no longer accepts keyword arguments.
+  rewritten.  See the Installation section for more information.  (casevh)
+* `get_context()` no longer accepts keyword arguments.  (casevh)
 
 Known issues in gmpy2 2.0.0
 -----------------------------
