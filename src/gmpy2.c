@@ -56,27 +56,6 @@
  *
  ************************************************************************
  *
- *    2.2.0a1
- *    Remove support for versions of Python < 3.7. () (skirpichev)
- *    Support more modern build tools. (skirpichev)
- *    Use contextvars to manage gmpy2 contexts. (casevh)
- *    _mpmath functions now use vectorcall protocol. (casevh)
- *    Many documentation updates. (skirpichev)
- *    Add mpz.as_integer_ratio()/to_bytes()/from_bytes(). (skirpichev)
- *    Add mpz_probab_prime_p() to directly expose the GMP behavior.
- *      (skirpichev)
- *    gcd()/lcm() now uses vectorcall protocol. (skirpichev)
- *    Expose context type. (skirpichev)
- *    Correct error in is_strong_bpsw_prp. (casevh)
- *    Added prev_prime if GMP version is >=6.3.0 (sethtroisi)
- *
- *    2.2.0a2
- *    Change argument order of jn() and yn() to match MPFR. (casevh)
- *    Fix documentation and code for is_extra_strong_lucas_prp. (casevh)
- *
- *
- ************************************************************************
- *
  * Discussion on sizes of C integer types.
  *
  * GMP, MPFR, and MPC use typedef to create integer objects with

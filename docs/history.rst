@@ -6,7 +6,23 @@ Release Notes
 Changes in gmpy2 2.2.0
 ------------------------
 
-* Added prev_prime() when GMP >= 6.3
+* Remove support for versions of Python < 3.7.  (skirpichev)
+* Support more modern build tools.  (skirpichev)
+* Use contextvars to manage gmpy2 contexts.  (casevh)
+* _mpmath functions now use vectorcall protocol.  (casevh)
+* Many documentation updates.  (skirpichev)
+* Add :meth:`mpz.as_integer_ratio()` / :meth:`mpz.to_bytes()` and
+  :meth:`mpz.from_bytes()`.  (skirpichev)
+* Add :func:`is_probab_prime()` to directly expose the GMP
+  behavior.  (skirpichev)
+* :func:`gcd()`/:func:`lcm()` now uses vectorcall protocol.  (skirpichev)
+* Expose :class:`context` type.  (skirpichev)
+* Correct error in :func:`is_strong_bpsw_prp()`.  (casevh)
+* Added :func:`prev_prime()` when GMP >= 6.3.  (sethtroisi)
+* Change argument order of :func:`jn()` and :func:`yn()` to match
+  MPFR.  (casevh)
+* Fix documentation and code for
+  :func:`is_extra_strong_lucas_prp()`.  (casevh)
 
 Changes in gmpy2 2.1.5
 ----------------------
