@@ -28,9 +28,7 @@ jobs:
           CIBW_PRERELEASE_PYTHONS: True
           CIBW_SKIP: pp* *-win32
           CIBW_BEFORE_ALL: bash scripts/cibw_before_all.sh
-          CIBW_BEFORE_ALL_WINDOWS: >
-            msys2 -c scripts/cibw_before_all.sh &&
-            scripts\cibw_before_all_windows.bat
+          CIBW_BEFORE_ALL_WINDOWS: msys2 -c scripts/cibw_before_all.sh
           CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel
           CIBW_TEST_EXTRAS: tests
           CIBW_TEST_SKIP: cp38-macosx_arm64
