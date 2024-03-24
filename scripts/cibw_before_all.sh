@@ -19,7 +19,14 @@ rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
 ./configure --enable-fat \
             --enable-shared \
             --disable-static \
+            --with-pic \
             --prefix=$PREFIX
+# Uncomment the following lines to change the mp_bitcnt_t type to "unsigned long long int"
+if [ "$OSTYPE" = "msys" ]
+then
+  sed -i 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t\n/g' gmp.h
+  sed -i 's/mpz_srcptr,\s*unsigned\s*long\s*int/mpz_srcptr, mp_bitcnt_t/g' mpz/millerrabin.c
+fi
 make -j6
 make install
 cd ../
@@ -30,6 +37,7 @@ tar -xf mpfr-${MPFR_VERSION}.tar.gz
 cd mpfr-${MPFR_VERSION}
 ./configure --enable-shared \
             --disable-static \
+            --with-pic \
             --with-gmp=$PREFIX \
             --prefix=$PREFIX
 make -j6
@@ -41,6 +49,7 @@ tar -xf mpc-${MPC_VERSION}.tar.gz
 cd mpc-${MPC_VERSION}
 ./configure --enable-shared \
             --disable-static \
+            --with-pic \
             --with-gmp=$PREFIX \
             --with-mpfr=$PREFIX \
             --prefix=$PREFIX
