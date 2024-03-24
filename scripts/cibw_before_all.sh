@@ -12,6 +12,8 @@ PREFIX="$(pwd)/.local/"
 curl -s -O https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VERSION}.tar.xz
 tar -xf gmp-${GMP_VERSION}.tar.xz
 cd gmp-${GMP_VERSION}
+# Patch the mp_bitcnt_t to "unsigned long long int" on WINDOWS AMD64:
+patch -N -Z -p0 < ../scripts/mp_bitcnt_t.diff
 # config.guess uses microarchitecture and configfsf.guess doesn't
 # We replace config.guess with configfsf.guess to avoid microarchitecture
 # specific code in common code.
@@ -21,12 +23,6 @@ rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
             --disable-static \
             --with-pic \
             --prefix=$PREFIX
-# Uncomment the following lines to change the mp_bitcnt_t type to "unsigned long long int"
-if [ "$OSTYPE" = "msys" ]
-then
-  sed -i 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t\n/g' gmp.h
-  sed -i 's/mpz_srcptr,\s*unsigned\s*long\s*int/mpz_srcptr, mp_bitcnt_t/g' mpz/millerrabin.c
-fi
 make -j6
 make install
 cd ../
