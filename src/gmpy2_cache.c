@@ -135,7 +135,7 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             if (!MPZ_Check(out)) {
                 PyErr_Format(PyExc_TypeError,
                              "object of type '%.200s' can not be interpreted as mpz",
-                             out->ob_type->tp_name);
+                             Py_TYPE(out)->tp_name);
                 Py_DECREF(out);
                 return NULL;
             }
@@ -186,7 +186,7 @@ GMPy_MPZ_Dealloc(MPZ_Object *self)
     }
     else {
         mpz_clear(self->z);
-        PyObject_Del(self);
+        PyObject_Free(self);
     }
 }
 
@@ -322,7 +322,7 @@ GMPy_XMPZ_Dealloc(XMPZ_Object *self)
     }
     else {
         mpz_clear(self->z);
-        PyObject_Del((PyObject*)self);
+        PyObject_Free((PyObject*)self);
     }
 }
 
@@ -453,7 +453,7 @@ GMPy_MPQ_Dealloc(MPQ_Object *self)
     }
     else {
         mpq_clear(self->q);
-        PyObject_Del(self);
+        PyObject_Free(self);
     }
 }
 
@@ -572,7 +572,7 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         if (!MPFR_Check(out)) {
             PyErr_Format(PyExc_TypeError,
                          "object of type '%.200s' can not be interpreted as mpfr",
-                         out->ob_type->tp_name);
+                         Py_TYPE(out)->tp_name);
             Py_DECREF(out);
             return NULL;
         }
@@ -614,7 +614,7 @@ GMPy_MPFR_Dealloc(MPFR_Object *self)
     }
     else {
         mpfr_clear(self->f);
-        PyObject_Del(self);
+        PyObject_Free(self);
     }
 }
 
@@ -757,7 +757,7 @@ GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         if (!MPC_Check(out)) {
             PyErr_Format(PyExc_TypeError,
                          "object of type '%.200s' can not be interpreted as mpc",
-                         out->ob_type->tp_name);
+                         Py_TYPE(out)->tp_name);
             Py_DECREF(out);
             return NULL;
         }
@@ -889,7 +889,7 @@ GMPy_MPC_Dealloc(MPC_Object *self)
     }
     else {
         mpc_clear(self->c);
-        PyObject_Del(self);
+        PyObject_Free(self);
     }
 }
 
