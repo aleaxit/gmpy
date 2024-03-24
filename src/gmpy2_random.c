@@ -39,7 +39,7 @@ static void
 GMPy_RandomState_Dealloc(RandomState_Object *self)
 {
     gmp_randclear(self->state);
-    PyObject_Del(self);
+    PyObject_Free(self);
 };
 
 static PyObject *

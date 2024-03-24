@@ -50,6 +50,9 @@
  *   GMPy_current_context
  */
 
+
+#include "pythoncapi_compat.h"
+
 /* Create and delete Context objects. */
 
 static PyObject *
@@ -85,7 +88,7 @@ GMPy_CTXT_New(void)
 static void
 GMPy_CTXT_Dealloc(CTXT_Object *self)
 {
-    PyObject_Del(self);
+    PyObject_Free(self);
 };
 
 /* Begin support for context vars. */
@@ -657,7 +660,7 @@ GMPy_CTXT_Set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
         TYPE_ERROR(#NAME " must be True or False"); \
         return -1; \
     } \
-    self->ctx.NAME = (value == Py_True) ? 1 : 0; \
+    self->ctx.NAME = Py_IsTrue(value) ? 1 : 0; \
     return 0; \
 }
 
@@ -678,7 +681,7 @@ GMPy_CTXT_Set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
         TYPE_ERROR(#NAME " must be True or False"); \
         return -1; \
     } \
-    if (value == Py_True) \
+    if (Py_IsTrue(value)) \
         self->ctx.traps |= TRAP; \
     else \
         self->ctx.traps &= ~(TRAP); \

@@ -29,6 +29,9 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+
+#include "pythoncapi_compat.h"
+
 /* ******************************************************************
  * mpz_prp: (also called a Fermat probable prime)
  * A "probable prime" to the base a is a number n such that,
@@ -1495,7 +1498,7 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
         goto cleanup;
     result = GMPY_mpz_is_strong_prp(NULL, temp);
     Py_DECREF(temp);
-    if (result == Py_False)
+    if (Py_IsFalse(result))
         goto return_result;
     /* Remember to ignore the preceding result */
     Py_DECREF(result);
@@ -1574,7 +1577,7 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
         goto cleanup;
     result = GMPY_mpz_is_strong_prp(NULL, temp);
     Py_DECREF(temp);
-    if (result == Py_False)
+    if (Py_IsFalse(result))
         goto return_result;
     /* Remember to ignore the preceding result */
     Py_DECREF(result);

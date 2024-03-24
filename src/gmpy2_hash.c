@@ -24,6 +24,9 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+
+#include "pythoncapi_compat.h"
+
 static Py_hash_t
 GMPy_MPZ_Hash_Slot(MPZ_Object *self)
 {
@@ -33,7 +36,7 @@ GMPy_MPZ_Hash_Slot(MPZ_Object *self)
         return self->hash_cache;
     }
 
-    hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, (mp_size_t)mpz_size(self->z), _PyHASH_MODULUS);
+    hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, (mp_size_t)mpz_size(self->z), PyHASH_MODULUS);
     if (mpz_sgn(self->z) < 0) {
         hash = -hash;
     }
@@ -57,14 +60,14 @@ GMPy_MPQ_Hash_Slot(MPQ_Object *self)
     mpz_init(temp1);
     mpz_init(mask);
     mpz_set_si(mask, 1);
-    mpz_mul_2exp(mask, mask, _PyHASH_BITS);
+    mpz_mul_2exp(mask, mask, PyHASH_BITS);
     mpz_sub_ui(mask, mask, 1);
 
     if (!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_clear(temp);
         mpz_clear(temp1);
         mpz_clear(mask);
-        hash = _PyHASH_INF;
+        hash = PyHASH_INF;
         if (mpz_sgn(mpq_numref(self->q)) < 0) {
             hash = -hash;
         }
@@ -77,7 +80,7 @@ GMPy_MPQ_Hash_Slot(MPQ_Object *self)
 
     mpz_tdiv_r(temp1, mpq_numref(self->q), mask);
     mpz_mul(temp, temp, temp1);
-    hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, (mp_size_t)mpz_size(temp), _PyHASH_MODULUS);
+    hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, (mp_size_t)mpz_size(temp), PyHASH_MODULUS);
 
     if (mpz_sgn(mpq_numref(self->q)) < 0) {
         hash = -hash;
@@ -104,17 +107,15 @@ _mpfr_hash(mpfr_t f)
     if (!mpfr_number_p(f)) {
         if (mpfr_inf_p(f)) {
             if (mpfr_sgn(f) > 0) {
-                return _PyHASH_INF;
+                return PyHASH_INF;
             }
             else {
-                return -_PyHASH_INF;
+                return -PyHASH_INF;
             }
         }
         else {
 #if PY_VERSION_HEX >= 0x030A00A0
-            /* The default object hash implementation in the CPython
-             * accepts void* pointer. */
-            return PyBaseObject_Type.tp_hash((PyObject*)f);
+            return Py_HashPointer(f);
 #else
             return _PyHASH_NAN;
 #endif
@@ -126,11 +127,11 @@ _mpfr_hash(mpfr_t f)
 
     /* Calculate the hash of the mantissa. */
     if (mpfr_sgn(f) > 0) {
-        hash = mpn_mod_1(f->_mpfr_d, (mp_size_t)msize, _PyHASH_MODULUS);
+        hash = mpn_mod_1(f->_mpfr_d, (mp_size_t)msize, PyHASH_MODULUS);
         sign = 1;
     }
     else if (mpfr_sgn(f) < 0) {
-        hash = mpn_mod_1(f->_mpfr_d, (mp_size_t)msize, _PyHASH_MODULUS);
+        hash = mpn_mod_1(f->_mpfr_d, (mp_size_t)msize, PyHASH_MODULUS);
         sign = -1;
     }
     else {
@@ -139,8 +140,8 @@ _mpfr_hash(mpfr_t f)
 
     /* Calculate the final hash. */
     exp = f->_mpfr_exp - (msize * mp_bits_per_limb);
-    exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
-    hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
+    exp = exp >= 0 ? exp % PyHASH_BITS : PyHASH_BITS-1-((-1-exp) % PyHASH_BITS);
+    hash = ((hash << exp) & PyHASH_MODULUS) | hash >> (PyHASH_BITS - exp);
 
     hash *= sign;
     if (hash == (Py_uhash_t)(-1)) {
@@ -169,7 +170,7 @@ GMPy_MPC_Hash_Slot(MPC_Object *self)
 
     hashreal = (Py_uhash_t)_mpfr_hash(mpc_realref(self->c));
     hashimag = (Py_uhash_t)_mpfr_hash(mpc_imagref(self->c));
-    combined = hashreal + _PyHASH_IMAG * hashimag;
+    combined = hashreal + PyHASH_IMAG * hashimag;
     if (combined == (Py_uhash_t)(-1)) {
         combined = (Py_uhash_t)(-2);
     }

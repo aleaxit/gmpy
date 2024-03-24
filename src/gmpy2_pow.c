@@ -24,6 +24,9 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+
+#include "pythoncapi_compat.h"
+
 /* This file implements the ** operator, Python's pow() function,
  * gmpy2.powmod(), and context.pow().
  */
@@ -50,7 +53,7 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
 
     /* Try to parse the modulus value first. */
 
-    if (m == Py_None) {
+    if (Py_IsNone(m)) {
         has_mod = 0;
     }
     else {
@@ -410,7 +413,7 @@ GMPy_Rational_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
     int bsign;
     long tempexp;
 
-    if (mod != Py_None) {
+    if (!Py_IsNone(mod)) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
@@ -486,7 +489,7 @@ GMPy_Real_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
     MPZ_Object *tempz = NULL;
     MPC_Object *mpc_result = NULL;
 
-    if (mod != Py_None) {
+    if (!Py_IsNone(mod)) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
@@ -578,7 +581,7 @@ GMPy_Complex_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
     MPFR_Object *tempf = NULL;
     MPZ_Object *tempz = NULL;
 
-    if (mod != Py_None) {
+    if (!Py_IsNone(mod)) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
