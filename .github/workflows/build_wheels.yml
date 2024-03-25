@@ -8,17 +8,28 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12, macos-14]
+        os: [ubuntu-22.04, macos-12, macos-14, windows-2022]
     steps:
       - uses: actions/checkout@v4
       - if: runner.os == 'macOS'
         run: brew install pipx
+      - uses: msys2/setup-msys2@v2
+        name: Setup msys2
+        with:
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            autotools
+          msystem: ucrt64
+          path-type: inherit
+        if: ${{ matrix.os == 'windows-2022' }}
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.5
         env:
           CIBW_PRERELEASE_PYTHONS: True
-          CIBW_SKIP: pp*
-          CIBW_BEFORE_BUILD: bash scripts/cibw_before_all.sh
+          CIBW_SKIP: pp* *-win32
+          CIBW_BEFORE_ALL: bash scripts/cibw_before_all.sh
+          CIBW_BEFORE_ALL_WINDOWS: msys2 -c scripts/cibw_before_all.sh
+          CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel
           CIBW_TEST_EXTRAS: tests
           CIBW_TEST_SKIP: cp38-macosx_arm64
           CIBW_TEST_COMMAND: >
@@ -26,6 +37,8 @@ jobs:
             python {package}/test_cython/runtests.py
           CIBW_REPAIR_WHEEL_COMMAND: >
             bash scripts/cibw_repair_wheel_command.sh {dest_dir} {wheel}
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
+           scripts\cibw_repair_wheel_command_windows.bat {dest_dir} {wheel}
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}

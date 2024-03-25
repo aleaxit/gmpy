@@ -1,73 +1,84 @@
 :orphan:
 
-Windows Build from Source
-=========================
+Building for Windows
+====================
 
-Building gmpy2 and the related libraries from scratch requires several steps. The following
-instructions create a dedicated build environment using standalone
+A new build approach is being tested for the final gmpy2 v2.2.x release.
 
-Install MSYS2
--------------
+The GMP, MPFR, and MPC DLLs are created using the MinGW64 compiler suite and
+are linked to UCRT.  The final gmpy2 binaries are created using Visual Studio.
 
-Browse to https://www.msys2.org and download and run the current installer. Accept the default
-path of C:\msys64
 
-Update MSYS2
-------------
+MSYS2 Steps
+-----------
 
-pacman -Syuu
+1.  Install MSYS2
 
-pacman -S patch m4 lzip wget tar make diffutils
+    1. Upgrade the initial installation::
 
-Install the MinGW-w64 Compiler Suite
-------------------------------------
+        pacman -Syuu
 
-MSYS2 follows a "rolling-release" model. New versions of applications, including the MinGW-w64
-compiler suite, are released frequently. The continual release cycles make it difficult to 
-provide a reproducible build environment. We will be using MinGW-w64 as distributed by 
-http://winlibs.com/. This documentation was based on the following version:
+    2. Reboot and launch the "MSYS2 UCRT" terminal window.  Upgrade the user
+       system::
 
-https://github.com/brechtsanders/winlibs_mingw/releases/download/10.3.0-12.0.0-9.0.0-r2/winlibs-x86_64-posix-seh-gcc-10.3.0-mingw-w64-9.0.0-r2.zip
+        pacman -Syu
 
-Unzip the downloaded file and copy the "mingw64" directory to the desired location.
-The following documentation assumes the files are copied to C:\mingw64.
+    3. Install the MinGW64 compiler suite that links with ucrt::
 
-The Build Environment
----------------------
+        pacman -Sy mingw-w64-ucrt-x86_64-gcc
 
-The build process is split into two phases. During phase 1 we use the MSYS2 shell environment
-and the winlibs.com MinGW-w64 compiler suite to build GMP, MPFR, and MPC. Once those libraries
-are built, we will use the Windows command prompt and the same compiler to build the actual
-gmpy2 extension (DLL). 
+    4. Install rquired tools::
 
-The MSYS2 environment provides different command line operating environments. We will just
-use the generic "MSYS2 MSYS" environment.
+        pacman -Sy patch m4 lzip wget tar make diffutils git
 
- * MSYS2 MSYS
-   This is the general-purpose MSYS shell but it does not provide
-   access to the MinGW compiler suite. We will use this shell and
-   manually add the location of the winlibs.com version.
+2.  Create a temporary working directory for the build::
 
-MSYS2 does include versions of GMP, MPFR, and MPC but we will compile our own version directly
-from the source. We do this so we can create reproducible builds.
+      mkdir ~/temp
 
-Compiling GMP, MPFR, and MPC
-----------------------------
+3.  Clone (or download) the full gmpy2 source code::
 
-Start the appropriate shell: MSYS2 MSYS
+      cd ~/temp
+      git clone https://github.com/aleaxit/gmpy.git
+      cd gmpy
 
-Add the MinGW-w64 compiler to the PATH.
+4.  Download and compile GMP, MPFR, and MPC:
 
-PATH="/c/mingw64/bin:"$PATH
+      bash scripts/cibw_before_all.sh
 
-In your home directory, create directories for the various files that are created.
 
-mkdir $HOME/64
-mkdir $HOME/64/src
-mkdir $HOME/64/static
-mkdir $HOME/64/shared
+Visual Studio Steps
+-------------------
 
-Download GMP, MPFR, and MPC
----------------------------
+1.  Launch the "Visual Studio x64 Native Tools Command Prompt" shell.
 
-Execute the file
+2.  Change to location of the build directory::
+
+      cd c:\msys64\home\<username>\temp\gmpy
+
+3.  Run::
+
+      scripts\cibw_before_all_windows.bat
+
+4.  Compile and install Windows binary wheels, e.g. for CPython 3.12::
+
+      py -3.12 -m pip install --upgrade build pytest hypothesis cython mpmath
+      set CIBUILDWHEEL=1
+      py -3.12 -m build --wheel --no-isolation
+      py -3.12 -m pip install dist\gmpy2-*312-*.whl --force-reinstall
+
+5.  Run the test suite::
+
+      py -3.12 -m pytest test/
+
+6.  Compile the C-API demo program::
+
+      cd demo
+      py -3.12 setup.py build_ext
+      cd build\lib.win-amd64-cpython-312
+      py -3.12
+      >>> import gmpy2
+      >>> import gmpy2_demo
+      >>> dir(gmpy2_demo)
+      ['__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', 'factor']
+      >>> gmpy2_demo.factor(123456789)
+      [(mpz(3), mpz(2)), (mpz(3607), mpz(1)), (mpz(3803), mpz(1))]
