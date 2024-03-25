@@ -54,7 +54,7 @@ make install
 cd ../
 
 # -- copy headers --
-cp $PREFIX/include/{gmp,mpfr,mpc}.h gmpy2/
+cp $PREFIX/include/{gmp,mpfr,mpc}.h src/gmpy2/
 
 # -- generate *.lib files from *.dll on M$ Windows --
 if [ "$OSTYPE" = "msys" ]
