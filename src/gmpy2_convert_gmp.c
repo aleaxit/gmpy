@@ -363,9 +363,6 @@ static XMPZ_Object *
 GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
 {
     XMPZ_Object *result;
-    int negative;
-    Py_ssize_t len;
-    PyLongObject *templong = (PyLongObject*)obj;
 
     if(!(result = GMPy_XMPZ_New(context))) {
         /* LCOV_EXCL_START */
