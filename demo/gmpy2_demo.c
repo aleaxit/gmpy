@@ -63,7 +63,7 @@ Bug fix for more than 32 iterations in pollard_rho method.
 #include <stdio.h>
 #include <string.h>
 
-#include "../src/gmpy2.h"
+#include <gmpy2.h>
 
 #define MPZ(obj) (((MPZ_Object*)(obj))->z)
 
