@@ -78,7 +78,7 @@ cmdclass = {'build_ext': Gmpy2Build}
 
 setup(
     name="gmpy2",
-    version="2.1.5",
+    version="2.1.6",
     author="Case Van Horsen",
     author_email="casevh@gmail.com",
     cmdclass=cmdclass,
@@ -115,6 +115,8 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',

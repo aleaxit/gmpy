@@ -142,6 +142,27 @@ extern "C" {
 #define IS_TYPE_COMPLEX_ONLY(x)     ((x > OBJ_TYPE_REAL) && \
                                      (x < OBJ_TYPE_COMPLEX))
 
+/* Compatibility macros (to work with PyLongObject internals).
+ */
+
+#if PY_VERSION_HEX >= 0x030C0000
+#  define TAG_FROM_SIGN_AND_SIZE(is_neg, size) ((is_neg?2:(size==0)) | (((size_t)size) << 3))
+#  define _PyLong_SetSignAndDigitCount(obj, is_neg, size) (obj->long_value.lv_tag = TAG_FROM_SIGN_AND_SIZE(is_neg, size))
+#elif PY_VERSION_HEX >= 0x030900A4
+#  define _PyLong_SetSignAndDigitCount(obj, is_neg, size) (Py_SET_SIZE(obj, (is_neg?-1:1)*size))
+#else
+#  define _PyLong_SetSignAndDigitCount(obj, is_neg, size) (Py_SIZE(obj) = (is_neg?-1:1)*size)
+#endif
+
+#if PY_VERSION_HEX >= 0x030C0000
+#  define GET_OB_DIGIT(obj) obj->long_value.ob_digit
+#  define _PyLong_IsNegative(obj) ((obj->long_value.lv_tag & 3) == 2)
+#  define _PyLong_DigitCount(obj) (obj->long_value.lv_tag >> 3)
+#else
+#  define GET_OB_DIGIT(obj) obj->ob_digit
+#  define _PyLong_IsNegative(obj) (Py_SIZE(obj) < 0)
+#  define _PyLong_DigitCount(obj) (_PyLong_IsNegative(obj)? -Py_SIZE(obj):Py_SIZE(obj))
+#endif
 
 /* Since the macros are used in gmpy2's codebase, these functions are skipped
  * until they are needed for the C API in the future.
