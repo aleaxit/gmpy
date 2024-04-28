@@ -537,19 +537,17 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
 
     if (global.in_gmpympfrcache) {
         result = global.gmpympfrcache[--(global.in_gmpympfrcache)];
-        /* Py_INCREF does not set the debugging pointers, so need to use
-           _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)result);
-        mpfr_set_prec(result->f, bits);
+        Py_INCREF((PyObject*)result);
     }
     else {
-        if (!(result = PyObject_New(MPFR_Object, &MPFR_Type))) {
+        result = PyObject_New(MPFR_Object, &MPFR_Type);
+        if (result == NULL) {
             /* LCOV_EXCL_START */
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-        mpfr_init2(result->f, bits);
     }
+    mpfr_init2(result->f, bits);
     result->hash_cache = -1;
     result->rc = 0;
     return result;
@@ -704,7 +702,7 @@ set_gmpympccache(void)
 static MPC_Object *
 GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
 {
-    MPC_Object *self;
+    MPC_Object *result;
 
     if (rprec < 2) {
         CHECK_CONTEXT(context);
@@ -722,29 +720,21 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
         return NULL;
     }
     if (global.in_gmpympccache) {
-        self = global.gmpympccache[--(global.in_gmpympccache)];
-        /* Py_INCREF does not set the debugging pointers, so need to use
-           _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)self);
-        if (rprec == iprec) {
-            mpc_set_prec(self->c, rprec);
-        }
-        else {
-            mpc_clear(self->c);
-            mpc_init3(self->c, rprec, iprec);
-        }
+        result = global.gmpympccache[--(global.in_gmpympccache)];
+        Py_INCREF((PyObject*)result);
     }
     else {
-        if (!(self = PyObject_New(MPC_Object, &MPC_Type))) {
+        result = PyObject_New(MPC_Object, &MPC_Type);
+        if (result == NULL) {
             /* LCOV_EXCL_START */
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-        mpc_init3(self->c, rprec, iprec);
     }
-    self->hash_cache = -1;
-    self->rc = 0;
-    return self;
+    mpc_init3(result->c, rprec, iprec);
+    result->hash_cache = -1;
+    result->rc = 0;
+    return result;
 }
 
 static PyObject *
