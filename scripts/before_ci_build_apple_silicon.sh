@@ -7,7 +7,7 @@ EXTRA="--build=x86_64-apple-darwin --host=aarch64-apple-darwin --target=aarch64-
 if [ ! -f finish_before_ci_build ]; then
   if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux-musl" || "$OSTYPE" == "darwin"* ]]; then
     echo $PWD
-    curl -O https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.xz
+    curl -O -k https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VERSION}.tar.xz
     tar -xf gmp-${GMP_VERSION}.tar.xz
     cd gmp-${GMP_VERSION}
     patch -N -Z -p0 < ../scripts/patch-arm64.diff
