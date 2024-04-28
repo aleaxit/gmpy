@@ -6,7 +6,7 @@ if [ ! -f finish_before_ci_build ]; then
     if [[ "$OSTYPE" == "linux-gnu" ]]; then
       yum install -y xz
     fi
-    curl -O https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.xz
+    curl -O -k https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VERSION}.tar.xz
     tar -xvf gmp-${GMP_VERSION}.tar.xz
     # need to set host to the oldest triple to avoid building binaries
     # that use build machine micro-architecure. configfsf.guess is the one that
