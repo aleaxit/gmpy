@@ -1,23 +1,6 @@
 name: pip_install_gmpy2
-on:
-  pull_request:
-    branches:
-      - master
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'test_cython/**'
-      - '**.py'
 
-  push:
-    branches:
-      - master
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'test_cython/**'
-      - '**.py'
-      - '.github/workflows/**.yml'
+on: [push, pull_request]
 
 jobs:
   osx:
