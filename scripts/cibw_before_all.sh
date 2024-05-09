@@ -60,7 +60,7 @@ cp $PREFIX/include/{gmp,mpfr,mpc}.h gmpy2/
 if [ "$OSTYPE" = "msys" ]
 then
   # Set path to dumpbin & lib
-  PATH="$PATH:$(find "/c/Program FIles/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/" -name "14*")/bin/HostX86/x64/"
+  PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "Hostx86")/x64/"
 
   # See http://stackoverflow.com/questions/9946322/
   cd .local/bin
