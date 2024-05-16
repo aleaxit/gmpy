@@ -57,8 +57,8 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
         mpz_set_si(z, 0);
         break;
     default:
-        mpz_import(z, len, -1, sizeof(GET_OB_DIGIT(templong)[0]), 0,
-                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT,
+        mpz_import(z, len, -1, sizeof(digit), 0,
+                   sizeof(digit)*8 - PyLong_SHIFT,
                    GET_OB_DIGIT(templong));
     }
 
@@ -143,8 +143,8 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(GET_OB_DIGIT(result)[0]), 0,
-               sizeof(GET_OB_DIGIT(result)[0])*8 - PyLong_SHIFT, obj->z);
+    mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(digit), 0,
+               sizeof(digit)*8 - PyLong_SHIFT, obj->z);
 
     if (count == 0) {
         GET_OB_DIGIT(result)[0] = 0;
