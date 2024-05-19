@@ -1,0 +1,18 @@
+--- mpn/x86_64/fat/fat.c
++++ mpn/x86_64/fat/fat.c
+@@ -375,6 +375,7 @@ __gmpn_cpuvec_init (void)
+	      CPUVEC_SETUP_core2;
+	      CPUVEC_SETUP_coreinhm;
+	      CPUVEC_SETUP_coreisbr;
++         __gmpn_cpuid (dummy_string, 7);
+	      if ((dummy_string[0 + BMI2_BIT / 8] & (1 << (BMI2_BIT % 8))) == 0)
+		break;
+	      CPUVEC_SETUP_coreihwl;
+@@ -388,6 +389,7 @@ __gmpn_cpuvec_init (void)
+	      CPUVEC_SETUP_core2;
+	      CPUVEC_SETUP_coreinhm;
+	      CPUVEC_SETUP_coreisbr;
++         __gmpn_cpuid (dummy_string, 7);
+	      if ((dummy_string[0 + BMI2_BIT / 8] & (1 << (BMI2_BIT % 8))) == 0)
+		break;
+	      if (gmp_workaround_skylake_cpuid_bug ())
