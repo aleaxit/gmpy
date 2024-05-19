@@ -43,25 +43,25 @@ PyDoc_STRVAR(GMPy_doc_mpz,
  */
 
 static PyNumberMethods GMPy_MPZ_number_methods = {
-    .nb_add = (binaryfunc) GMPy_Number_Add_Slot,       
-    .nb_subtract = (binaryfunc) GMPy_Number_Sub_Slot,   
-    .nb_multiply = (binaryfunc) GMPy_Number_Mul_Slot,  
-    .nb_remainder = (binaryfunc) GMPy_Number_Mod_Slot, 
-    .nb_divmod = (binaryfunc) GMPy_Number_DivMod_Slot, 
-    .nb_power = (ternaryfunc) GMPy_Number_Pow_Slot,    
-    .nb_negative = (unaryfunc) GMPy_MPZ_Minus_Slot,    
-    .nb_positive = (unaryfunc) GMPy_MPZ_Plus_Slot,     
-    .nb_absolute = (unaryfunc) GMPy_MPZ_Abs_Slot,      
-    .nb_bool = (inquiry) GMPy_MPZ_NonZero_Slot,        
-    .nb_invert = (unaryfunc) GMPy_MPZ_Invert_Slot,     
-    .nb_lshift = (binaryfunc) GMPy_MPZ_Lshift_Slot,    
-    .nb_rshift = (binaryfunc) GMPy_MPZ_Rshift_Slot,    
-    .nb_and = (binaryfunc) GMPy_MPZ_And_Slot,          
-    .nb_xor = (binaryfunc) GMPy_MPZ_Xor_Slot,          
-    .nb_or = (binaryfunc) GMPy_MPZ_Ior_Slot,           
-    .nb_int = (unaryfunc) GMPy_MPZ_Int_Slot,           
-    .nb_float = (unaryfunc) GMPy_MPZ_Float_Slot,       
-    .nb_floor_divide = (binaryfunc) GMPy_Number_FloorDiv_Slot, 
+    .nb_add = (binaryfunc) GMPy_Number_Add_Slot,
+    .nb_subtract = (binaryfunc) GMPy_Number_Sub_Slot,
+    .nb_multiply = (binaryfunc) GMPy_Number_Mul_Slot,
+    .nb_remainder = (binaryfunc) GMPy_Number_Mod_Slot,
+    .nb_divmod = (binaryfunc) GMPy_Number_DivMod_Slot,
+    .nb_power = (ternaryfunc) GMPy_Number_Pow_Slot,
+    .nb_negative = (unaryfunc) GMPy_MPZ_Minus_Slot,
+    .nb_positive = (unaryfunc) GMPy_MPZ_Plus_Slot,
+    .nb_absolute = (unaryfunc) GMPy_MPZ_Abs_Slot,
+    .nb_bool = (inquiry) GMPy_MPZ_NonZero_Slot,
+    .nb_invert = (unaryfunc) GMPy_MPZ_Invert_Slot,
+    .nb_lshift = (binaryfunc) GMPy_MPZ_Lshift_Slot,
+    .nb_rshift = (binaryfunc) GMPy_MPZ_Rshift_Slot,
+    .nb_and = (binaryfunc) GMPy_MPZ_And_Slot,
+    .nb_xor = (binaryfunc) GMPy_MPZ_Xor_Slot,
+    .nb_or = (binaryfunc) GMPy_MPZ_Ior_Slot,
+    .nb_int = (unaryfunc) GMPy_MPZ_Int_Slot,
+    .nb_float = (unaryfunc) GMPy_MPZ_Float_Slot,
+    .nb_floor_divide = (binaryfunc) GMPy_Number_FloorDiv_Slot,
     .nb_true_divide = (binaryfunc) GMPy_Number_TrueDiv_Slot,
     .nb_index = (unaryfunc) GMPy_MPZ_Int_Slot,
 };
@@ -113,11 +113,10 @@ static PyMethodDef GMPy_MPZ_methods[] = {
     { "as_integer_ratio", GMPy_MPZ_Method_As_Integer_Ratio, METH_NOARGS, GMPy_doc_mpz_method_as_integer_ratio },
     { "to_bytes", (PyCFunction)GMPy_MPZ_Method_To_Bytes, METH_FASTCALL | METH_KEYWORDS, GMPy_doc_mpz_method_to_bytes },
     { "from_bytes", (PyCFunction)GMPy_MPZ_Method_From_Bytes, METH_FASTCALL | METH_KEYWORDS | METH_CLASS, GMPy_doc_mpz_method_from_bytes },
-    { NULL, NULL, 1 }
+    { NULL }
 };
 
 static PyTypeObject MPZ_Type = {
-    /* PyObject_HEAD_INIT(&PyType_Type) */
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "gmpy2.mpz",
     .tp_basicsize = sizeof(MPZ_Object),
@@ -134,4 +133,3 @@ static PyTypeObject MPZ_Type = {
     .tp_getset = GMPy_MPZ_getseters,
     .tp_new = GMPy_MPZ_NewInit,
 };
-

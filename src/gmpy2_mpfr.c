@@ -170,7 +170,7 @@ static PyMethodDef Pympfr_methods [] =
     { "is_regular", GMPy_MPFR_Is_Regular_Method, METH_NOARGS, GMPy_doc_method_is_regular },
     { "is_signed", GMPy_MPFR_Is_Signed_Method, METH_NOARGS, GMPy_doc_method_is_signed },
     { "is_zero", GMPy_Number_Method_Is_Zero, METH_NOARGS, GMPy_doc_method_is_zero },
-    { NULL, NULL, 1 }
+    { NULL }
 };
 
 static PyTypeObject MPFR_Type =

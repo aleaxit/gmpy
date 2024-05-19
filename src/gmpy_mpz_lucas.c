@@ -37,7 +37,8 @@ PyDoc_STRVAR(doc_mpz_lucasu,
 static PyObject *
 GMPY_mpz_lucasu(PyObject *self, PyObject *args)
 {
-    /* Adaptation of algorithm found in http://joye.site88.net/papers/JQ96lucas.pdf
+    /* Adaptation of algorithm found in
+     * https://web.archive.org/web/20150202074230/http://joye.site88.net/papers/JQ96lucas.pdf
      * calculate u[k] of Lucas U sequence for p,q.
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
