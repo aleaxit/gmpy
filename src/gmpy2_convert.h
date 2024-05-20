@@ -55,7 +55,8 @@ extern "C" {
                         MPZ_Check(x) || PyLong_Check(x) || \
                         XMPZ_Check(x) || HAS_MPQ_CONVERSION(x) || \
                         HAS_MPZ_CONVERSION(x))
-#define IS_DECIMAL(x) (!strcmp(Py_TYPE(x)->tp_name, "decimal.Decimal"))
+#define IS_DECIMAL(x) (!strcmp(Py_TYPE(x)->tp_name, "decimal.Decimal") || \
+                       !strcmp(Py_TYPE(x)->tp_name, "Decimal"))
 #define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || \
                          HAS_STRICT_MPFR_CONVERSION(x) || IS_DECIMAL(x))
 #define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
