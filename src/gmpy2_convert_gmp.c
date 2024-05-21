@@ -42,23 +42,30 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    int overflow;
-    long value = PyLong_AsLongAndOverflow(obj, &overflow);
+    int negative;
+    Py_ssize_t len;
+    PyLongObject *templong = (PyLongObject*)obj;
 
-    if (!overflow) {
-        mpz_set_si(z, value);
-        return;
+    len = _PyLong_DigitCount(templong);
+    negative = _PyLong_Sign(obj) < 0;
+
+    switch (len) {
+    case 1:
+        mpz_set_si(z, (sdigit)GET_OB_DIGIT(templong)[0]);
+        break;
+    case 0:
+        mpz_set_si(z, 0);
+        break;
+    default:
+        mpz_import(z, len, -1, sizeof(digit), 0,
+                   sizeof(digit)*8 - PyLong_SHIFT,
+                   GET_OB_DIGIT(templong));
     }
 
-    PyLongObject *templong = (PyLongObject*)obj;
-    Py_ssize_t len = _PyLong_DigitCount(templong);
-
-    mpz_import(z, len, -1, sizeof(digit), 0, sizeof(digit)*8 - PyLong_SHIFT,
-               GET_OB_DIGIT(templong));
-
-    if (_PyLong_Sign(obj) < 0) {
+    if (negative) {
         mpz_neg(z, z);
     }
+    return;
 }
 
 static MPZ_Object *
