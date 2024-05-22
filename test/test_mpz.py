@@ -322,6 +322,8 @@ def test_mpz_conversion():
 
     assert int(mpz(-3)) == -3
 
+    assert int(mpz(11)) is int(mpz(11))
+
 
 def test_mpz_create():
     assert mpz() == mpz(0)
