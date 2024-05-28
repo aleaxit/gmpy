@@ -100,12 +100,12 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
 
         if (IS_TYPE_PyFloat(btype)) {
             double d = PyFloat_AS_DOUBLE(b);
-            if (Py_IS_NAN(d)) {
+            if (isnan(d)) {
                 result = (op == Py_NE) ? Py_True : Py_False;
                 Py_INCREF(result);
                 return result;
             }
-            else if (Py_IS_INFINITY(d)) {
+            else if (isinf(d)) {
                 if (d < 0.0)
                     return _cmp_to_object(1, op);
                 else
@@ -133,12 +133,12 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
 
         if (IS_TYPE_PyFloat(btype)) {
             double d = PyFloat_AS_DOUBLE(b);
-            if (Py_IS_NAN(d)) {
+            if (isnan(d)) {
                 result = (op == Py_NE) ? Py_True : Py_False;
                 Py_INCREF(result);
                 return result;
             }
-            else if (Py_IS_INFINITY(d)) {
+            else if (isinf(d)) {
                 if (d < 0.0)
                     return _cmp_to_object(1, op);
                 else

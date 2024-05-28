@@ -110,12 +110,12 @@ GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context)
     if ((result = GMPy_MPZ_New(context))) {
         double d = PyFloat_AsDouble(obj);
 
-        if (Py_IS_NAN(d)) {
+        if (isnan(d)) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'mpz' does not support NaN");
             return NULL;
         }
-        if (Py_IS_INFINITY(d)) {
+        if (isinf(d)) {
             Py_DECREF((PyObject*)result);
             OVERFLOW_ERROR("'mpz' does not support Infinity");
             return NULL;
@@ -168,7 +168,7 @@ GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 
     res = mpz_get_d(obj->z);
 
-    if (Py_IS_INFINITY(res)) {
+    if (isinf(res)) {
         OVERFLOW_ERROR("'mpz' too large to convert to float");
         return NULL;
     }
@@ -393,12 +393,12 @@ GMPy_XMPZ_From_PyFloat(PyObject *obj, CTXT_Object *context)
     if ((result = GMPy_XMPZ_New(context))) {
         double d = PyFloat_AsDouble(obj);
 
-        if (Py_IS_NAN(d)) {
+        if (isnan(d)) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'xmpz' does not support NaN");
             return NULL;
         }
-        if (Py_IS_INFINITY(d)) {
+        if (isinf(d)) {
             Py_DECREF((PyObject*)result);
             OVERFLOW_ERROR("'xmpz' does not support Infinity");
             return NULL;
@@ -647,12 +647,12 @@ GMPy_MPQ_From_PyFloat(PyObject *obj, CTXT_Object *context)
     if ((result = GMPy_MPQ_New(context))) {
         double d = PyFloat_AsDouble(obj);
 
-        if (Py_IS_NAN(d)) {
+        if (isnan(d)) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'mpq' does not support NaN");
             return NULL;
         }
-        if (Py_IS_INFINITY(d)) {
+        if (isinf(d)) {
             Py_DECREF((PyObject*)result);
             OVERFLOW_ERROR("'mpq' does not support Infinity");
             return NULL;
@@ -793,7 +793,7 @@ GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 
     res = mpq_get_d(obj->q);
 
-    if (Py_IS_INFINITY(res)) {
+    if (isinf(res)) {
         OVERFLOW_ERROR("'mpq' too large to convert to float");
         return NULL;
     }
