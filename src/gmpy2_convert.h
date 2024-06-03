@@ -146,8 +146,8 @@ extern "C" {
 #endif
 
 #if PY_VERSION_HEX >= 0x030C0000
-#  define GET_OB_DIGIT(obj) obj->long_value.ob_digit
-#  define _PyLong_DigitCount(obj) (obj->long_value.lv_tag >> 3)
+#  define GET_OB_DIGIT(obj) ((PyLongObject*)obj)->long_value.ob_digit
+#  define _PyLong_DigitCount(obj) (((PyLongObject*)obj)->long_value.lv_tag >> 3)
 #else
 #  define GET_OB_DIGIT(obj) obj->ob_digit
 #  define _PyLong_DigitCount(obj) (_PyLong_Sign(obj)<0 ? -Py_SIZE(obj):Py_SIZE(obj))

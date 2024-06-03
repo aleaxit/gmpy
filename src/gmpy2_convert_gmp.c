@@ -46,7 +46,7 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
     Py_ssize_t len;
     PyLongObject *templong = (PyLongObject*)obj;
 
-    len = _PyLong_DigitCount(templong);
+    len = _PyLong_DigitCount(obj);
     negative = _PyLong_Sign(obj) < 0;
 
     switch (len) {
