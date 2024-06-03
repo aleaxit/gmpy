@@ -34,6 +34,8 @@
  * some basic types such as C longs or doubles.
  */
 
+#include "pythoncapi_compat.h"
+
 /* ======================================================================== *
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
@@ -42,12 +44,8 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    int negative;
-    Py_ssize_t len;
     PyLongObject *templong = (PyLongObject*)obj;
-
-    len = _PyLong_DigitCount(obj);
-    negative = _PyLong_Sign(obj) < 0;
+    Py_ssize_t len = _PyLong_DigitCount(obj);
 
     switch (len) {
     case 1:
@@ -62,7 +60,9 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
                    GET_OB_DIGIT(templong));
     }
 
-    if (negative) {
+    int sign = 1;
+    PyLong_GetSign(obj, &sign);
+    if (sign < 0) {
         mpz_neg(z, z);
     }
     return;
