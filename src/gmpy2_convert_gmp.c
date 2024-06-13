@@ -133,8 +133,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
 
-    size_t count, size = (mpz_sizeinbase(obj->z, 2) +
-                          PyLong_SHIFT - 1) / PyLong_SHIFT;
+    size_t size = (mpz_sizeinbase(obj->z, 2) + PyLong_SHIFT - 1) / PyLong_SHIFT;
     PyLongObject *result;
 
     if (!(result = _PyLong_New(size))) {
@@ -143,13 +142,10 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(digit), 0,
+    mpz_export(GET_OB_DIGIT(result), NULL, -1, sizeof(digit), 0,
                sizeof(digit)*8 - PyLong_SHIFT, obj->z);
 
-    for (size_t i = count; i < size; i++) {
-        GET_OB_DIGIT(result)[i] = 0;
-    }
-    _PyLong_SetSignAndDigitCount(result, mpz_sgn(obj->z) < 0, count);
+    _PyLong_SetSignAndDigitCount(result, mpz_sgn(obj->z) < 0, size);
 
     return (PyObject*)result;
 }
