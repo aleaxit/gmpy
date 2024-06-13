@@ -44,12 +44,11 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    PyLongObject *templong = (PyLongObject*)obj;
     Py_ssize_t len = _PyLong_DigitCount(obj);
 
     switch (len) {
     case 1:
-        mpz_set_si(z, (sdigit)GET_OB_DIGIT(templong)[0]);
+        mpz_set_si(z, (sdigit)GET_OB_DIGIT(obj)[0]);
         break;
     case 0:
         mpz_set_si(z, 0);
@@ -57,7 +56,7 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
     default:
         mpz_import(z, len, -1, sizeof(digit), 0,
                    sizeof(digit)*8 - PyLong_SHIFT,
-                   GET_OB_DIGIT(templong));
+                   GET_OB_DIGIT(obj));
     }
 
     int sign = 1;
