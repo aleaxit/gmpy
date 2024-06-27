@@ -64,11 +64,13 @@ jobs:
           lcov --capture --directory . --no-external --output-file build/coverage.info
           genhtml build/coverage.info --output-directory build/coverage
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           gcov: true
           gcov_include: src/*.c
           gcov_args: --no-external
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         if: matrix.python-version == 3.11
