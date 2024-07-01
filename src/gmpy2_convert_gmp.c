@@ -34,6 +34,8 @@
  * some basic types such as C longs or doubles.
  */
 
+#include "pythoncapi_compat.h"
+
 /* ======================================================================== *
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
@@ -42,16 +44,11 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    int negative;
-    Py_ssize_t len;
-    PyLongObject *templong = (PyLongObject*)obj;
-
-    len = _PyLong_DigitCount(obj);
-    negative = _PyLong_Sign(obj) < 0;
+    Py_ssize_t len = _PyLong_DigitCount(obj);
 
     switch (len) {
     case 1:
-        mpz_set_si(z, (sdigit)GET_OB_DIGIT(templong)[0]);
+        mpz_set_si(z, (sdigit)GET_OB_DIGIT(obj)[0]);
         break;
     case 0:
         mpz_set_si(z, 0);
@@ -59,10 +56,12 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
     default:
         mpz_import(z, len, -1, sizeof(digit), 0,
                    sizeof(digit)*8 - PyLong_SHIFT,
-                   GET_OB_DIGIT(templong));
+                   GET_OB_DIGIT(obj));
     }
 
-    if (negative) {
+    int sign = 1;
+    PyLong_GetSign(obj, &sign);
+    if (sign < 0) {
         mpz_neg(z, z);
     }
     return;
@@ -134,8 +133,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
 
-    size_t count, size = (mpz_sizeinbase(obj->z, 2) +
-                          PyLong_SHIFT - 1) / PyLong_SHIFT;
+    size_t size = (mpz_sizeinbase(obj->z, 2) + PyLong_SHIFT - 1) / PyLong_SHIFT;
     PyLongObject *result;
 
     if (!(result = _PyLong_New(size))) {
@@ -144,13 +142,10 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(digit), 0,
+    mpz_export(GET_OB_DIGIT(result), NULL, -1, sizeof(digit), 0,
                sizeof(digit)*8 - PyLong_SHIFT, obj->z);
 
-    for (size_t i = count; i < size; i++) {
-        GET_OB_DIGIT(result)[i] = 0;
-    }
-    _PyLong_SetSignAndDigitCount(result, mpz_sgn(obj->z) < 0, count);
+    _PyLong_SetSignAndDigitCount(result, mpz_sgn(obj->z) < 0, size);
 
     return (PyObject*)result;
 }
