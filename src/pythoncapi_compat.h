@@ -1208,6 +1208,121 @@ static inline int PyTime_PerfCounter(PyTime_t *result)
 #  define PyHASH_IMAG _PyHASH_IMAG
 #endif
 
+#if PY_VERSION_HEX < 0x030E00A0
+typedef digit Py_digit;
+
+typedef struct PyLongLayout {
+    uint8_t bits_per_digit;
+    uint8_t digit_size;
+    int8_t word_endian;
+    int8_t array_endian;
+} PyLongLayout;
+
+const PyLongLayout PyLong_LAYOUT = {
+    .bits_per_digit = PyLong_SHIFT,
+    .word_endian = PY_LITTLE_ENDIAN ? -1 : 1,
+    .array_endian = -1,  // least significant first
+    .digit_size = sizeof(digit),
+};
+
+typedef struct PyLong_DigitArray {
+    PyObject *obj;
+    int negative;
+    size_t ndigits;
+    Py_digit *digits;
+} PyLong_DigitArray;
+
+typedef struct PyLongWriter PyLongWriter;
+
+#if PY_VERSION_HEX >= 0x030C0000
+#  define NON_SIZE_BITS 3
+#  define TAG_FROM_SIGN_AND_SIZE(sign, size) ((1 - (sign)) | ((size) << NON_SIZE_BITS))
+#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (((PyLongObject*)obj)->long_value.lv_tag = TAG_FROM_SIGN_AND_SIZE(sign, size))
+#elif PY_VERSION_HEX >= 0x030900A4
+#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (Py_SET_SIZE(obj, (sign)*(size)))
+#else
+#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (Py_SIZE(obj) = (sign)*(size))
+#endif
+
+#if PY_VERSION_HEX >= 0x030C0000
+#  define GET_OB_DIGIT(obj) ((PyLongObject*)obj)->long_value.ob_digit
+#  define _PyLong_DigitCount(obj) (((PyLongObject*)obj)->long_value.lv_tag >> 3)
+#else
+#  define GET_OB_DIGIT(obj) ((PyLongObject*)obj)->ob_digit
+#  define _PyLong_DigitCount(obj) (_PyLong_Sign((PyObject*)obj)<0 ? -Py_SIZE(obj):Py_SIZE(obj))
+#endif
+
+static inline int
+PyLong_AsDigitArray(PyObject *obj, PyLong_DigitArray *array)
+{
+    if (!PyLong_Check(obj)) {
+        PyErr_Format(PyExc_TypeError, "expect int, got %T", obj);
+        return -1;
+    }
+    PyLongObject *self = (PyLongObject*)obj;
+
+    array->obj = Py_NewRef(obj);
+    array->negative = _PyLong_Sign(obj) < 0;
+    array->ndigits = _PyLong_DigitCount(self);
+    if (array->ndigits == 0) {
+        array->ndigits = 1;
+    }
+    array->digits = GET_OB_DIGIT(self);
+    return 0;
+}
+
+static inline void
+PyLong_FreeDigitArray(PyLong_DigitArray *array)
+{
+    Py_CLEAR(array->obj);
+    array->negative = 0;
+    array->ndigits = 0;
+    array->digits = NULL;
+}
+
+static inline PyLongWriter*
+PyLongWriter_Create(int negative, size_t ndigits, Py_digit **digits)
+{
+    if (ndigits > (size_t)PY_SSIZE_T_MAX) {
+        PyErr_NoMemory();
+        return NULL;
+    }
+    assert(digits != NULL);
+
+    PyLongObject *obj = _PyLong_New((Py_ssize_t)ndigits);
+    if (obj == NULL) {
+        return NULL;
+    }
+    if (ndigits == 0) {
+        assert(GET_OB_DIGIT(obj)[0] == 0);
+    }
+    _PyLong_SetSignAndDigitCount(obj, negative?-1:1, ndigits);
+
+    *digits = GET_OB_DIGIT(obj);
+    return (PyLongWriter*)obj;
+}
+
+static inline PyObject*
+PyLongWriter_Finish(PyLongWriter *writer)
+{
+    PyObject *obj = (PyObject *)writer;
+    assert(Py_REFCNT(obj) == 1);
+
+    Py_ssize_t j = _PyLong_DigitCount(obj);
+    Py_ssize_t i = j;
+    int sign = _PyLong_Sign(obj);
+
+    while (i > 0 && GET_OB_DIGIT(obj)[i-1] == 0) {
+        --i;
+    }
+    if (i != j) {
+        sign = 0;
+    }
+    _PyLong_SetSignAndDigitCount(obj, sign, i);
+    /* XXX handle small ints */
+    return obj;
+}
+#endif
 
 #ifdef __cplusplus
 }
