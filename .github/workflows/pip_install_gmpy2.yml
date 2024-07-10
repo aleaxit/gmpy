@@ -103,7 +103,11 @@ jobs:
             mpc-devel
             python-setuptools
             python-pip
-      - run: pip install --upgrade pip
-      - run: pip --verbose install -e .[tests]
-      - run: pytest test/
-      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+      - name: Build and run tests in venv
+        run: |
+          python -m venv .test-venv
+          source .test-venv/bin/activate
+          pip install --upgrade pip
+          pip --verbose install -e .[tests]
+          pytest test/
+          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
