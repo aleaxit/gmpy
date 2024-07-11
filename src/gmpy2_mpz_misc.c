@@ -1869,8 +1869,8 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
     Py_ssize_t i, nkws = 0, size, gap, length = 1;
     PyObject *bytes, *arg;
     mpz_t tmp, *px = &MPZ(self);
-    char *buffer, sign, is_signed = 0, is_negative, is_big;
-    int argidx[2] = {-1, -1};
+    char *buffer;
+    int sign, is_signed = 0, is_negative, is_big, argidx[2] = {-1, -1};
     const char *byteorder = NULL, *kwname;
 
     if (nargs > 2) {
@@ -2023,8 +2023,8 @@ GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *const *args, Py_ssize_t
 {
     Py_ssize_t i, nkws = 0, length;
     PyObject *arg, *bytes;
-    char is_signed = 0, endian, *buffer;
-    int argidx[2] = {-1, -1};
+    char *buffer;
+    int is_signed = 0, endian, argidx[2] = {-1, -1};
     const char *byteorder = NULL, *kwname;
     mpz_t tmp;
     MPZ_Object *result;

@@ -178,7 +178,8 @@ GMPy_RemoveIgnoredASCII(PyObject *s)
 static int
 mpz_set_PyStr(mpz_t z, PyObject *s, int base)
 {
-    char *cp, negative = 0;
+    char *cp;
+    int negative = 0;
     PyObject *ascii_str;
 
     ascii_str = GMPy_RemoveIgnoredASCII(s);
