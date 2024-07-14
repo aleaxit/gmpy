@@ -96,6 +96,7 @@ static PyMethodDef GMPy_XMPZ_methods [] =
     { "bit_clear", GMPy_MPZ_bit_clear_method, METH_O, doc_bit_clear_method },
     { "bit_flip", GMPy_MPZ_bit_flip_method, METH_O, doc_bit_flip_method },
     { "bit_length", GMPy_MPZ_bit_length_method, METH_NOARGS, doc_bit_length_method },
+    { "bit_count", GMPy_MPZ_bit_count_method, METH_NOARGS, doc_bit_count_method },
     { "bit_scan0", (PyCFunction)GMPy_MPZ_bit_scan0_method, METH_FASTCALL, doc_bit_scan0_method },
     { "bit_scan1", (PyCFunction)GMPy_MPZ_bit_scan1_method, METH_FASTCALL, doc_bit_scan1_method },
     { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
