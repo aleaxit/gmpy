@@ -1281,15 +1281,15 @@ PyLong_FreeDigitArray(PyLong_DigitArray *array)
 }
 
 static inline PyLongWriter*
-PyLongWriter_Create(int negative, size_t ndigits, Py_digit **digits)
+PyLongWriter_Create(int negative, Py_ssize_t ndigits, Py_digit **digits)
 {
-    if (ndigits > (size_t)PY_SSIZE_T_MAX) {
-        PyErr_NoMemory();
+    if (ndigits < 0) {
+        PyErr_SetString(PyExc_ValueError, "ndigits must be positive");
         return NULL;
     }
     assert(digits != NULL);
 
-    PyLongObject *obj = _PyLong_New((Py_ssize_t)ndigits);
+    PyLongObject *obj = _PyLong_New(ndigits);
     if (obj == NULL) {
         return NULL;
     }
@@ -1315,11 +1315,15 @@ PyLongWriter_Finish(PyLongWriter *writer)
     while (i > 0 && GET_OB_DIGIT(obj)[i-1] == 0) {
         --i;
     }
-    if (i != j) {
+    if (i == 0) {
         sign = 0;
     }
+    if (i <= 1) {
+        long val = sign*GET_OB_DIGIT(obj)[0];
+        Py_DECREF(obj);
+        obj = PyLong_FromLong(val);
+    }
     _PyLong_SetSignAndDigitCount(obj, sign, i);
-    /* XXX handle small ints */
     return obj;
 }
 #endif
