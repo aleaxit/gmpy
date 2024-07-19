@@ -3,8 +3,14 @@ Release Notes
 
 .. currentmodule:: gmpy2
 
+Changes in gmpy2 2.2.1
+----------------------
+
+* Fix internal use of `char` when `int` should be used. (jamesjer)
+* Add `xmpz.bit_count`. (skirpichev)
+
 Changes in gmpy2 2.2.0
-------------------------
+----------------------
 
 * Remove support for versions of Python < 3.7.  (skirpichev)
 * Support more modern build tools.  (skirpichev)

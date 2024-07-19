@@ -4,7 +4,7 @@ import gmpy2
 
 
 def test_misc():
-    assert gmpy2.version().startswith('2.2.0')
+    assert gmpy2.version().startswith('2.2.1')
     assert gmpy2.mp_limbsize() in (32,64)
     assert '5.0.0' <= gmpy2.mp_version()
     assert gmpy2.mpfr_version() and gmpy2.mpfr_version().startswith('MPFR')
