@@ -6,8 +6,8 @@ Release Notes
 Changes in gmpy2 2.2.1
 ----------------------
 
-* Fix internal use of `char` when `int` should be used. (jamesjer)
-* Add `xmpz.bit_count`. (skirpichev)
+* Fix internal use of char when int should be used. (jamesjer)
+* Add :meth:`xmpz.bit_count`. (skirpichev)
 
 Changes in gmpy2 2.2.0
 ----------------------
