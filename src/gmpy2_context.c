@@ -195,7 +195,7 @@ GMPy_CTXT_Exit(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
 "ieee(size, /, subnormalize=True) -> context\n\n"
-"Return a new context corresponding to a standard IEEE floating point\n"
+"Return a new context corresponding to a standard IEEE floating-point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
 "32 greater than 128.");
 
@@ -706,10 +706,10 @@ GETSET_BOOLEAN(rational_division)
 GETSET_BOOLEAN(allow_release_gil)
 
 PyDoc_STRVAR(GMPy_doc_CTXT_subnormalize,
-"The usual IEEE-754 floating point representation supports gradual\n"
+"The usual IEEE-754 floating-point representation supports gradual\n"
 "underflow when the minimum exponent is reached.  The MFPR library\n"
 "does not enable gradual underflow by default but it can be enabled\n"
-"to precisely mimic the results of IEEE-754 floating point operations.");
+"to precisely mimic the results of IEEE-754 floating-point operations.");
 
 PyDoc_STRVAR(GMPy_doc_CTXT_trap_underflow,
 "If set to `False`, a result that is smaller than the smallest possible\n"

@@ -41,7 +41,7 @@
  * If bits (or prec) is set to 1, the precision of the result depends on the
  * type of the source.
  *
- *   If the source number is already a radix-2 floating point number,
+ *   If the source number is already a radix-2 floating-point number,
  *   the precision is not changed. In practical terms, this only applies
  *   to sources operands that are either an mpfr or Python double.
  *
