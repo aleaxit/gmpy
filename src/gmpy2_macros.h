@@ -332,7 +332,9 @@ GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
     result->rc = mpfr_##FUNC(result->f, tempx->f); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
-    return (PyObject*)result; \
+    MPZ_Object *mpz_result = GMPy_MPZ_From_MPFR(result, context); \
+    Py_DECREF((PyObject*)result); \
+    return (PyObject*)mpz_result; \
 } \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \

@@ -872,3 +872,30 @@ def test_mpfr_pickle():
     assert pickle.loads(pickle.dumps(mpfr("-inf"))) == mpfr('-inf')
     assert is_nan(pickle.loads(pickle.dumps(mpfr("nan"))))
     assert pickle.loads(pickle.dumps(mpfr(0))) == mpfr('0.0')
+
+
+def test_mpfr_floor():
+    a = mpfr('12.34')
+
+    ctx = get_context()
+    r = ctx.floor(a)
+
+    assert r == mpz(12) and isinstance(r, mpz)
+
+
+def test_mpfr_ceil():
+    a = mpfr('12.34')
+
+    ctx = get_context()
+    r = ctx.ceil(a)
+
+    assert r == mpz(13) and isinstance(r, mpz)
+
+
+def test_mpfr_trunc():
+    a = mpfr('12.34')
+
+    ctx = get_context()
+    r = ctx.trunc(a)
+
+    assert r == mpz(12) and isinstance(r, mpz)
