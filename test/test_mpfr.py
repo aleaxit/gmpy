@@ -6,7 +6,7 @@ from fractions import Fraction
 
 import pytest
 from hypothesis import example, given, settings
-from hypothesis.strategies import floats
+from hypothesis.strategies import floats, integers
 from supportclasses import a, b, c, d, q, r, z
 
 import gmpy2
@@ -899,3 +899,11 @@ def test_mpfr_trunc():
     r = ctx.trunc(a)
 
     assert r == mpz(12) and isinstance(r, mpz)
+
+
+@given(floats(allow_nan=False, allow_infinity=False),
+       integers(-10, 40))
+def test_mpfr_round_roundtrip_bulk(x, n):
+    q = mpq(*x.as_integer_ratio())
+    assert float(round(q, n)) == round(x, n)
+    assert mpfr(round(q, n)) == round(mpfr(x), n)

@@ -287,14 +287,17 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
     switch (nargs) {
         case 4:
             rnd = PyString_1Char(args[3]);
+            /* fallthrough */
         case 3:
             prec = GMPy_Integer_AsLong(args[2]);
             if (prec == (mp_bitcnt_t)(-1)) {
                 VALUE_ERROR("could not convert prec to positive int");
                 return NULL;
             }
+            /* fallthrough */
         case 2:
             exp = args[1];
+            /* fallthrough */
         case 1:
             man = GMPy_MPZ_From_Integer(args[0], NULL);
             if (!man) {
