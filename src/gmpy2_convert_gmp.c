@@ -789,16 +789,25 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
 static PyObject *
 GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 {
-    double res;
+    MPFR_Object *tmp;
 
-    res = mpq_get_d(obj->q);
+    CHECK_CONTEXT(context);
 
-    if (isinf(res)) {
-        OVERFLOW_ERROR("'mpq' too large to convert to float");
+    if (!(tmp = GMPy_MPFR_New(53, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
-    return PyFloat_FromDouble(res);
+    mpfr_clear_flags();
+    tmp->rc = mpfr_set_q(tmp->f, obj->q, MPFR_RNDN);
+    GMPY_MPFR_CHECK_RANGE(tmp, context);
+    GMPY_MPFR_SUBNORMALIZE(tmp, context);
+    GMPY_MPFR_EXCEPTIONS(tmp, context);
+
+    PyObject *res = GMPy_PyFloat_From_MPFR(tmp, context);
+    Py_DECREF(tmp);
+    return res;
 }
 
 static PyObject *

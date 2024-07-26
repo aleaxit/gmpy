@@ -196,7 +196,7 @@ Changes in gmpy2 2.1.0a1
 * Context methods have been added for MPFR/MPC related functions.
 * A new context option (`~context.rational_division`) has been added that
   changes the behavior of integer division involving `mpz` instances to return
-  a rational result instead of a floating point result.
+  a rational result instead of a floating-point result.
 * gmpy2 types are now registered in the numeric tower of the
   :mod:`numbers` module.
 * In previous versions of gmpy2, ``mpz()`` was a factory function that

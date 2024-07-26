@@ -117,7 +117,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr,
 "the specified context or the current context is used.\n"
 "A precision of 1 minimizes the loss of precision by following\n"
 "these rules:\n\n"
-"    1) If n is a radix-2 floating point number, then the full\n"
+"    1) If n is a radix-2 floating-point number, then the full\n"
 "       precision of n is retained.\n"
 "    2) If n is an integer, then the precision is the bit length\n"
 "       of the integer.\n");
