@@ -30,14 +30,14 @@ extern "C" {
 #  define _Py_CAST(type, expr) ((type)(expr))
 #endif
 
-// On C++11 and newer, _Py_NULL is defined as nullptr on C++11,
-// otherwise it is defined as NULL.
-#ifndef _Py_NULL
-#  if defined(__cplusplus) && __cplusplus >= 201103
-#    define _Py_NULL nullptr
-#  else
-#    define _Py_NULL NULL
-#  endif
+// Static inline functions should use _Py_NULL rather than using directly NULL
+// to prevent C++ compiler warnings. On C23 and newer and on C++11 and newer,
+// _Py_NULL is defined as nullptr.
+#if (defined (__STDC_VERSION__) && __STDC_VERSION__ > 201710L) \
+        || (defined(__cplusplus) && __cplusplus >= 201103)
+#  define _Py_NULL nullptr
+#else
+#  define _Py_NULL NULL
 #endif
 
 // Cast argument to PyObject* type.
@@ -1206,6 +1206,151 @@ static inline int PyTime_PerfCounter(PyTime_t *result)
 #  define PyHASH_MODULUS _PyHASH_MODULUS
 #  define PyHASH_INF _PyHASH_INF
 #  define PyHASH_IMAG _PyHASH_IMAG
+#endif
+
+
+// gh-111545 added Py_GetConstant() and Py_GetConstantBorrowed()
+// to Python 3.13.0a6
+#if PY_VERSION_HEX < 0x030D00A6 && !defined(Py_CONSTANT_NONE)
+
+#define Py_CONSTANT_NONE 0
+#define Py_CONSTANT_FALSE 1
+#define Py_CONSTANT_TRUE 2
+#define Py_CONSTANT_ELLIPSIS 3
+#define Py_CONSTANT_NOT_IMPLEMENTED 4
+#define Py_CONSTANT_ZERO 5
+#define Py_CONSTANT_ONE 6
+#define Py_CONSTANT_EMPTY_STR 7
+#define Py_CONSTANT_EMPTY_BYTES 8
+#define Py_CONSTANT_EMPTY_TUPLE 9
+
+static inline PyObject* Py_GetConstant(unsigned int constant_id)
+{
+    static PyObject* constants[Py_CONSTANT_EMPTY_TUPLE + 1] = {NULL};
+
+    if (constants[Py_CONSTANT_NONE] == NULL) {
+        constants[Py_CONSTANT_NONE] = Py_None;
+        constants[Py_CONSTANT_FALSE] = Py_False;
+        constants[Py_CONSTANT_TRUE] = Py_True;
+        constants[Py_CONSTANT_ELLIPSIS] = Py_Ellipsis;
+        constants[Py_CONSTANT_NOT_IMPLEMENTED] = Py_NotImplemented;
+
+        constants[Py_CONSTANT_ZERO] = PyLong_FromLong(0);
+        if (constants[Py_CONSTANT_ZERO] == NULL) {
+            goto fatal_error;
+        }
+
+        constants[Py_CONSTANT_ONE] = PyLong_FromLong(1);
+        if (constants[Py_CONSTANT_ONE] == NULL) {
+            goto fatal_error;
+        }
+
+        constants[Py_CONSTANT_EMPTY_STR] = PyUnicode_FromStringAndSize("", 0);
+        if (constants[Py_CONSTANT_EMPTY_STR] == NULL) {
+            goto fatal_error;
+        }
+
+        constants[Py_CONSTANT_EMPTY_BYTES] = PyBytes_FromStringAndSize("", 0);
+        if (constants[Py_CONSTANT_EMPTY_BYTES] == NULL) {
+            goto fatal_error;
+        }
+
+        constants[Py_CONSTANT_EMPTY_TUPLE] = PyTuple_New(0);
+        if (constants[Py_CONSTANT_EMPTY_TUPLE] == NULL) {
+            goto fatal_error;
+        }
+        // goto dance to avoid compiler warnings about Py_FatalError()
+        goto init_done;
+
+fatal_error:
+        // This case should never happen
+        Py_FatalError("Py_GetConstant() failed to get constants");
+    }
+
+init_done:
+    if (constant_id <= Py_CONSTANT_EMPTY_TUPLE) {
+        return Py_NewRef(constants[constant_id]);
+    }
+    else {
+        PyErr_BadInternalCall();
+        return NULL;
+    }
+}
+
+static inline PyObject* Py_GetConstantBorrowed(unsigned int constant_id)
+{
+    PyObject *obj = Py_GetConstant(constant_id);
+    Py_XDECREF(obj);
+    return obj;
+}
+#endif
+
+
+// gh-114329 added PyList_GetItemRef() to Python 3.13.0a4
+#if PY_VERSION_HEX < 0x030D00A4
+static inline PyObject *
+PyList_GetItemRef(PyObject *op, Py_ssize_t index)
+{
+    PyObject *item = PyList_GetItem(op, index);
+    Py_XINCREF(item);
+    return item;
+}
+#endif
+
+
+// gh-114329 added PyList_GetItemRef() to Python 3.13.0a4
+#if PY_VERSION_HEX < 0x030D00A4
+static inline int
+PyDict_SetDefaultRef(PyObject *d, PyObject *key, PyObject *default_value,
+                     PyObject **result)
+{
+    PyObject *value;
+    if (PyDict_GetItemRef(d, key, &value) < 0) {
+        // get error
+        if (result) {
+            *result = NULL;
+        }
+        return -1;
+    }
+    if (value != NULL) {
+        // present
+        if (result) {
+            *result = value;
+        }
+        else {
+            Py_DECREF(value);
+        }
+        return 1;
+    }
+
+    // missing: set the item
+    if (PyDict_SetItem(d, key, default_value) < 0) {
+        // set error
+        if (result) {
+            *result = NULL;
+        }
+        return -1;
+    }
+    if (result) {
+        *result = Py_NewRef(default_value);
+    }
+    return 0;
+}
+#endif
+
+
+// gh-116560 added PyLong_GetSign() to Python 3.14a4
+#if PY_VERSION_HEX < 0x030E00A1
+static inline int PyLong_GetSign(PyObject *obj, int *sign)
+{
+    if (!PyLong_Check(obj)) {
+        PyErr_Format(PyExc_TypeError, "expect int, got %s", Py_TYPE(obj)->tp_name);
+        return -1;
+    }
+
+    *sign = _PyLong_Sign(obj);
+    return 0;
+}
 #endif
 
 
