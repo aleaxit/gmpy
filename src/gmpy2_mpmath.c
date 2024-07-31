@@ -27,6 +27,8 @@
 
 /* Internal helper function for mpmath. */
 
+#include "gmpy2_macros.h"
+
 static PyObject *
 mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
 {
@@ -287,17 +289,17 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
     switch (nargs) {
         case 4:
             rnd = PyString_1Char(args[3]);
-            /* fallthrough */
+            GMPY_FALLTHROUGH;
         case 3:
             prec = GMPy_Integer_AsLong(args[2]);
             if (prec == (mp_bitcnt_t)(-1)) {
                 VALUE_ERROR("could not convert prec to positive int");
                 return NULL;
             }
-            /* fallthrough */
+            GMPY_FALLTHROUGH;
         case 2:
             exp = args[1];
-            /* fallthrough */
+            GMPY_FALLTHROUGH;
         case 1:
             man = GMPy_MPZ_From_Integer(args[0], NULL);
             if (!man) {

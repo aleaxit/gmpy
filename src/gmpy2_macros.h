@@ -726,3 +726,14 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     } \
     return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
 }
+
+/*********************************************************************/
+
+#if defined(__has_attribute)
+#  if __has_attribute(fallthrough)
+#    define GMPY_FALLTHROUGH __attribute__((fallthrough))
+#  endif
+#endif
+#if !defined(GMPY_FALLTHROUGH) 
+#  define GMPY_FALLTHROUGH (void)0
+#endif
