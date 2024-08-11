@@ -11,7 +11,7 @@ that contexts are mutable: modifying the reference returned by `get_context()`
 will modify the active context until a new context is enabled with
 `set_context()`.  The `context.copy()` method will return a copy of the
 context.  Contexts that implement the standard *single*, *double*, and
-*quadruple* precision floating point types can be created using `ieee()`.
+*quadruple* precision floating-point types can be created using `ieee()`.
 
 Context Type
 ------------

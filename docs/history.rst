@@ -3,8 +3,14 @@ Release Notes
 
 .. currentmodule:: gmpy2
 
+Changes in gmpy2 2.2.1
+----------------------
+
+* Fix internal use of char when int should be used. (jamesjer)
+* Add :meth:`xmpz.bit_count`. (skirpichev)
+
 Changes in gmpy2 2.2.0
-------------------------
+----------------------
 
 * Remove support for versions of Python < 3.7.  (skirpichev)
 * Support more modern build tools.  (skirpichev)
@@ -190,7 +196,7 @@ Changes in gmpy2 2.1.0a1
 * Context methods have been added for MPFR/MPC related functions.
 * A new context option (`~context.rational_division`) has been added that
   changes the behavior of integer division involving `mpz` instances to return
-  a rational result instead of a floating point result.
+  a rational result instead of a floating-point result.
 * gmpy2 types are now registered in the numeric tower of the
   :mod:`numbers` module.
 * In previous versions of gmpy2, ``mpz()`` was a factory function that
