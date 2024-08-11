@@ -1225,6 +1225,11 @@ const PyLongLayout PyLong_LAYOUT = {
     .digit_size = sizeof(digit),
 };
 
+const PyLongLayout* PyLong_GetNativeLayout(void)
+{
+    return &PyLong_LAYOUT;
+}
+
 typedef struct PyLong_DigitArray {
     PyObject *obj;
     int negative;
@@ -1268,6 +1273,7 @@ PyLong_AsDigitArray(PyObject *obj, PyLong_DigitArray *array)
         array->ndigits = 1;
     }
     array->digits = GET_OB_DIGIT(self);
+    array->layout = &PyLong_LAYOUT;
     return 0;
 }
 
