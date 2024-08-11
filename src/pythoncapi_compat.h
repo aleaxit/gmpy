@@ -1234,7 +1234,8 @@ typedef struct PyLong_DigitArray {
     PyObject *obj;
     int negative;
     size_t ndigits;
-    Py_digit *digits;
+    const Py_digit *digits;
+    const PyLongLayout *layout;
 } PyLong_DigitArray;
 
 typedef struct PyLongWriter PyLongWriter;
@@ -1287,7 +1288,8 @@ PyLong_FreeDigitArray(PyLong_DigitArray *array)
 }
 
 static inline PyLongWriter*
-PyLongWriter_Create(int negative, Py_ssize_t ndigits, Py_digit **digits)
+PyLongWriter_Create(int negative, Py_ssize_t ndigits, Py_digit **digits,
+                    const PyLongLayout *layout)
 {
     if (ndigits < 0) {
         PyErr_SetString(PyExc_ValueError, "ndigits must be positive");
