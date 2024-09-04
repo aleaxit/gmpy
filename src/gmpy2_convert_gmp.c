@@ -47,15 +47,16 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
     static PyLong_DigitArray long_export;
 
     PyLong_AsDigitArray(obj, &long_export);
+    const Py_digit *digits = long_export.digits;
     if (long_export.ndigits == 1) {
-        mpz_set_si(z, long_export.digits[0]);
+        mpz_set_si(z, digits[0]);
     }
     else {
-        PyLongLayout* layout = long_export.layout;
-        mpz_import(z, long_export.ndigits, layout->array_endian,
-                   layout->digit_size, layout->word_endian,
+        const PyLongLayout* layout = long_export.layout;
+        mpz_import(z, long_export.ndigits, layout->endian,
+                   layout->digit_size, layout->digits_order,
                    layout->digit_size*8 - layout->bits_per_digit,
-                   long_export.digits);
+                   digits);
     }
     if (long_export.negative) {
         mpz_neg(z, z);
@@ -130,7 +131,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     const PyLongLayout *layout = PyLong_GetNativeLayout();
     size_t size = (mpz_sizeinbase(obj->z, 2) +
                    layout->bits_per_digit - 1) / layout->bits_per_digit;
-    Py_digit *digits;
+    void *digits;
     PyLongWriter *writer = PyLongWriter_Create(mpz_sgn(obj->z) < 0, size,
                                                &digits, layout);
     if (writer == NULL) {
@@ -139,8 +140,8 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(digits, NULL, layout->array_endian,
-               layout->digit_size, layout->word_endian,
+    mpz_export(digits, NULL, layout->endian,
+               layout->digit_size, layout->digits_order,
                layout->digit_size*8 - layout->bits_per_digit,
                obj->z);
 

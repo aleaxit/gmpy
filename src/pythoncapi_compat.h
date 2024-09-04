@@ -1214,14 +1214,14 @@ typedef digit Py_digit;
 typedef struct PyLongLayout {
     uint8_t bits_per_digit;
     uint8_t digit_size;
-    int8_t word_endian;
-    int8_t array_endian;
+    int8_t digits_order;
+    int8_t endian;
 } PyLongLayout;
 
 const PyLongLayout PyLong_LAYOUT = {
     .bits_per_digit = PyLong_SHIFT,
-    .word_endian = PY_LITTLE_ENDIAN ? -1 : 1,
-    .array_endian = -1,  // least significant first
+    .digits_order = PY_LITTLE_ENDIAN ? -1 : 1,
+    .endian = -1,  // least significant first
     .digit_size = sizeof(digit),
 };
 
@@ -1234,7 +1234,7 @@ typedef struct PyLong_DigitArray {
     PyObject *obj;
     int negative;
     size_t ndigits;
-    const Py_digit *digits;
+    const void *digits;
     const PyLongLayout *layout;
 } PyLong_DigitArray;
 
@@ -1288,7 +1288,7 @@ PyLong_FreeDigitArray(PyLong_DigitArray *array)
 }
 
 static inline PyLongWriter*
-PyLongWriter_Create(int negative, Py_ssize_t ndigits, Py_digit **digits,
+PyLongWriter_Create(int negative, Py_ssize_t ndigits, void **digits,
                     const PyLongLayout *layout)
 {
     if (ndigits < 0) {
