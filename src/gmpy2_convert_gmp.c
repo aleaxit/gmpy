@@ -44,24 +44,25 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    static PyLong_DigitArray long_export;
+    int overflow;
+    long val = PyLong_AsLongAndOverflow(obj, &overflow);
 
-    PyLong_AsDigitArray(obj, &long_export);
-    const Py_digit *digits = long_export.digits;
-    if (long_export.ndigits == 1) {
-        mpz_set_si(z, digits[0]);
-    }
-    else {
+    if (overflow) {
+        static PyLong_DigitArray long_export;
+        PyLong_AsDigitArray(obj, &long_export);
         const PyLongLayout* layout = long_export.layout;
         mpz_import(z, long_export.ndigits, layout->endian,
                    layout->digit_size, layout->digits_order,
                    layout->digit_size*8 - layout->bits_per_digit,
-                   digits);
+                   long_export.digits);
+        if (long_export.negative) {
+            mpz_neg(z, z);
+        }
+        PyLong_FreeDigitArray(&long_export);
     }
-    if (long_export.negative) {
-        mpz_neg(z, z);
+    else {
+        mpz_set_si(z, val);
     }
-    PyLong_FreeDigitArray(&long_export);
 }
 
 static MPZ_Object *
