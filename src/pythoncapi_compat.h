@@ -1209,8 +1209,6 @@ static inline int PyTime_PerfCounter(PyTime_t *result)
 #endif
 
 #if PY_VERSION_HEX < 0x030E00A0
-typedef digit Py_digit;
-
 typedef struct PyLongLayout {
     uint8_t bits_per_digit;
     uint8_t digit_size;
@@ -1220,8 +1218,8 @@ typedef struct PyLongLayout {
 
 const PyLongLayout PyLong_LAYOUT = {
     .bits_per_digit = PyLong_SHIFT,
-    .digits_order = PY_LITTLE_ENDIAN ? -1 : 1,
-    .endian = -1,  // least significant first
+    .digits_order = -1,  // least significant first
+    .endian = PY_LITTLE_ENDIAN ? -1 : 1,
     .digit_size = sizeof(digit),
 };
 
@@ -1235,7 +1233,6 @@ typedef struct PyLong_DigitArray {
     int negative;
     size_t ndigits;
     const void *digits;
-    const PyLongLayout *layout;
 } PyLong_DigitArray;
 
 typedef struct PyLongWriter PyLongWriter;
@@ -1274,7 +1271,6 @@ PyLong_AsDigitArray(PyObject *obj, PyLong_DigitArray *array)
         array->ndigits = 1;
     }
     array->digits = GET_OB_DIGIT(self);
-    array->layout = &PyLong_LAYOUT;
     return 0;
 }
 
@@ -1288,8 +1284,7 @@ PyLong_FreeDigitArray(PyLong_DigitArray *array)
 }
 
 static inline PyLongWriter*
-PyLongWriter_Create(int negative, Py_ssize_t ndigits, void **digits,
-                    const PyLongLayout *layout)
+PyLongWriter_Create(int negative, Py_ssize_t ndigits, void **digits)
 {
     if (ndigits < 0) {
         PyErr_SetString(PyExc_ValueError, "ndigits must be positive");
