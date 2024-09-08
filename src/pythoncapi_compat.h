@@ -1231,7 +1231,7 @@ const PyLongLayout* PyLong_GetNativeLayout(void)
 typedef struct PyLong_DigitArray {
     PyObject *obj;
     int negative;
-    size_t ndigits;
+    Py_ssize_t ndigits;
     const void *digits;
 } PyLong_DigitArray;
 
