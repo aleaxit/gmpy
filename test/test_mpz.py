@@ -3,6 +3,7 @@ import numbers
 import pickle
 from fractions import Fraction
 
+import pytest
 from hypothesis import assume, example, given, settings
 from hypothesis.strategies import booleans, integers, sampled_from
 from pytest import mark, raises
@@ -1758,3 +1759,17 @@ def test_issue_312():
     assert not is_prime(1 - 2**4423)
     assert all(not is_prime(-a) for a in range(8))
     assert next_prime(-8) == 2
+
+
+def test_mpz_array():
+    numpy = pytest.importorskip('numpy')
+    i = 5579686107214117131790972086716881
+    m = gmpy2.mpz(i)
+    assert numpy.longdouble(m) == numpy.longdouble(i)
+    assert m.__array__(dtype=numpy.longdouble) == numpy.longdouble(i)
+
+    raises(TypeError, lambda: m.__array__(1, 2, 3))
+    raises(TypeError, lambda: m.__array__(dtype=None, copy=None, spam=123))
+    raises(TypeError, lambda: m.__array__(int, dtype=None))
+    raises(TypeError, lambda: m.__array__(int, None, copy=None))
+    raises(TypeError, lambda: m.__array__(spam=123))
