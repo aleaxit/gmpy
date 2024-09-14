@@ -184,7 +184,9 @@ GMPy_CTXT_Enter(PyObject *self, PyObject *args)
 static PyObject *
 GMPy_CTXT_Exit(PyObject *self, PyObject *args)
 {
-    int res = PyContextVar_Reset(current_context_var, ((CTXT_Object*)self)->token);
+    CTXT_Object *ctx = (CTXT_Object*)self;
+    int res = PyContextVar_Reset(current_context_var, ctx->token);
+    Py_DECREF(ctx->token);
     if (res == -1) {
         SYSTEM_ERROR("Unexpected failure in restoring context.");
         return NULL;
