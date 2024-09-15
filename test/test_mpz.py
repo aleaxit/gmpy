@@ -442,6 +442,7 @@ def test_mpz_create():
     assert mpz(' 1 2') == mpz(12)
 
 
+@settings(max_examples=10000)
 @given(integers())
 @example(0)
 @example(-3)

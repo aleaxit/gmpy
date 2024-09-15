@@ -42,30 +42,33 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    int negative;
-    Py_ssize_t len;
-    PyLongObject *templong = (PyLongObject*)obj;
+    int overflow;
+    long val = PyLong_AsLongAndOverflow(obj, &overflow);
 
-    len = _PyLong_DigitCount(obj);
-    negative = _PyLong_Sign(obj) < 0;
+    if (overflow) {
+        char *buf = NULL;
+        Py_ssize_t len = PyLong_AsNativeBytes(obj, buf, 0, -1);
 
-    switch (len) {
-    case 1:
-        mpz_set_si(z, (sdigit)GET_OB_DIGIT(templong)[0]);
-        break;
-    case 0:
-        mpz_set_si(z, 0);
-        break;
-    default:
-        mpz_import(z, len, -1, sizeof(digit), 0,
-                   sizeof(digit)*8 - PyLong_SHIFT,
-                   GET_OB_DIGIT(templong));
+        buf = malloc(len);
+        PyLong_AsNativeBytes(obj, buf, len, -1);
+        mpz_import(z, len, -1, 1, 0, 0, buf);
+        free(buf);
+
+        int sign = 0;
+        PyLong_GetSign(obj, &sign);
+        if (sign == -1 && mpz_tstbit(z, 8*len - 1)) {
+            mpz_t tmp;
+
+            mpz_init(tmp);
+            mpz_ui_pow_ui(tmp, 256, (mp_size_t)len);
+            mpz_sub(z, tmp, z);
+            mpz_clear(tmp);
+            mpz_neg(z, z);
+        }
     }
-
-    if (negative) {
-        mpz_neg(z, z);
+    else {
+        mpz_set_si(z, val);
     }
-    return;
 }
 
 static MPZ_Object *
@@ -132,27 +135,31 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         return PyLong_FromLong(mpz_get_si(obj->z));
     }
 
-    /* Assume gmp uses limbs as least as large as the builtin longs do */
+    mpz_t tmp, *px = &(obj->z);
+    int is_negative = mpz_sgn(*px) < 0;
+    size_t len = mpz_sizeinbase(*px, 256);
+    char *buf = malloc(len + 1);
 
-    size_t count, size = (mpz_sizeinbase(obj->z, 2) +
-                          PyLong_SHIFT - 1) / PyLong_SHIFT;
-    PyLongObject *result;
+    buf[len] = 0;
 
-    if (!(result = _PyLong_New(size))) {
-        /* LCOV_EXCL_START */
-        return NULL;
-        /* LCOV_EXCL_STOP */
+    if (is_negative) {
+        mpz_init(tmp);
+        mpz_ui_pow_ui(tmp, 256, len);
+        mpz_add(tmp, tmp, obj->z);
+        px = &tmp;
+        buf[len] = (char) 0xff;
     }
 
-    mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(digit), 0,
-               sizeof(digit)*8 - PyLong_SHIFT, obj->z);
+    len++;
+    mpz_export(buf, NULL, -1, 1, 0, 0, *px);
 
-    for (size_t i = count; i < size; i++) {
-        GET_OB_DIGIT(result)[i] = 0;
+    if (is_negative) {
+        mpz_clear(tmp);
     }
-    _PyLong_SetSignAndDigitCount(result, mpz_sgn(obj->z) < 0, count);
+    PyObject *result = PyLong_FromNativeBytes(buf, len, -1);
+    free(buf);
 
-    return (PyObject*)result;
+    return result;
 }
 
 static PyObject *
