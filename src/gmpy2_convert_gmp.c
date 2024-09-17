@@ -52,8 +52,8 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
         static PyLong_DigitArray long_export;
 
         PyLong_AsDigitArray(obj, &long_export);
-        mpz_import(z, long_export.ndigits, layout->endian,
-                   layout->digit_size, layout->digits_order,
+        mpz_import(z, long_export.ndigits, layout->digits_order,
+                   layout->digit_size, layout->endian,
                    layout->digit_size*8 - layout->bits_per_digit,
                    long_export.digits);
         if (long_export.negative) {
@@ -142,8 +142,8 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(digits, NULL, layout->endian,
-               layout->digit_size, layout->digits_order,
+    mpz_export(digits, NULL, layout->digits_order,
+               layout->digit_size, layout->endian,
                layout->digit_size*8 - layout->bits_per_digit,
                obj->z);
 
