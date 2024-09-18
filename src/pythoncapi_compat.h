@@ -1228,12 +1228,13 @@ const PyLongLayout* PyLong_GetNativeLayout(void)
     return &PyLong_LAYOUT;
 }
 
-typedef struct PyLong_DigitArray {
-    PyObject *obj;
-    int negative;
+typedef struct PyLongExport {
+    int64_t value;
+    uint8_t negative;
     Py_ssize_t ndigits;
     const void *digits;
-} PyLong_DigitArray;
+    Py_uintptr_t _reserved;
+} PyLongExport;
 
 typedef struct PyLongWriter PyLongWriter;
 
@@ -1256,7 +1257,7 @@ typedef struct PyLongWriter PyLongWriter;
 #endif
 
 static inline int
-PyLong_AsDigitArray(PyObject *obj, PyLong_DigitArray *array)
+PyLong_Export(PyObject *obj, PyLongExport *export_long)
 {
     if (!PyLong_Check(obj)) {
         PyErr_Format(PyExc_TypeError, "expect int, got %T", obj);
@@ -1264,23 +1265,35 @@ PyLong_AsDigitArray(PyObject *obj, PyLong_DigitArray *array)
     }
     PyLongObject *self = (PyLongObject*)obj;
 
-    array->obj = Py_NewRef(obj);
-    array->negative = _PyLong_Sign(obj) < 0;
-    array->ndigits = _PyLong_DigitCount(self);
-    if (array->ndigits == 0) {
-        array->ndigits = 1;
+    int64_t value;
+    Py_ssize_t bytes = PyLong_AsNativeBytes(self, &value, sizeof(value), -1);
+
+    if ((size_t)bytes <= sizeof(value)) {
+        export_long->value = value;
+        export_long->negative = 0;
+        export_long->ndigits = 0;
+        export_long->digits = 0;
+        export_long->_reserved = 0;
     }
-    array->digits = GET_OB_DIGIT(self);
+    else {
+        export_long->value = 0;
+        export_long->negative = _PyLong_Sign(obj) < 0;
+        export_long->ndigits = _PyLong_DigitCount(self);
+        if (export_long->ndigits == 0) {
+            export_long->ndigits = 1;
+        }
+        export_long->digits = GET_OB_DIGIT(self);
+        export_long->_reserved = (Py_uintptr_t)Py_NewRef(obj);
+    }
     return 0;
 }
 
 static inline void
-PyLong_FreeDigitArray(PyLong_DigitArray *array)
+PyLong_FreeExport(PyLongExport *export_long)
 {
-    Py_CLEAR(array->obj);
-    array->negative = 0;
-    array->ndigits = 0;
-    array->digits = NULL;
+    PyObject *obj = (PyObject*)export_long->_reserved;
+    export_long->_reserved = 0;
+    Py_XDECREF(obj);
 }
 
 static inline PyLongWriter*

@@ -44,14 +44,11 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    int overflow;
-    long val = PyLong_AsLongAndOverflow(obj, &overflow);
+    const PyLongLayout* layout = PyLong_GetNativeLayout();
+    static PyLongExport long_export;
 
-    if (overflow) {
-        const PyLongLayout* layout = PyLong_GetNativeLayout();
-        static PyLong_DigitArray long_export;
-
-        PyLong_AsDigitArray(obj, &long_export);
+    PyLong_Export(obj, &long_export);
+    if (long_export.digits) {
         mpz_import(z, long_export.ndigits, layout->digits_order,
                    layout->digit_size, layout->endian,
                    layout->digit_size*8 - layout->bits_per_digit,
@@ -59,10 +56,23 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
         if (long_export.negative) {
             mpz_neg(z, z);
         }
-        PyLong_FreeDigitArray(&long_export);
+        PyLong_FreeExport(&long_export);
     }
     else {
-        mpz_set_si(z, val);
+        if (LONG_MIN <= long_export.value && long_export.value <= LONG_MAX) {
+            mpz_set_si(z, long_export.value);
+        }
+        else {
+            mpz_import(z, 1, -1, sizeof(int64_t), 0, 0,
+                       &long_export.value);
+            if (long_export.value < 0) {
+                mpz_t tmp;
+                mpz_init(tmp);
+                mpz_ui_pow_ui(tmp, 2, 8*sizeof(size_t));
+                mpz_sub(z, z, tmp);
+                mpz_clear(tmp);
+            }
+        }
     }
 }
 
