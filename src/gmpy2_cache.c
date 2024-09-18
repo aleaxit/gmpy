@@ -477,14 +477,15 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
     if (global.in_gmpympfrcache) {
         result = global.gmpympfrcache[--(global.in_gmpympfrcache)];
         Py_INCREF((PyObject*)result);
+        mpfr_set_prec(result->f, bits);
     }
     else {
         result = PyObject_New(MPFR_Object, &MPFR_Type);
         if (result == NULL) {
             return NULL;
         }
+        mpfr_init2(result->f, bits);
     }
-    mpfr_init2(result->f, bits);
     result->hash_cache = -1;
     result->rc = 0;
     return result;
@@ -641,14 +642,21 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
     if (global.in_gmpympccache) {
         result = global.gmpympccache[--(global.in_gmpympccache)];
         Py_INCREF((PyObject*)result);
+        if (rprec == iprec) {
+            mpc_set_prec(result->c, rprec);
+        }
+        else {
+            mpc_clear(result->c);
+            mpc_init3(result->c, rprec, iprec);
+        }
     }
     else {
         result = PyObject_New(MPC_Object, &MPC_Type);
         if (result == NULL) {
             return NULL;
         }
+        mpc_init3(result->c, rprec, iprec);
     }
-    mpc_init3(result->c, rprec, iprec);
     result->hash_cache = -1;
     result->rc = 0;
     return result;

@@ -184,7 +184,9 @@ GMPy_CTXT_Enter(PyObject *self, PyObject *args)
 static PyObject *
 GMPy_CTXT_Exit(PyObject *self, PyObject *args)
 {
-    int res = PyContextVar_Reset(current_context_var, ((CTXT_Object*)self)->token);
+    CTXT_Object *ctx = (CTXT_Object*)self;
+    int res = PyContextVar_Reset(current_context_var, ctx->token);
+    Py_DECREF(ctx->token);
     if (res == -1) {
         SYSTEM_ERROR("Unexpected failure in restoring context.");
         return NULL;
@@ -536,7 +538,7 @@ PyDoc_STRVAR(GMPy_doc_local_context,
 "local_context(context, /, **kwargs) -> context\n\n"
 "Return a new context for controlling gmpy2 arithmetic, based either\n"
 "on the current context or on a ctx value.  Context options additionally\n"
-"can be overriden by keyword arguments.");
+"can be overridden by keyword arguments.");
 
 static PyObject *
 GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -591,7 +593,7 @@ PyDoc_STRVAR(GMPy_doc_context,
 "context(ctx, /, **kwargs)\n\n"
 "Return a new context for controlling gmpy2 arithmetic, based either\n"
 "on the default context or on a given by ctx value.  Context options\n"
-"additionally can be overriden by keyword arguments.");
+"additionally can be overridden by keyword arguments.");
 
 static PyObject *
 GMPy_CTXT_Context(PyTypeObject *type, PyObject *args, PyObject *kwargs)

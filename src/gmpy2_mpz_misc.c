@@ -2167,3 +2167,88 @@ GMPy_MP_Method_Conjugate(PyObject *self, PyObject *args)
     Py_INCREF((PyObject*)self);
     return (PyObject*)self;
 }
+
+PyDoc_STRVAR(GMPy_doc_mpz_method_array,
+"x.__array__(dtype=None, copy=None)\n");
+
+static PyObject *
+GMPy_MPZ_Method_Array(PyObject *self, PyObject *const *args,
+                      Py_ssize_t nargs, PyObject *kwnames)
+{
+    Py_ssize_t i, nkws = 0;
+    int argidx[2] = {-1, -1};
+    const char* kwname;
+    PyObject *dtype = Py_None, *copy = Py_None;
+
+    if (nargs > 2) {
+        TYPE_ERROR("__array__() takes at most 2 positional arguments");
+        return NULL;
+    }
+    if (nargs >= 1) {
+        argidx[0] = 0;
+    }
+    if (nargs == 2) {
+        argidx[1] = 1;
+    }
+
+    if (kwnames) {
+        nkws = PyTuple_GET_SIZE(kwnames);
+    }
+    if (nkws > 2) {
+        TYPE_ERROR("__array__() takes at most 2 keyword arguments");
+        return NULL;
+    }
+    for (i = 0; i < nkws; i++) {
+        kwname = PyUnicode_AsUTF8(PyTuple_GET_ITEM(kwnames, i));
+        if (strcmp(kwname, "dtype") == 0) {
+            if (nargs == 0) {
+                argidx[0] = (int)(nargs + i);
+            }
+            else {
+                TYPE_ERROR("argument for __array__() given by name ('dtype') and position (1)");
+                return NULL;
+            }
+        }
+        else if (strcmp(kwname, "copy") == 0) {
+            if (nargs <= 1) {
+                argidx[1] = (int)(nargs + i);
+            }
+            else {
+                TYPE_ERROR("argument for __array__() given by name ('copy') and position (2)");
+                return NULL;
+            }
+        }
+        else {
+            TYPE_ERROR("got an invalid keyword argument for __array__()");
+            return NULL;
+        }
+    }
+
+    if (argidx[0] >= 0) {
+        dtype = args[argidx[0]];
+    }
+    if (argidx[1] >= 0) {
+        copy = args[argidx[1]];
+    }
+
+    PyObject *mod = PyImport_ImportModule("numpy");
+
+    if (!mod) {
+        return NULL;
+    }
+
+    PyObject *tmp_long = GMPy_PyLong_From_MPZ((MPZ_Object *)self, NULL);
+
+    if (!tmp_long) {
+        Py_DECREF(mod);
+        return NULL;
+    }
+
+    PyObject *result = PyObject_CallMethod(mod, "array",
+                                           "OO", tmp_long, dtype);
+
+    Py_DECREF(mod);
+    Py_DECREF(tmp_long);
+
+    return result;
+}

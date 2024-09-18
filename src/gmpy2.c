@@ -96,6 +96,7 @@
 #include <math.h>
 #include <float.h>
 #include <ctype.h>
+#include <signal.h>
 
 /*
  * we do have a dependence on Python's internals, specifically:
@@ -567,6 +568,23 @@ static struct PyModuleDef moduledef = {
         NULL
 };
 
+void
+gmp_abort_handler(int i)
+{
+    if (__GNU_MP_VERSION == 6 &&  __GNU_MP_VERSION_MINOR >= 3) {
+        if (gmp_errno & GMP_ERROR_DIVISION_BY_ZERO) {
+            printf("gmp: divide by zero\n");
+        }
+        else if (gmp_errno & GMP_ERROR_SQRT_OF_NEGATIVE) {
+            printf("gmp: root of negative\n");
+        }
+        else {
+            printf("gmp: out of memory\n");
+        }
+    }
+    abort();
+}
+
 PyMODINIT_FUNC PyInit_gmpy2(void)
 {
     PyObject *result = NULL;
@@ -946,6 +964,8 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         PyErr_Clear();
         /* LCOV_EXCL_STOP */
     }
+
+    PyOS_setsig(SIGFPE, gmp_abort_handler);
 
     return gmpy_module;
 }
