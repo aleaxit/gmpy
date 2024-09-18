@@ -1265,10 +1265,10 @@ PyLong_Export(PyObject *obj, PyLongExport *export_long)
     }
     PyLongObject *self = (PyLongObject*)obj;
 
-    int64_t value;
-    Py_ssize_t bytes = PyLong_AsNativeBytes(self, &value, sizeof(value), -1);
+    int overflow;
+    long value = PyLong_AsLongAndOverflow(obj, &overflow);
 
-    if ((size_t)bytes <= sizeof(value)) {
+    if (!overflow) {
         export_long->value = value;
         export_long->negative = 0;
         export_long->ndigits = 0;
