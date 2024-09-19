@@ -68,7 +68,7 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
             if (long_export.value < 0) {
                 mpz_t tmp;
                 mpz_init(tmp);
-                mpz_ui_pow_ui(tmp, 2, 8*sizeof(size_t));
+                mpz_ui_pow_ui(tmp, 2, 64);
                 mpz_sub(z, z, tmp);
                 mpz_clear(tmp);
             }
