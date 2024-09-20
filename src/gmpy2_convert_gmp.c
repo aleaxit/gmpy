@@ -44,28 +44,26 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    const PyLongLayout* layout = PyLong_GetNativeLayout();
     static PyLongExport long_export;
 
     PyLong_Export(obj, &long_export);
     if (long_export.digits) {
-        mpz_import(z, long_export.ndigits, layout->digits_order,
-                   layout->digit_size, layout->endian,
-                   layout->digit_size*8 - layout->bits_per_digit,
-                   long_export.digits);
+        mpz_import(z, long_export.ndigits, -1, int_digit_size, 0,
+                   int_nails, long_export.digits);
         if (long_export.negative) {
             mpz_neg(z, z);
         }
         PyLong_FreeExport(&long_export);
     }
     else {
-        if (LONG_MIN <= long_export.value && long_export.value <= LONG_MAX) {
-            mpz_set_si(z, long_export.value);
+        const int64_t value = long_export.value;
+
+        if (LONG_MIN <= value && value <= LONG_MAX) {
+            mpz_set_si(z, value);
         }
         else {
-            mpz_import(z, 1, -1, sizeof(int64_t), 0, 0,
-                       &long_export.value);
-            if (long_export.value < 0) {
+            mpz_import(z, 1, -1, sizeof(int64_t), 0, 0, &value);
+            if (value < 0) {
                 mpz_t tmp;
                 mpz_init(tmp);
                 mpz_ui_pow_ui(tmp, 2, 64);
@@ -140,9 +138,8 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         return PyLong_FromLong(mpz_get_si(obj->z));
     }
 
-    const PyLongLayout *layout = PyLong_GetNativeLayout();
     size_t size = (mpz_sizeinbase(obj->z, 2) +
-                   layout->bits_per_digit - 1) / layout->bits_per_digit;
+                   int_bits_per_digit - 1) / int_bits_per_digit;
     void *digits;
     PyLongWriter *writer = PyLongWriter_Create(mpz_sgn(obj->z) < 0, size,
                                                &digits);
@@ -152,10 +149,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(digits, NULL, layout->digits_order,
-               layout->digit_size, layout->endian,
-               layout->digit_size*8 - layout->bits_per_digit,
-               obj->z);
+    mpz_export(digits, NULL, -1, int_digit_size, 0, int_nails, obj->z);
 
     return PyLongWriter_Finish(writer);
 }
