@@ -182,7 +182,7 @@ static PyObject *GMPyExc_Erange = NULL;
  * Parameters of Python’s internal representation of integers.
  */
 
-size_t int_digit_size, int_nails, int_bits_per_digit;
+size_t int_digit_size, int_nails, int_bits_per_digit, int_digits_order;
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -606,6 +606,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     const PyLongLayout *layout = PyLong_GetNativeLayout();
 
     int_digit_size = layout->digit_size;
+    int_digits_order = layout->digits_order;
     int_bits_per_digit = layout->bits_per_digit;
     int_nails = int_digit_size*8 - int_bits_per_digit;
 

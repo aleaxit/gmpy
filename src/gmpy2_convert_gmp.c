@@ -48,8 +48,8 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
 
     PyLong_Export(obj, &long_export);
     if (long_export.digits) {
-        mpz_import(z, long_export.ndigits, -1, int_digit_size, 0,
-                   int_nails, long_export.digits);
+        mpz_import(z, long_export.ndigits, int_digits_order, int_digit_size,
+                   0, int_nails, long_export.digits);
         if (long_export.negative) {
             mpz_neg(z, z);
         }
@@ -149,7 +149,8 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(digits, NULL, -1, int_digit_size, 0, int_nails, obj->z);
+    mpz_export(digits, NULL, int_digits_order, int_digit_size,
+               0, int_nails, obj->z);
 
     return PyLongWriter_Finish(writer);
 }
