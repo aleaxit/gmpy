@@ -721,7 +721,7 @@ GMPy_MPC_Digits_Method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_digits,
-"digits(x, base=10, prec=0, /) -> str\n\n"
+"digits(x, base=10, prec=0, /) -> str | tuple\n\n"
 "Return string representing a number x.");
 
 static PyObject *
