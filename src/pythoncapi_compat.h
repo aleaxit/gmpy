@@ -1208,6 +1208,146 @@ static inline int PyTime_PerfCounter(PyTime_t *result)
 #  define PyHASH_IMAG _PyHASH_IMAG
 #endif
 
+#if PY_VERSION_HEX < 0x030E00A0
+typedef struct PyLongLayout {
+    uint8_t bits_per_digit;
+    uint8_t digit_size;
+    int8_t digits_order;
+    int8_t endian;
+} PyLongLayout;
+
+const PyLongLayout PyLong_LAYOUT = {
+    .bits_per_digit = PyLong_SHIFT,
+    .digits_order = -1,  // least significant first
+    .endian = PY_LITTLE_ENDIAN ? -1 : 1,
+    .digit_size = sizeof(digit),
+};
+
+const PyLongLayout* PyLong_GetNativeLayout(void)
+{
+    return &PyLong_LAYOUT;
+}
+
+typedef struct PyLongExport {
+    int64_t value;
+    uint8_t negative;
+    Py_ssize_t ndigits;
+    const void *digits;
+    Py_uintptr_t _reserved;
+} PyLongExport;
+
+typedef struct PyLongWriter PyLongWriter;
+
+#if PY_VERSION_HEX >= 0x030C0000
+#  define NON_SIZE_BITS 3
+#  define TAG_FROM_SIGN_AND_SIZE(sign, size) ((1 - (sign)) | ((size) << NON_SIZE_BITS))
+#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (((PyLongObject*)obj)->long_value.lv_tag = TAG_FROM_SIGN_AND_SIZE(sign, size))
+#elif PY_VERSION_HEX >= 0x030900A4
+#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (Py_SET_SIZE(obj, (sign)*(size)))
+#else
+#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (Py_SIZE(obj) = (sign)*(size))
+#endif
+
+#if PY_VERSION_HEX >= 0x030C0000
+#  define GET_OB_DIGIT(obj) ((PyLongObject*)obj)->long_value.ob_digit
+#  define _PyLong_DigitCount(obj) (((PyLongObject*)obj)->long_value.lv_tag >> 3)
+#else
+#  define GET_OB_DIGIT(obj) ((PyLongObject*)obj)->ob_digit
+#  define _PyLong_DigitCount(obj) (_PyLong_Sign((PyObject*)obj)<0 ? -Py_SIZE(obj):Py_SIZE(obj))
+#endif
+
+static inline int
+PyLong_Export(PyObject *obj, PyLongExport *export_long)
+{
+    if (!PyLong_Check(obj)) {
+        PyErr_Format(PyExc_TypeError, "expect int, got %T", obj);
+        return -1;
+    }
+    PyLongObject *self = (PyLongObject*)obj;
+
+    int overflow;
+#if SIZEOF_LONG == 8
+    long value = PyLong_AsLongAndOverflow(obj, &overflow);
+#else
+    // Windows has 32-bit long, so use 64-bit long long instead
+    long long value = PyLong_AsLongLongAndOverflow(obj, &overflow);
+#endif
+
+    if (!overflow) {
+        export_long->value = value;
+        export_long->negative = 0;
+        export_long->ndigits = 0;
+        export_long->digits = 0;
+        export_long->_reserved = 0;
+    }
+    else {
+        export_long->value = 0;
+        export_long->negative = _PyLong_Sign(obj) < 0;
+        export_long->ndigits = _PyLong_DigitCount(self);
+        if (export_long->ndigits == 0) {
+            export_long->ndigits = 1;
+        }
+        export_long->digits = GET_OB_DIGIT(self);
+        export_long->_reserved = (Py_uintptr_t)Py_NewRef(obj);
+    }
+    return 0;
+}
+
+static inline void
+PyLong_FreeExport(PyLongExport *export_long)
+{
+    PyObject *obj = (PyObject*)export_long->_reserved;
+    export_long->_reserved = 0;
+    Py_XDECREF(obj);
+}
+
+static inline PyLongWriter*
+PyLongWriter_Create(int negative, Py_ssize_t ndigits, void **digits)
+{
+    if (ndigits < 0) {
+        PyErr_SetString(PyExc_ValueError, "ndigits must be positive");
+        return NULL;
+    }
+    assert(digits != NULL);
+
+    PyLongObject *obj = _PyLong_New(ndigits);
+    if (obj == NULL) {
+        return NULL;
+    }
+    if (ndigits == 0) {
+        assert(GET_OB_DIGIT(obj)[0] == 0);
+    }
+    _PyLong_SetSignAndDigitCount(obj, negative?-1:1, ndigits);
+
+    *digits = GET_OB_DIGIT(obj);
+    return (PyLongWriter*)obj;
+}
+
+static inline PyObject*
+PyLongWriter_Finish(PyLongWriter *writer)
+{
+    PyObject *obj = (PyObject *)writer;
+    assert(Py_REFCNT(obj) == 1);
+
+    Py_ssize_t j = _PyLong_DigitCount(obj);
+    Py_ssize_t i = j;
+    int sign = _PyLong_Sign(obj);
+
+    while (i > 0 && GET_OB_DIGIT(obj)[i-1] == 0) {
+        --i;
+    }
+    if (i == 0) {
+        sign = 0;
+    }
+    if (i <= 1) {
+        long val = sign*GET_OB_DIGIT(obj)[0];
+        Py_DECREF(obj);
+        obj = PyLong_FromLong(val);
+    }
+    _PyLong_SetSignAndDigitCount(obj, sign, i);
+    return obj;
+}
+#endif
 
 #ifdef __cplusplus
 }

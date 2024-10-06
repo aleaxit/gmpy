@@ -34,6 +34,8 @@
  * some basic types such as C longs or doubles.
  */
 
+#include "pythoncapi_compat.h"
+
 /* ======================================================================== *
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
@@ -42,30 +44,34 @@
 static void
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
-    int negative;
-    Py_ssize_t len;
-    PyLongObject *templong = (PyLongObject*)obj;
+    static PyLongExport long_export;
 
-    len = _PyLong_DigitCount(obj);
-    negative = _PyLong_Sign(obj) < 0;
-
-    switch (len) {
-    case 1:
-        mpz_set_si(z, (sdigit)GET_OB_DIGIT(templong)[0]);
-        break;
-    case 0:
-        mpz_set_si(z, 0);
-        break;
-    default:
-        mpz_import(z, len, -1, sizeof(digit), 0,
-                   sizeof(digit)*8 - PyLong_SHIFT,
-                   GET_OB_DIGIT(templong));
+    PyLong_Export(obj, &long_export);
+    if (long_export.digits) {
+        mpz_import(z, long_export.ndigits, int_digits_order, int_digit_size,
+                   0, int_nails, long_export.digits);
+        if (long_export.negative) {
+            mpz_neg(z, z);
+        }
+        PyLong_FreeExport(&long_export);
     }
+    else {
+        const int64_t value = long_export.value;
 
-    if (negative) {
-        mpz_neg(z, z);
+        if (LONG_MIN <= value && value <= LONG_MAX) {
+            mpz_set_si(z, value);
+        }
+        else {
+            mpz_import(z, 1, -1, sizeof(int64_t), 0, 0, &value);
+            if (value < 0) {
+                mpz_t tmp;
+                mpz_init(tmp);
+                mpz_ui_pow_ui(tmp, 2, 64);
+                mpz_sub(z, z, tmp);
+                mpz_clear(tmp);
+            }
+        }
     }
-    return;
 }
 
 static MPZ_Object *
@@ -132,27 +138,21 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         return PyLong_FromLong(mpz_get_si(obj->z));
     }
 
-    /* Assume gmp uses limbs as least as large as the builtin longs do */
-
-    size_t count, size = (mpz_sizeinbase(obj->z, 2) +
-                          PyLong_SHIFT - 1) / PyLong_SHIFT;
-    PyLongObject *result;
-
-    if (!(result = _PyLong_New(size))) {
+    size_t size = (mpz_sizeinbase(obj->z, 2) +
+                   int_bits_per_digit - 1) / int_bits_per_digit;
+    void *digits;
+    PyLongWriter *writer = PyLongWriter_Create(mpz_sgn(obj->z) < 0, size,
+                                               &digits);
+    if (writer == NULL) {
         /* LCOV_EXCL_START */
         return NULL;
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(digit), 0,
-               sizeof(digit)*8 - PyLong_SHIFT, obj->z);
+    mpz_export(digits, NULL, int_digits_order, int_digit_size,
+               0, int_nails, obj->z);
 
-    for (size_t i = count; i < size; i++) {
-        GET_OB_DIGIT(result)[i] = 0;
-    }
-    _PyLong_SetSignAndDigitCount(result, mpz_sgn(obj->z) < 0, count);
-
-    return (PyObject*)result;
+    return PyLongWriter_Finish(writer);
 }
 
 static PyObject *
