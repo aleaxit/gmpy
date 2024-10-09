@@ -21,3 +21,6 @@ gmpy2/mpc.h
 gmpy2/mpc.lib
 gmpy2/mpfr.h
 gmpy2/mpfr.lib
+# per-project directories for virtual environments
+venv/
+.venv/
