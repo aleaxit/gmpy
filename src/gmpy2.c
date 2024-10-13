@@ -161,7 +161,6 @@ static gmpy_global global = {
 };
 
 /* Support for context manager using context vars.
- * Requires Python 3.7 or later.
  */
 
 static PyObject *current_context_var = NULL;
