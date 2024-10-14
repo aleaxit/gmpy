@@ -2178,7 +2178,7 @@ GMPy_MPZ_Method_Array(PyObject *self, PyObject *const *args,
     Py_ssize_t i, nkws = 0;
     int argidx[2] = {-1, -1};
     const char* kwname;
-    PyObject *dtype = Py_None, *copy = Py_None;
+    PyObject *dtype = Py_None;
 
     if (nargs > 2) {
         TYPE_ERROR("__array__() takes at most 2 positional arguments");
@@ -2226,9 +2226,6 @@ GMPy_MPZ_Method_Array(PyObject *self, PyObject *const *args,
 
     if (argidx[0] >= 0) {
         dtype = args[argidx[0]];
-    }
-    if (argidx[1] >= 0) {
-        copy = args[argidx[1]];
     }
 
     PyObject *mod = PyImport_ImportModule("numpy");
