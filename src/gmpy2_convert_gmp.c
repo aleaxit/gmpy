@@ -44,6 +44,7 @@
 static int
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
+#ifndef PYPY_VERSION
     static PyLongExport long_export;
 
     if (PyLong_Export(obj, &long_export) < 0) {
@@ -77,6 +78,44 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
         }
     }
     return 0;
+#else
+    int overflow;
+    long value = PyLong_AsLongAndOverflow(obj, &overflow);
+    if (!overflow) {
+        mpz_set_si(z, value);
+        return 0;
+    }
+
+    PyObject *s = PyNumber_ToBase(obj, 16);
+
+    if (!s) {
+        /* LCOV_EXCL_START */
+        return -1;
+        /* LCOV_EXCL_STOP */
+    }
+
+    const char *str = PyUnicode_AsUTF8(s), *p = str;
+
+    if (!str) {
+        /* LCOV_EXCL_START */
+        Py_DECREF(s);
+        return -1;
+        /* LCOV_EXCL_STOP */
+    }
+
+    int negative = (str[0] == '-');
+
+    p += 2;
+    if (negative) {
+        p++;
+    }
+    mpz_init_set_str(z, p, 16);
+    Py_DECREF(s);
+    if (negative) {
+        mpz_neg(z, z);
+    }
+    return 0;
+#endif
 }
 
 static MPZ_Object *
@@ -148,6 +187,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         return PyLong_FromLong(mpz_get_si(obj->z));
     }
 
+#ifndef PYPY_VERSION
     size_t size = (mpz_sizeinbase(obj->z, 2) +
                    int_bits_per_digit - 1) / int_bits_per_digit;
     void *digits;
@@ -163,6 +203,20 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
                int_endianness, int_nails, obj->z);
 
     return PyLongWriter_Finish(writer);
+#else
+    PyObject *str = GMPy_PyStr_From_MPZ(obj, 16, 0, NULL);
+
+    if (!str) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    PyObject *res = PyLong_FromUnicodeObject(str, 16);
+
+    Py_DECREF(str);
+    return res;
+#endif
 }
 
 static PyObject *
