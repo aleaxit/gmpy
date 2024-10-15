@@ -206,7 +206,7 @@ GMPy_XMPZ_New(CTXT_Object *context)
         if (result == NULL) {
             return NULL;
         }
-       mpz_init(result->z);
+        mpz_init(result->z);
     }
     return result;
 }
