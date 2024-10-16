@@ -1213,7 +1213,7 @@ typedef struct PyLongLayout {
     uint8_t bits_per_digit;
     uint8_t digit_size;
     int8_t digits_order;
-    int8_t endian;
+    int8_t endianness;
 } PyLongLayout;
 
 const PyLongLayout PyLong_LAYOUT = {
