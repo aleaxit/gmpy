@@ -41,15 +41,19 @@
  * ======================================================================== */
 
 /* To support creation of temporary mpz objects. */
-static void
+static int
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
     static PyLongExport long_export;
 
-    PyLong_Export(obj, &long_export);
+    if (PyLong_Export(obj, &long_export) < 0) {
+        /* LCOV_EXCL_START */
+        return -1;
+        /* LCOV_EXCL_STOP */
+    }
     if (long_export.digits) {
         mpz_import(z, long_export.ndigits, int_digits_order, int_digit_size,
-                   0, int_nails, long_export.digits);
+                   int_endianness, int_nails, long_export.digits);
         if (long_export.negative) {
             mpz_neg(z, z);
         }
@@ -72,6 +76,7 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
             }
         }
     }
+    return 0;
 }
 
 static MPZ_Object *
@@ -85,7 +90,12 @@ GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_set_PyLong(MPZ(result), obj);
+    if (mpz_set_PyLong(MPZ(result), obj)) {
+        /* LCOV_EXCL_START */
+        Py_DECREF((PyObject*)result);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     return result;
 }
@@ -150,7 +160,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     }
 
     mpz_export(digits, NULL, int_digits_order, int_digit_size,
-               0, int_nails, obj->z);
+               int_endianness, int_nails, obj->z);
 
     return PyLongWriter_Finish(writer);
 }
@@ -365,7 +375,12 @@ GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_set_PyLong(result->z, obj);
+    if (mpz_set_PyLong(result->z, obj)) {
+        /* LCOV_EXCL_START */
+        Py_DECREF((PyObject*)result);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     return result;
 }
@@ -833,16 +848,26 @@ GMPy_MPQ_From_Fraction(PyObject* obj, CTXT_Object *context)
     den = PyObject_GetAttrString(obj, "denominator");
     if (!num || !PyLong_Check(num) || !den || !PyLong_Check(den)) {
         SYSTEM_ERROR("Object does not appear to be Fraction");
-        Py_XDECREF(num);
-        Py_XDECREF(den);
-        Py_DECREF((PyObject*)result);
-        return NULL;
+        goto error;
     }
-    mpz_set_PyLong(mpq_numref(result->q), num);
-    mpz_set_PyLong(mpq_denref(result->q), den);
+    if (mpz_set_PyLong(mpq_numref(result->q), num)) {
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
+    }
+    if (mpz_set_PyLong(mpq_denref(result->q), den)) {
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
+    }
     Py_DECREF(num);
     Py_DECREF(den);
     return result;
+error:
+    Py_XDECREF(num);
+    Py_XDECREF(den);
+    Py_DECREF((PyObject*)result);
+    return NULL;
 }
 
 static MPQ_Object*
