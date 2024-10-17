@@ -592,8 +592,20 @@ GMPy_MPZ_Rshift_Slot(PyObject *self, PyObject *other)
     MPZ_Object *result, *tempx;
 
     count = GMPy_Integer_AsMpBitCnt(other);
-    if ((count == (mp_bitcnt_t)(-1)) && PyErr_Occurred())
-        return NULL;
+    if ((count == (mp_bitcnt_t)(-1)) && PyErr_Occurred()) {
+        if (!PyErr_ExceptionMatches(PyExc_OverflowError)) {
+            /* LCOV_EXCL_START */
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
+        PyErr_Clear();
+        int sign = 1;
+        PyLong_GetSign(other, &sign);
+        if (sign < 0) {
+            VALUE_ERROR("negative shift count");
+            return NULL;
+        }
+    }
 
     if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
