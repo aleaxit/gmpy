@@ -129,9 +129,10 @@ static PyObject *
 GMPy_Real_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     MPFR_Object *result = NULL, *tempx = NULL;
+    mpfr_exp_t _oldemin, _oldemax;
 
     CHECK_CONTEXT(context);
-
+    
     if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
         !(result = GMPy_MPFR_New(0, context))) {
         /* LCOV_EXCL_START */
@@ -142,10 +143,18 @@ GMPy_Real_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
+    
+    _oldemin = mpfr_get_emin();
+    _oldemax = mpfr_get_emax();
+	mpfr_set_emin(GET_EMIN(context));
+	mpfr_set_emax(GET_EMAX(context));
 
     result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
 
+	mpfr_set_emin(_oldemin);
+	mpfr_set_emax(_oldemax);
+	
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }

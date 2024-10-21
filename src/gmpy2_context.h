@@ -79,6 +79,9 @@ static PyTypeObject CTXT_Type;
 #define GET_IMAG_ROUND(c) ((c->ctx.imag_round==GMPY_DEFAULT)?GET_REAL_ROUND(c):c->ctx.imag_round)
 #define GET_MPC_ROUND(c) (MPC_RND(GET_REAL_ROUND(c), GET_IMAG_ROUND(c)))
 
+#define GET_EMIN(c) (c->ctx.emin)
+#define GET_EMAX(c) (c->ctx.emax)
+
 #define GET_DIV_MODE(c) (c->ctx.rational_division)
 
 #define GET_THREAD_MODE(c) (c->ctx.allow_release_gil)

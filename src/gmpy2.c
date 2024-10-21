@@ -658,6 +658,10 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         return NULL;;
         /* LCOV_EXCL_STOP */
     }
+    
+    /* Set precision to maximum and minimum values. */
+    mpfr_set_emax(MPFR_EMAX_MAX);
+    mpfr_set_emin(MPFR_EMIN_MIN);
 
     /* Initialize exceptions. */
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpy2Error", PyExc_ArithmeticError, NULL);
