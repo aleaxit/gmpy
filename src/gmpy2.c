@@ -161,7 +161,6 @@ static gmpy_global global = {
 };
 
 /* Support for context manager using context vars.
- * Requires Python 3.7 or later.
  */
 
 static PyObject *current_context_var = NULL;
@@ -587,7 +586,7 @@ gmp_abort_handler(int i)
             printf("gmp: root of negative\n");
         }
         else {
-            printf("gmp: out of memory\n");
+            printf("gmp: overflow in mpz type\n");
         }
     }
     abort();
