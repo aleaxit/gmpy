@@ -1208,6 +1208,8 @@ static inline int PyTime_PerfCounter(PyTime_t *result)
 #  define PyHASH_IMAG _PyHASH_IMAG
 #endif
 
+
+// gh-121339
 #if PY_VERSION_HEX < 0x030E00A0
 typedef struct PyLongLayout {
     uint8_t bits_per_digit;
@@ -1238,33 +1240,48 @@ typedef struct PyLongExport {
 
 typedef struct PyLongWriter PyLongWriter;
 
-#if PY_VERSION_HEX >= 0x030C0000
-#  define NON_SIZE_BITS 3
-#  define TAG_FROM_SIGN_AND_SIZE(sign, size) ((1 - (sign)) | ((size) << NON_SIZE_BITS))
-#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (((PyLongObject*)obj)->long_value.lv_tag = TAG_FROM_SIGN_AND_SIZE(sign, size))
-#elif PY_VERSION_HEX >= 0x030900A4
-#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (Py_SET_SIZE(obj, (sign)*(size)))
-#else
-#  define _PyLong_SetSignAndDigitCount(obj, sign, size) (Py_SIZE(obj) = (sign)*(size))
-#endif
 
+static inline void
+_PyLong_SetSignAndDigitCount(PyLongObject *op, int sign, Py_ssize_t size)
+{
 #if PY_VERSION_HEX >= 0x030C0000
-#  define GET_OB_DIGIT(obj) ((PyLongObject*)obj)->long_value.ob_digit
-#  define _PyLong_DigitCount(obj) (((PyLongObject*)obj)->long_value.lv_tag >> 3)
+    op->long_value.lv_tag = ((1 - sign) | (size << 3));
+#elif PY_VERSION_HEX >= 0x030900A4
+    Py_SET_SIZE(op, sign*size);
 #else
-#  define GET_OB_DIGIT(obj) ((PyLongObject*)obj)->ob_digit
-#  define _PyLong_DigitCount(obj) (_PyLong_Sign((PyObject*)obj)<0 ? -Py_SIZE(obj):Py_SIZE(obj))
+    Py_SIZE(op) = sign*size;
 #endif
+}
+
+static inline Py_ssize_t
+_PyLong_DigitCount(const PyLongObject *op)
+{
+#if PY_VERSION_HEX >= 0x030C0000
+    return (Py_ssize_t)(op->long_value.lv_tag >> 3);
+#else
+    return _PyLong_Sign((PyObject*)op) < 0 ? -Py_SIZE(op) : Py_SIZE(op);
+#endif
+}
+
+static inline const digit*
+_PyLong_GetDigits(const PyLongObject *op)
+{
+#if PY_VERSION_HEX >= 0x030C0000
+    return op->long_value.ob_digit;
+#else
+    return op->ob_digit;
+#endif
+}
 
 static inline int
 PyLong_Export(PyObject *obj, PyLongExport *export_long)
 {
     if (!PyLong_Check(obj)) {
-        PyErr_Format(PyExc_TypeError, "expect int, got %T", obj);
+        PyErr_Format(PyExc_TypeError, "expected int, got %s", Py_TYPE(obj)->tp_name);
         return -1;
     }
-    PyLongObject *self = (PyLongObject*)obj;
 
+    PyLongObject *self = (PyLongObject*)obj;
     int overflow;
 #if SIZEOF_LONG == 8
     long value = PyLong_AsLongAndOverflow(obj, &overflow);
@@ -1287,7 +1304,7 @@ PyLong_Export(PyObject *obj, PyLongExport *export_long)
         if (export_long->ndigits == 0) {
             export_long->ndigits = 1;
         }
-        export_long->digits = GET_OB_DIGIT(self);
+        export_long->digits = _PyLong_GetDigits(self);
         export_long->_reserved = (Py_uintptr_t)Py_NewRef(obj);
     }
     return 0;
@@ -1308,18 +1325,17 @@ PyLongWriter_Create(int negative, Py_ssize_t ndigits, void **digits)
         PyErr_SetString(PyExc_ValueError, "ndigits must be positive");
         return NULL;
     }
-    assert(digits != NULL);
 
     PyLongObject *obj = _PyLong_New(ndigits);
     if (obj == NULL) {
         return NULL;
     }
     if (ndigits == 0) {
-        assert(GET_OB_DIGIT(obj)[0] == 0);
+        assert(_PyLong_GetDigits(obj)[0] == 0);
     }
     _PyLong_SetSignAndDigitCount(obj, negative?-1:1, ndigits);
 
-    *digits = GET_OB_DIGIT(obj);
+    *digits = _PyLong_GetDigits(obj);
     return (PyLongWriter*)obj;
 }
 
@@ -1327,24 +1343,23 @@ static inline PyObject*
 PyLongWriter_Finish(PyLongWriter *writer)
 {
     PyObject *obj = (PyObject *)writer;
-    assert(Py_REFCNT(obj) == 1);
-
-    Py_ssize_t j = _PyLong_DigitCount(obj);
+    PyLongObject *self = (PyLongObject*)obj;
+    Py_ssize_t j = _PyLong_DigitCount(self);
     Py_ssize_t i = j;
     int sign = _PyLong_Sign(obj);
 
-    while (i > 0 && GET_OB_DIGIT(obj)[i-1] == 0) {
+    while (i > 0 && _PyLong_GetDigits(self)[i-1] == 0) {
         --i;
     }
     if (i == 0) {
         sign = 0;
     }
     if (i <= 1) {
-        long val = sign*GET_OB_DIGIT(obj)[0];
+        long val = sign*_PyLong_GetDigits(self)[0];
         Py_DECREF(obj);
         obj = PyLong_FromLong(val);
     }
-    _PyLong_SetSignAndDigitCount(obj, sign, i);
+    _PyLong_SetSignAndDigitCount(self, sign, i);
     return obj;
 }
 #endif
