@@ -599,9 +599,7 @@ GMPy_MPZ_Rshift_Slot(PyObject *self, PyObject *other)
             /* LCOV_EXCL_STOP */
         }
         PyErr_Clear();
-        int sign = 1;
-        PyLong_GetSign(other, &sign);
-        if (sign < 0) {
+        if (PyLong_IsNegative(other)) {
             VALUE_ERROR("negative shift count");
             return NULL;
         }
