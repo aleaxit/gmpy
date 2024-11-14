@@ -1225,7 +1225,8 @@ const PyLongLayout PyLong_LAYOUT = {
     .digit_size = sizeof(digit),
 };
 
-const PyLongLayout* PyLong_GetNativeLayout(void)
+static inline const PyLongLayout*
+PyLong_GetNativeLayout(void)
 {
     return &PyLong_LAYOUT;
 }
@@ -1245,7 +1246,7 @@ static inline void
 _PyLong_SetSignAndDigitCount(PyLongObject *op, int sign, Py_ssize_t size)
 {
 #if PY_VERSION_HEX >= 0x030C0000
-    op->long_value.lv_tag = ((1 - sign) | (size << 3));
+    op->long_value.lv_tag = (1 - sign) | (size << 3);
 #elif PY_VERSION_HEX >= 0x030900A4
     Py_SET_SIZE(op, sign*size);
 #else
