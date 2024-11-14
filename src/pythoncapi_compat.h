@@ -1209,39 +1209,9 @@ static inline int PyTime_PerfCounter(PyTime_t *result)
 #endif
 
 
-// gh-121339
+// gh-102471 added import and export API for integers to 3.14.0a2.
 #if PY_VERSION_HEX < 0x030E00A0
-typedef struct PyLongLayout {
-    uint8_t bits_per_digit;
-    uint8_t digit_size;
-    int8_t digits_order;
-    int8_t endianness;
-} PyLongLayout;
-
-const PyLongLayout PyLong_LAYOUT = {
-    .bits_per_digit = PyLong_SHIFT,
-    .digits_order = -1,  // least significant first
-    .endianness = PY_LITTLE_ENDIAN ? -1 : 1,
-    .digit_size = sizeof(digit),
-};
-
-static inline const PyLongLayout*
-PyLong_GetNativeLayout(void)
-{
-    return &PyLong_LAYOUT;
-}
-
-typedef struct PyLongExport {
-    int64_t value;
-    uint8_t negative;
-    Py_ssize_t ndigits;
-    const void *digits;
-    Py_uintptr_t _reserved;
-} PyLongExport;
-
-typedef struct PyLongWriter PyLongWriter;
-
-
+// Helpers to access PyLongObject internals.
 static inline void
 _PyLong_SetSignAndDigitCount(PyLongObject *op, int sign, Py_ssize_t size)
 {
@@ -1264,7 +1234,7 @@ _PyLong_DigitCount(const PyLongObject *op)
 #endif
 }
 
-static inline const digit*
+static inline digit*
 _PyLong_GetDigits(const PyLongObject *op)
 {
 #if PY_VERSION_HEX >= 0x030C0000
@@ -1274,14 +1244,46 @@ _PyLong_GetDigits(const PyLongObject *op)
 #endif
 }
 
+typedef struct PyLongLayout {
+    uint8_t bits_per_digit;
+    uint8_t digit_size;
+    int8_t digits_order;
+    int8_t endianness;
+} PyLongLayout;
+
+static const PyLongLayout PyLong_LAYOUT = {
+    .bits_per_digit = PyLong_SHIFT,
+    .digits_order = -1,  // least significant first
+    .endianness = PY_LITTLE_ENDIAN ? -1 : 1,
+    .digit_size = sizeof(digit),
+};
+
+typedef struct PyLongExport {
+    int64_t value;
+    uint8_t negative;
+    Py_ssize_t ndigits;
+    const void *digits;
+    Py_uintptr_t _reserved;
+} PyLongExport;
+
+typedef struct PyLongWriter PyLongWriter;
+
+static inline const PyLongLayout*
+PyLong_GetNativeLayout(void)
+{
+    return &PyLong_LAYOUT;
+}
+
 static inline int
 PyLong_Export(PyObject *obj, PyLongExport *export_long)
 {
     if (!PyLong_Check(obj)) {
-        PyErr_Format(PyExc_TypeError, "expected int, got %s", Py_TYPE(obj)->tp_name);
+        PyErr_Format(PyExc_TypeError, "expected int, got %s",
+                     Py_TYPE(obj)->tp_name);
         return -1;
     }
 
+    // Fast-path: try to convert to a int64_t
     PyLongObject *self = (PyLongObject*)obj;
     int overflow;
 #if SIZEOF_LONG == 8
@@ -1290,6 +1292,9 @@ PyLong_Export(PyObject *obj, PyLongExport *export_long)
     // Windows has 32-bit long, so use 64-bit long long instead
     long long value = PyLong_AsLongLongAndOverflow(obj, &overflow);
 #endif
+    Py_BUILD_ASSERT(sizeof(value) == sizeof(int64_t));
+    // the function cannot fail since obj is a PyLongObject
+    assert(!(value == -1 && PyErr_Occurred()));
 
     if (!overflow) {
         export_long->value = value;
@@ -1315,8 +1320,11 @@ static inline void
 PyLong_FreeExport(PyLongExport *export_long)
 {
     PyObject *obj = (PyObject*)export_long->_reserved;
-    export_long->_reserved = 0;
-    Py_XDECREF(obj);
+
+    if (obj) {
+        export_long->_reserved = 0;
+        Py_DECREF(obj);
+    }
 }
 
 static inline PyLongWriter*
@@ -1326,6 +1334,7 @@ PyLongWriter_Create(int negative, Py_ssize_t ndigits, void **digits)
         PyErr_SetString(PyExc_ValueError, "ndigits must be positive");
         return NULL;
     }
+    assert(digits != NULL);
 
     PyLongObject *obj = _PyLong_New(ndigits);
     if (obj == NULL) {
@@ -1340,6 +1349,15 @@ PyLongWriter_Create(int negative, Py_ssize_t ndigits, void **digits)
     return (PyLongWriter*)obj;
 }
 
+static inline void
+PyLongWriter_Discard(PyLongWriter *writer)
+{
+    PyLongObject *obj = (PyLongObject *)writer;
+
+    assert(Py_REFCNT(obj) == 1);
+    Py_DECREF(obj);
+}
+
 static inline PyObject*
 PyLongWriter_Finish(PyLongWriter *writer)
 {
@@ -1349,18 +1367,24 @@ PyLongWriter_Finish(PyLongWriter *writer)
     Py_ssize_t i = j;
     int sign = _PyLong_Sign(obj);
 
+    assert(Py_REFCNT(obj) == 1);
+
+    // Normalize and get singleton if possible
     while (i > 0 && _PyLong_GetDigits(self)[i-1] == 0) {
         --i;
     }
-    if (i == 0) {
-        sign = 0;
+    if (i != j) {
+        if (i == 0) {
+            sign = 0;
+        }
+        _PyLong_SetSignAndDigitCount(self, sign, i);
     }
     if (i <= 1) {
         long val = sign*_PyLong_GetDigits(self)[0];
         Py_DECREF(obj);
-        obj = PyLong_FromLong(val);
+        return PyLong_FromLong(val);
     }
-    _PyLong_SetSignAndDigitCount(self, sign, i);
+
     return obj;
 }
 #endif
