@@ -1238,9 +1238,9 @@ static inline digit*
 _PyLong_GetDigits(const PyLongObject *op)
 {
 #if PY_VERSION_HEX >= 0x030C0000
-    return op->long_value.ob_digit;
+    return (digit*)(op->long_value.ob_digit);
 #else
-    return op->ob_digit;
+    return (digit*)(op->ob_digit);
 #endif
 }
 
