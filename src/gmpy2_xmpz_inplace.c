@@ -56,7 +56,12 @@ GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
         else {
             mpz_t tempz;
             mpz_init(tempz);
-            mpz_set_PyLong(tempz, other);
+            if (mpz_set_PyLong(tempz, other)) {
+                /* LCOV_EXCL_START */
+                mpz_clear(tempz);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_add(MPZ(self), MPZ(self), tempz);
             GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -103,7 +108,12 @@ GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
         else {
             mpz_t tempz;
             mpz_init(tempz);
-            mpz_set_PyLong(tempz, other);
+            if (mpz_set_PyLong(tempz, other)) {
+                /* LCOV_EXCL_START */
+                mpz_clear(tempz);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_sub(MPZ(self), MPZ(self), tempz);
             GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -145,7 +155,12 @@ GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
         else {
             mpz_t tempz;
             mpz_init(tempz);
-            mpz_set_PyLong(tempz, other);
+            if (mpz_set_PyLong(tempz, other)) {
+                /* LCOV_EXCL_START */
+                mpz_clear(tempz);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_mul(MPZ(self), MPZ(self), tempz);
             GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -199,7 +214,12 @@ GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
         else {
             mpz_t tempz;
             mpz_init(tempz);
-            mpz_set_PyLong(tempz, other);
+            if (mpz_set_PyLong(tempz, other)) {
+                /* LCOV_EXCL_START */
+                mpz_clear(tempz);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_q(MPZ(self), MPZ(self), tempz);
             GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -254,7 +274,12 @@ GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
         else {
             mpz_t tempz;
             mpz_init(tempz);
-            mpz_set_PyLong(tempz, other);
+            if (mpz_set_PyLong(tempz, other)) {
+                /* LCOV_EXCL_START */
+                mpz_clear(tempz);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_r(MPZ(self), MPZ(self), tempz);
             GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -350,7 +375,12 @@ GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
     if (PyLong_Check(other)) {
         mpz_t tempz;
         mpz_init(tempz);
-        mpz_set_PyLong(tempz, other);
+        if (mpz_set_PyLong(tempz, other)) {
+            /* LCOV_EXCL_START */
+            mpz_clear(tempz);
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_and(MPZ(self), MPZ(self), tempz);
         GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -382,7 +412,12 @@ GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
     if(PyLong_Check(other)) {
         mpz_t tempz;
         mpz_init(tempz);
-        mpz_set_PyLong(tempz, other);
+        if (mpz_set_PyLong(tempz, other)) {
+            /* LCOV_EXCL_START */
+            mpz_clear(tempz);
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_xor(MPZ(self), MPZ(self), tempz);
         GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -414,7 +449,12 @@ GMPy_XMPZ_IIor_Slot(PyObject *self, PyObject *other)
     if(PyLong_Check(other)) {
         mpz_t tempz;
         mpz_init(tempz);
-        mpz_set_PyLong(tempz, other);
+        if (mpz_set_PyLong(tempz, other)) {
+            /* LCOV_EXCL_START */
+            mpz_clear(tempz);
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_ior(MPZ(self), MPZ(self), tempz);
         GMPY_MAYBE_END_ALLOW_THREADS(context);
