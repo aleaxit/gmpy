@@ -1216,7 +1216,7 @@ static inline void
 _PyLong_SetSignAndDigitCount(PyLongObject *op, int sign, Py_ssize_t size)
 {
 #if PY_VERSION_HEX >= 0x030C0000
-    op->long_value.lv_tag = (1 - sign) | (size << 3);
+    op->long_value.lv_tag = (uintptr_t)(1 - sign) | ((uintptr_t)(size) << 3);
 #elif PY_VERSION_HEX >= 0x030900A4
     Py_SET_SIZE(op, sign*size);
 #else
@@ -1252,10 +1252,10 @@ typedef struct PyLongLayout {
 } PyLongLayout;
 
 static const PyLongLayout PyLong_LAYOUT = {
-    .bits_per_digit = PyLong_SHIFT,
-    .digits_order = -1,  // least significant first
-    .endianness = PY_LITTLE_ENDIAN ? -1 : 1,
-    .digit_size = sizeof(digit),
+    PyLong_SHIFT,
+    sizeof(digit),
+    -1,  // least significant first
+    PY_LITTLE_ENDIAN ? -1 : 1,
 };
 
 typedef struct PyLongExport {
@@ -1380,7 +1380,7 @@ PyLongWriter_Finish(PyLongWriter *writer)
         _PyLong_SetSignAndDigitCount(self, sign, i);
     }
     if (i <= 1) {
-        long val = sign*_PyLong_GetDigits(self)[0];
+        long val = sign*(long)(_PyLong_GetDigits(self)[0]);
         Py_DECREF(obj);
         return PyLong_FromLong(val);
     }
