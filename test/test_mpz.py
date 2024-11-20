@@ -1365,8 +1365,10 @@ def test_mpz_rshift():
 
     assert a>>1 == mpz(61)
     assert int(a)>>mpz(1) == mpz(61)
+    assert a>>111111111111111111111 == mpz(0)
+    assert (-a)>>111111111111111111111 == mpz(-1)
 
-    raises(OverflowError, lambda: a>>-2)
+    raises(ValueError, lambda: a>>-2)
 
     assert a>>0 == mpz(123)
 
@@ -1408,7 +1410,7 @@ def test_mpz_ilshift_irshift():
         x >>= mpfr(2)
     with raises(TypeError):
         x <<= mpfr(2)
-    with raises(OverflowError):
+    with raises(ValueError):
         x >>= -1
     with raises(OverflowError):
         x <<= -5
