@@ -90,6 +90,11 @@ def test_xmpz_misc():
     assert repr(xmpz(42)) == 'xmpz(42)'
 
 
+def test_xmpz_create():
+    pytest.raises(TypeError, lambda: xmpz(s=1))
+    pytest.raises(TypeError, lambda: xmpz(1, s=2))
+
+
 def test_xmpz_subscripts():
     x = xmpz(10)
 

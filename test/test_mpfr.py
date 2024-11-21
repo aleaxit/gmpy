@@ -212,6 +212,9 @@ def test_mpfr_create():
     assert repr(mpfr(1.0/7, precision=1)) == "mpfr('0.14285714285714285')"
     assert repr(mpfr(1.0/7, precision=5)) == "mpfr('0.141',5)"
 
+    pytest.raises(TypeError, lambda: mpfr(1, base=2))
+    pytest.raises(TypeError, lambda: mpfr("1", s=2))
+
 
 @settings(max_examples=1000)
 @given(floats())
