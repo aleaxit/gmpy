@@ -441,6 +441,9 @@ def test_mpz_create():
     assert mpz('1 2') == mpz(12)
     assert mpz(' 1 2') == mpz(12)
 
+    raises(TypeError, lambda: mpz(s=1))
+    raises(TypeError, lambda: mpz(1, s=2))
+
 
 @settings(max_examples=10000)
 @given(integers())
