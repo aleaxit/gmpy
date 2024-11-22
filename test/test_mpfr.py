@@ -123,6 +123,9 @@ def test_mpfr_create():
     assert mpfr(-1) == mpfr('-1.0')
     assert mpfr("123e17") == mpfr('1.23e+19')
     assert mpfr('1._3_5e4_5') == mpfr('1.3499999999999999e+45')
+    assert mpfr('-0b1.1000000000001p+4') == mpfr('-24.001953125')
+    assert mpfr('-0x1.9000000000000p+4') == mpfr('-25.0')
+    assert mpfr('-0x1.9p+4') == mpfr('-25.0')
 
     pytest.raises(ValueError, lambda: mpfr("foo"))
 
