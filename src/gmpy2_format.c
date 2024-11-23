@@ -319,6 +319,10 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
     *(p3) = '\00';
 
     buflen = mpfr_asprintf(&buffer, mpfrfmt, MPFR(self));
+    if (buflen == -1) {
+        RUNTIME_ERROR("Number of characters written exceeds the INT_MAX");
+        return NULL;
+    }
 
     /* If there isn't a decimal point in the output and the output
      * only consists of digits, then append .0 */
