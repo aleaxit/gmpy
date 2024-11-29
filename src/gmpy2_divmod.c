@@ -65,7 +65,14 @@ GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 
             if (error) {
                 /* Use quo->z as a temporary variable. */
-                mpz_set_PyLong(quo->z, y);
+                if (mpz_set_PyLong(quo->z, y)) {
+                    /* LCOV_EXCL_START */
+                    Py_DECREF((PyObject*)rem);
+                    Py_DECREF((PyObject*)quo);
+                    Py_DECREF((PyObject*)result);
+                    return NULL;
+                    /* LCOV_EXCL_STOP */
+                }
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_qr(quo->z, rem->z, MPZ(x), quo->z);
                 GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -94,7 +101,14 @@ GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 goto error;
             }
             else {
-                mpz_set_PyLong(quo->z, x);
+                if (mpz_set_PyLong(quo->z, x)) {
+                    /* LCOV_EXCL_START */
+                    Py_DECREF((PyObject*)rem);
+                    Py_DECREF((PyObject*)quo);
+                    Py_DECREF((PyObject*)result);
+                    return NULL;
+                    /* LCOV_EXCL_STOP */
+                }
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_qr(quo->z, rem->z, quo->z, MPZ(y));
                 GMPY_MAYBE_END_ALLOW_THREADS(context);

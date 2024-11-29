@@ -74,7 +74,12 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 }
             }
             else {
-                mpz_set_PyLong(result->z, y);
+                if (mpz_set_PyLong(result->z, y)) {
+                    /* LCOV_EXCL_START */
+                    Py_DECREF((PyObject*)result);
+                    return NULL;
+                    /* LCOV_EXCL_STOP */
+                }
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_q(result->z, MPZ(x), result->z);
                 GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -91,7 +96,12 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         }
 
         if (IS_TYPE_PyInteger(xtype)) {
-            mpz_set_PyLong(result->z, x);
+            if (mpz_set_PyLong(result->z, x)) {
+                /* LCOV_EXCL_START */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_q(result->z, result->z, MPZ(y));
             GMPY_MAYBE_END_ALLOW_THREADS(context);

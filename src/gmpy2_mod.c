@@ -72,7 +72,12 @@ GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 }
             }
             else {
-                mpz_set_PyLong(result->z, y);
+                if (mpz_set_PyLong(result->z, y)) {
+                    /* LCOV_EXCL_START */
+                    Py_DECREF((PyObject*)result);
+                    return NULL;
+                    /* LCOV_EXCL_STOP */
+                }
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_r(result->z, MPZ(x), result->z);
                 GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -90,7 +95,12 @@ GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         }
 
         if (PyLong_Check(x)) {
-            mpz_set_PyLong(result->z, x);
+            if (mpz_set_PyLong(result->z, x)) {
+                /* LCOV_EXCL_START */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             mpz_fdiv_r(result->z, result->z, MPZ(y));
             return (PyObject*)result;
         }
