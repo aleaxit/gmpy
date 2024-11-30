@@ -319,6 +319,11 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
     *(p3) = '\00';
 
     buflen = mpfr_asprintf(&buffer, mpfrfmt, MPFR(self));
+    if (buflen == -1) {
+        RUNTIME_ERROR("The maximum precision for string formatting "
+                      "exceeded. Please use digits() method instead.");
+        return NULL;
+    }
 
     /* If there isn't a decimal point in the output and the output
      * only consists of digits, then append .0 */
