@@ -305,26 +305,6 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     len = PyBytes_Size(ascii_str);
     cp = PyBytes_AsString(ascii_str);
 
-    /* Check for leading base indicators. */
-    if (base == 0) {
-        if (len > 2 && cp[0] == '0') {
-            if (cp[1] == 'b')      { base = 2;  cp += 2; len -= 2; }
-            else if (cp[1] == 'x') { base = 16; cp += 2; len -= 2; }
-            else                   { base = 10; }
-        }
-        else {
-            base = 10;
-        }
-    }
-    else if (cp[0] == '0') {
-        /* If the specified base matches the leading base indicators, then
-         * we need to skip the base indicators.
-         */
-        if (cp[1] =='b' && base == 2)       { cp += 2; len -= 2; }
-        else if (cp[1] =='x' && base == 16) { cp += 2; len -= 2; }
-    }
-
-
     if (!(result = GMPy_MPFR_New(prec, context))) {
         Py_XDECREF(ascii_str);
         return NULL;
@@ -790,11 +770,14 @@ static PyObject *
 GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
     double res;
+    
+    res = mpfr_get_d(self->f, MPFR_RNDN);
 
-    CHECK_CONTEXT(context);
-
-    res = mpfr_get_d(self->f, GET_MPFR_ROUND(context));
-
+    if (isinf(res)) {
+        OVERFLOW_ERROR("'mpfr' too large to convert to float");
+        return NULL;
+    }
+    
     return PyFloat_FromDouble(res);
 }
 
