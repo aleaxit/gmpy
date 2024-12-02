@@ -44,6 +44,7 @@ def test_mpq_float():
 
 @settings(max_examples=10000)
 @given(fractions())
+@example(Fraction(12143, 31517))
 def test_mpq_float_bulk(x):
     q = mpq(x)
     try:
