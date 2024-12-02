@@ -42,6 +42,19 @@ def test_mpq_float():
     assert float(mpq(9, 5)) == 1.8
 
 
+@settings(max_examples=10000)
+@given(fractions())
+def test_mpq_float_bulk(x):
+    q = mpq(x)
+    try:
+        fx = float(x)
+    except OverflowError:
+        with pytest.raises(OverflowError):
+            float(q)
+    else:
+        assert fx == float(q)
+
+
 def test_mpq_from_Decimal():
     assert mpq(Decimal("5e-3")) == mpq(5, 1000)
     assert mpq(Decimal(1)) == mpq(1)  # issue 327
