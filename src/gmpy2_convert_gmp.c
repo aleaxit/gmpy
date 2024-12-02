@@ -159,23 +159,69 @@ GMPy_MPZ_Int_Slot(MPZ_Object *self)
     return GMPy_PyLong_From_MPZ(self, NULL);
 }
 
-static PyObject *
-GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
+static CTXT_Object *
+_get_ieee_context(long bitwidth)
 {
-    double res;
-    mpfr_t temp;
-    
-    mpfr_init2(temp, 53);
-    mpfr_set_z(temp, obj->z, MPFR_RNDN);
-    res = mpfr_get_d(temp, MPFR_RNDN);
-    mpfr_clear(temp);
+    assert(bitwidth != 16 || bitwidth%32 == 0);
 
-    if (isinf(res)) {
-        OVERFLOW_ERROR("'mpz' too large to convert to float");
+    CTXT_Object *result = (CTXT_Object*)GMPy_CTXT_New();
+
+    if (!result) {
         return NULL;
     }
+    if (bitwidth == 16) {
+        result->ctx.mpfr_prec = 11;
+        result->ctx.emax = 16;
+    }
+    else if (bitwidth == 32) {
+        result->ctx.mpfr_prec = 24;
+        result->ctx.emax = 128;
+    }
+    else if (bitwidth == 64) {
+        result->ctx.mpfr_prec = 53;
+        result->ctx.emax = 1024;
+    }
+    else if (bitwidth == 128) {
+        result->ctx.mpfr_prec = 113;
+        result->ctx.emax = 16384;
+    }
+    else {
+        double bitlog2 = floor((4 * log(bitwidth) / log(2.0)) + 0.5);
+        result->ctx.mpfr_prec = bitwidth - (long)(bitlog2) + 13;
+        result->ctx.emax = 1 << (bitwidth - result->ctx.mpfr_prec - 1);
+    }
+    result->ctx.subnormalize = 1;
+    result->ctx.emin = 4 - result->ctx.emax - result->ctx.mpfr_prec;
+    return (PyObject*)result;
+}
 
-    return PyFloat_FromDouble(res);
+static PyObject *
+GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *unused)
+{
+    MPFR_Object *tmp;
+    CTXT_Object *context = _get_ieee_context(64);
+
+    CHECK_CONTEXT(context);
+
+    if (!(tmp = GMPy_MPFR_New(53, context))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    mpfr_clear_flags();
+    tmp->rc = mpfr_set_z(tmp->f, obj->z, MPFR_RNDN);
+    GMPY_MPFR_CHECK_RANGE(tmp, context);
+    GMPY_MPFR_SUBNORMALIZE(tmp, context);
+    GMPY_MPFR_EXCEPTIONS(tmp, context);
+
+    PyObject *res = GMPy_PyFloat_From_MPFR(tmp, context);
+    Py_DECREF(tmp);
+    Py_DECREF(context);
+    if (!res) {
+        OVERFLOW_ERROR("'mpz' too large to convert to float");
+    }
+    return res;
 }
 
 static PyObject *
@@ -789,22 +835,32 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
+GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *unused)
 {
-    double res;
-    mpfr_t temp;
-    
-    mpfr_init2(temp, 53);
-    mpfr_set_q(temp, obj->q, MPFR_RNDN);
-    res = mpfr_get_d(temp, MPFR_RNDN);
-    mpfr_clear(temp);
+    MPFR_Object *tmp;
+    CTXT_Object *context = _get_ieee_context(64);
 
-    if (isinf(res)) {
-        OVERFLOW_ERROR("'mpq' too large to convert to float");
+    CHECK_CONTEXT(context);
+
+    if (!(tmp = GMPy_MPFR_New(53, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
-    return PyFloat_FromDouble(res);
+    mpfr_clear_flags();
+    tmp->rc = mpfr_set_q(tmp->f, obj->q, MPFR_RNDN);
+    GMPY_MPFR_CHECK_RANGE(tmp, context);
+    GMPY_MPFR_SUBNORMALIZE(tmp, context);
+    GMPY_MPFR_EXCEPTIONS(tmp, context);
+
+    PyObject *res = GMPy_PyFloat_From_MPFR(tmp, context);
+    Py_DECREF(tmp);
+    Py_DECREF(context);
+    if (!res) {
+        OVERFLOW_ERROR("'mpq' too large to convert to float");
+    }
+    return res;
 }
 
 static PyObject *

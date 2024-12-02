@@ -1,6 +1,7 @@
 import math
 import numbers
 import pickle
+import platform
 import sys
 from decimal import Decimal
 from fractions import Fraction
@@ -40,6 +41,22 @@ def test_mpq_from_float():
 
 def test_mpq_float():
     assert float(mpq(9, 5)) == 1.8
+
+
+@pytest.mark.skipif(platform.machine() != "x86_64",
+                    reason="XXX: fails in i686 manylinux images")
+@settings(max_examples=10000)
+@given(fractions())
+@example(Fraction(12143, 31517))
+def test_mpq_float_bulk(x):
+    q = mpq(x)
+    try:
+        fx = float(x)
+    except OverflowError:
+        with pytest.raises(OverflowError):
+            float(q)
+    else:
+        assert fx == float(q)
 
 
 def test_mpq_from_Decimal():
