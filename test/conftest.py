@@ -1,3 +1,6 @@
+import pprint
+import sys
+
 import pytest
 
 import gmpy2
@@ -16,6 +19,8 @@ def pytest_report_header(config):
   Mutliple-precision library:     {0}
   Floating-point library:         {1}
   Complex library:                {2}
+  sys.float_info:                 {3}
 """.format(gmpy2.mp_version(),
            gmpy2.mpfr_version(),
-           gmpy2.mpc_version()))
+           gmpy2.mpc_version(),
+           sys.float_info))
