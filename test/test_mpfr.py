@@ -108,9 +108,7 @@ def test_mpfr_conversion():
     assert xmpz(mpfr(5.51)) == xmpz(6)
 
     pytest.raises(OverflowError, lambda: mpq(mpfr('inf')))
-    
     pytest.raises(OverflowError, lambda: float(mpfr('inf')))
-
     pytest.raises(OverflowError, lambda: float(mpfr('1e+400')))
 
     assert mpq(mpfr(4.5)) == mpq(9,2)
