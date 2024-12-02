@@ -163,8 +163,12 @@ static PyObject *
 GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
     double res;
-
-    res = mpz_get_d(obj->z);
+    mpfr_t temp;
+    
+    mpfr_init2(temp, 53);
+    mpfr_set_z(temp, obj->z, MPFR_RNDN);
+    res = mpfr_get_d(temp, MPFR_RNDN);
+    mpfr_clear(temp);
 
     if (isinf(res)) {
         OVERFLOW_ERROR("'mpz' too large to convert to float");
@@ -787,25 +791,20 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
 static PyObject *
 GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 {
-    MPFR_Object *tmp;
+    double res;
+    mpfr_t temp;
+    
+    mpfr_init2(temp, 53);
+    mpfr_set_q(temp, obj->q, MPFR_RNDN);
+    res = mpfr_get_d(temp, MPFR_RNDN);
+    mpfr_clear(temp);
 
-    CHECK_CONTEXT(context);
-
-    if (!(tmp = GMPy_MPFR_New(53, context))) {
-        /* LCOV_EXCL_START */
+    if (isinf(res)) {
+        OVERFLOW_ERROR("'mpq' too large to convert to float");
         return NULL;
-        /* LCOV_EXCL_STOP */
     }
 
-    mpfr_clear_flags();
-    tmp->rc = mpfr_set_q(tmp->f, obj->q, MPFR_RNDN);
-    GMPY_MPFR_CHECK_RANGE(tmp, context);
-    GMPY_MPFR_SUBNORMALIZE(tmp, context);
-    GMPY_MPFR_EXCEPTIONS(tmp, context);
-
-    PyObject *res = GMPy_PyFloat_From_MPFR(tmp, context);
-    Py_DECREF(tmp);
-    return res;
+    return PyFloat_FromDouble(res);
 }
 
 static PyObject *
