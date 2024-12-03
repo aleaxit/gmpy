@@ -15,9 +15,11 @@ from gmpy2 import (cmp, cmp_abs, from_binary, is_nan, mpc, mpfr, mpq, mpz,
                    to_binary, xmpz)
 
 
-def test_mpz_constructor():
+def test_mpq_constructor():
     assert mpq('1/1') == mpq(1,1)
     assert mpq('1_/_1') == mpq(1,1)
+
+    pytest.raises(TypeError, lambda: mpq('1', s=1))
 
 
 def test_mpq_as_integer_ratio():

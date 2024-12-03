@@ -109,6 +109,14 @@ def test_mpc_creation():
 
     assert mpc('1_2+4_5j') == mpc('12.0+45.0j')
 
+    pytest.raises(TypeError, lambda: mpc(1, base=2))
+    pytest.raises(TypeError, lambda: mpc(1, s=2))
+    pytest.raises(TypeError, lambda: mpc("1", s=2))
+    pytest.raises(TypeError, lambda: mpc("1", imag=2))
+    pytest.raises(TypeError, lambda: mpc(1j, imag=2))
+    pytest.raises(TypeError, lambda: mpc(1j, base=2))
+    pytest.raises(TypeError, lambda: mpc(1j, s=2))
+
 
 def test_mpc_random():
     assert (mpc_random(random_state(42))
