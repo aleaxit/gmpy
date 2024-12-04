@@ -610,7 +610,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     int_digits_order = layout->digits_order;
     int_bits_per_digit = layout->bits_per_digit;
     int_nails = int_digit_size*8 - int_bits_per_digit;
-    int_endianness = layout->endianness;
+    int_endianness = layout->digit_endianness;
 
 #ifndef STATIC
     static void *GMPy_C_API[GMPy_API_pointers];
