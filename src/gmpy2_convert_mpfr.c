@@ -770,11 +770,14 @@ static PyObject *
 GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
     double res;
+    
+    res = mpfr_get_d(self->f, MPFR_RNDN);
 
-    CHECK_CONTEXT(context);
-
-    res = mpfr_get_d(self->f, GET_MPFR_ROUND(context));
-
+    if (isinf(res)) {
+        OVERFLOW_ERROR("'mpfr' too large to convert to float");
+        return NULL;
+    }
+    
     return PyFloat_FromDouble(res);
 }
 
