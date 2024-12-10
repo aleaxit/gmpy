@@ -41,7 +41,7 @@
  * ======================================================================== */
 
 /* To support creation of temporary mpz objects. */
-static void
+static int
 mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
     Py_ssize_t len = _PyLong_DigitCount(obj);
@@ -63,7 +63,7 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
     if (PyLong_IsNegative(obj)) {
         mpz_neg(z, z);
     }
-    return;
+    return 0;
 }
 
 static MPZ_Object *
@@ -77,7 +77,12 @@ GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_set_PyLong(MPZ(result), obj);
+    if (mpz_set_PyLong(MPZ(result), obj)) {
+        /* LCOV_EXCL_START */
+        Py_DECREF((PyObject*)result);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     return result;
 }
@@ -367,7 +372,12 @@ GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_set_PyLong(result->z, obj);
+    if (mpz_set_PyLong(result->z, obj)) {
+        /* LCOV_EXCL_START */
+        Py_DECREF((PyObject*)result);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     return result;
 }
@@ -830,16 +840,26 @@ GMPy_MPQ_From_Fraction(PyObject* obj, CTXT_Object *context)
     den = PyObject_GetAttrString(obj, "denominator");
     if (!num || !PyLong_Check(num) || !den || !PyLong_Check(den)) {
         SYSTEM_ERROR("Object does not appear to be Fraction");
-        Py_XDECREF(num);
-        Py_XDECREF(den);
-        Py_DECREF((PyObject*)result);
-        return NULL;
+        goto error;
     }
-    mpz_set_PyLong(mpq_numref(result->q), num);
-    mpz_set_PyLong(mpq_denref(result->q), den);
+    if (mpz_set_PyLong(mpq_numref(result->q), num)) {
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
+    }
+    if (mpz_set_PyLong(mpq_denref(result->q), den)) {
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
+    }
     Py_DECREF(num);
     Py_DECREF(den);
     return result;
+error:
+    Py_XDECREF(num);
+    Py_XDECREF(den);
+    Py_DECREF((PyObject*)result);
+    return NULL;
 }
 
 static MPQ_Object*

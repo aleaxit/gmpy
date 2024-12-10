@@ -64,7 +64,12 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             else {
                 mpz_t tempz;
                 mpz_init(tempz);
-                mpz_set_PyLong(tempz, b);
+                if (mpz_set_PyLong(tempz, b)) {
+                    /* LCOV_EXCL_START */
+                    mpz_clear(tempz);
+                    return NULL;
+                    /* LCOV_EXCL_STOP */
+                }
                 c = mpz_cmp(MPZ(a), tempz);
                 mpz_clear(tempz);
             }
