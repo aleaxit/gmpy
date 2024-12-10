@@ -506,6 +506,21 @@ def test_mpz_round():
     raises(TypeError, lambda: round(mpz(123456),'a',4))
 
 
+@settings(max_examples=10000)
+@given(integers())
+@example(38732858750156021)
+@example(225188150488381457)
+def test_mpz_float_bulk(n):
+    m = mpz(n)
+    try:
+        fn = float(n)
+    except OverflowError:
+        with raises(OverflowError):
+            float(m)
+    else:
+        assert fn == float(m)
+
+
 def test_mpz_bool():
     assert bool(mpz(100))
     assert not bool(mpz(0))
