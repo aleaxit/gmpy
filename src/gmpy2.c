@@ -177,6 +177,14 @@ static PyObject *GMPyExc_Overflow = NULL;
 static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
 
+/*
+ * Parameters of Python’s internal representation of integers.
+ */
+
+
+size_t int_digit_size, int_nails, int_bits_per_digit;
+int int_digits_order, int_endianness;
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * End of global data declarations.                                        *
@@ -595,6 +603,14 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     PyObject* xmpz = NULL;
     PyObject* limb_size = NULL;
 
+    /* Query parameters of Python’s internal representation of integers. */
+    const PyLongLayout *layout = PyLong_GetNativeLayout();
+
+    int_digit_size = layout->digit_size;
+    int_digits_order = layout->digits_order;
+    int_bits_per_digit = layout->bits_per_digit;
+    int_nails = int_digit_size*8 - int_bits_per_digit;
+    int_endianness = layout->digit_endianness;
 
 #ifndef STATIC
     static void *GMPy_C_API[GMPy_API_pointers];
