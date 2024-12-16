@@ -95,7 +95,7 @@ GMPy_ComplexWithType_Is_NAN(PyObject *x, int xtype, CTXT_Object *context)
  *   GMPy_ComplexWithType_Is_NAN(x, xtype, context)
  */
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_NAN, is_nan);
+GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_NAN, is_nan)
 
 PyDoc_STRVAR(GMPy_doc_function_is_infinite,
 "is_infinite(x, /) -> bool\n\n"
@@ -156,7 +156,7 @@ GMPy_ComplexWithType_Is_Infinite(PyObject *x, int xtype, CTXT_Object *context)
         Py_RETURN_FALSE;
 }
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_Infinite, is_infinite);
+GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_Infinite, is_infinite)
 
 PyDoc_STRVAR(GMPy_doc_function_is_finite,
 "is_finite(x, /) -> bool\n\n"
@@ -217,7 +217,7 @@ GMPy_ComplexWithType_Is_Finite(PyObject *x, int xtype, CTXT_Object *context)
         Py_RETURN_FALSE;
 }
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_Finite, is_finite);
+GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_Finite, is_finite)
 
 PyDoc_STRVAR(GMPy_doc_function_is_zero,
 "is_zero(x, /) -> bool\n\n"
@@ -278,7 +278,7 @@ GMPy_ComplexWithType_Is_Zero(PyObject *x, int xtype, CTXT_Object *context)
         Py_RETURN_FALSE;
 }
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_Zero, is_zero);
+GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_Zero, is_zero)
 
 PyDoc_STRVAR(GMPy_doc_function_is_signed,
 "is_signed(x, /) -> bool\n\n"
@@ -323,7 +323,7 @@ GMPy_MPFR_Is_Signed_Method(PyObject *self, PyObject *args)
     return GMPy_Number_Is_Signed(self, NULL);
 }
 
-GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Signed, is_signed);
+GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Signed, is_signed)
 
 PyDoc_STRVAR(GMPy_doc_function_is_regular,
 "is_regular(x, /) -> bool\n\n"
@@ -368,7 +368,7 @@ GMPy_MPFR_Is_Regular_Method(PyObject *self, PyObject *args)
     return GMPy_Number_Is_Regular(self, NULL);
 }
 
-GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Regular, is_regular);
+GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Regular, is_regular)
 
 PyDoc_STRVAR(GMPy_doc_function_is_integer,
 "is_integer(x, /) -> bool\n\n"
@@ -413,7 +413,7 @@ GMPy_MPFR_Is_Integer_Method(PyObject *self, PyObject *args)
     return GMPy_Number_Is_Integer(self, NULL);
 }
 
-GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Integer, is_integer);
+GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Integer, is_integer)
 
 PyDoc_STRVAR(GMPy_doc_function_is_lessgreater,
 "is_lessgreater(x,y, /) -> bool\n\n"

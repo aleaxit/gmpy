@@ -194,7 +194,7 @@ PyDoc_STRVAR(GMPy_doc_function_fma,
 "fma(x, y, z, /) -> mpz | mpq | mpfr | mpc\n\n"
 "Return correctly rounded result of (x * y) + z.");
 
-GMPY_MPFR_MPC_TRIOP_TEMPLATEWT(FMA, fma);
+GMPY_MPFR_MPC_TRIOP_TEMPLATEWT(FMA, fma)
 
 static PyObject *
 _GMPy_MPZ_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
@@ -369,7 +369,7 @@ PyDoc_STRVAR(GMPy_doc_function_fms,
 "fms(x, y, z, /) -> mpz | mpq | mpfr | mpc\n\n"
 "Return correctly rounded result of (x * y) - z.");
 
-GMPY_MPFR_MPC_TRIOP_TEMPLATEWT(FMS, fms);
+GMPY_MPFR_MPC_TRIOP_TEMPLATEWT(FMS, fms)
 
 /* Add support for new fmma and fmms functions from MPFR 4. */\
 
@@ -528,7 +528,7 @@ PyDoc_STRVAR(GMPy_doc_function_fmma,
 "fmma(x, y, z, t, /) -> mpfr\n\n"
 "Return correctly rounded result of (x * y) + (z + t).");
 
-GMPY_MPFR_QUADOP_TEMPLATEWT(FMMA, fmma);
+GMPY_MPFR_QUADOP_TEMPLATEWT(FMMA, fmma)
 
 static PyObject *
 _GMPy_MPZ_FMMS(PyObject *x, PyObject *y, PyObject *z, PyObject *t, CTXT_Object *context)
@@ -683,6 +683,6 @@ PyDoc_STRVAR(GMPy_doc_function_fmms,
 "fmms(x, y, z, t, /) -> mpfr\n\n"
 "Return correctly rounded result of (x * y) - (z + t).");
 
-GMPY_MPFR_QUADOP_TEMPLATEWT(FMMS, fmms);
+GMPY_MPFR_QUADOP_TEMPLATEWT(FMMS, fmms)
 
 #endif

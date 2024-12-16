@@ -83,13 +83,13 @@ GMPy_CTXT_New(void)
         result->token = NULL;
     }
     return (PyObject*)result;
-};
+}
 
 static void
 GMPy_CTXT_Dealloc(CTXT_Object *self)
 {
     PyObject_Free(self);
-};
+}
 
 /* Begin support for context vars. */
 
@@ -654,7 +654,7 @@ static PyObject * \
 GMPy_CTXT_Get_##NAME(CTXT_Object *self, void *closure) \
 { \
     return PyBool_FromLong(self->ctx.NAME); \
-}; \
+} \
 static int \
 GMPy_CTXT_Set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
@@ -675,7 +675,7 @@ static PyObject * \
 GMPy_CTXT_Get_##NAME(CTXT_Object *self, void *closure) \
 { \
     return PyBool_FromLong(self->ctx.traps & TRAP); \
-}; \
+} \
 static int \
 GMPy_CTXT_Set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
@@ -690,19 +690,19 @@ GMPy_CTXT_Set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
     return 0; \
 }
 
-GETSET_BOOLEAN(subnormalize);
-GETSET_BOOLEAN(underflow);
-GETSET_BOOLEAN(overflow);
-GETSET_BOOLEAN(inexact);
-GETSET_BOOLEAN(invalid);
-GETSET_BOOLEAN(erange);
-GETSET_BOOLEAN(divzero);
-GETSET_BOOLEAN_BIT(trap_underflow, TRAP_UNDERFLOW);
-GETSET_BOOLEAN_BIT(trap_overflow, TRAP_OVERFLOW);
-GETSET_BOOLEAN_BIT(trap_inexact, TRAP_INEXACT);
-GETSET_BOOLEAN_BIT(trap_invalid, TRAP_INVALID);
-GETSET_BOOLEAN_BIT(trap_erange, TRAP_ERANGE);
-GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
+GETSET_BOOLEAN(subnormalize)
+GETSET_BOOLEAN(underflow)
+GETSET_BOOLEAN(overflow)
+GETSET_BOOLEAN(inexact)
+GETSET_BOOLEAN(invalid)
+GETSET_BOOLEAN(erange)
+GETSET_BOOLEAN(divzero)
+GETSET_BOOLEAN_BIT(trap_underflow, TRAP_UNDERFLOW)
+GETSET_BOOLEAN_BIT(trap_overflow, TRAP_OVERFLOW)
+GETSET_BOOLEAN_BIT(trap_inexact, TRAP_INEXACT)
+GETSET_BOOLEAN_BIT(trap_invalid, TRAP_INVALID)
+GETSET_BOOLEAN_BIT(trap_erange, TRAP_ERANGE)
+GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO)
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
 GETSET_BOOLEAN(allow_release_gil)

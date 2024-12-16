@@ -333,14 +333,14 @@ GMPy_Iter_New(void)
         result->iter_type = 1;
     }
     return result;
-};
+}
 
 static void
 GMPy_Iter_Dealloc(GMPy_Iter_Object *self)
 {
     Py_XDECREF((PyObject*)self->bitmap);
     PyObject_Free(self);
-};
+}
 
 static PyObject *
 GMPy_Iter_Next(GMPy_Iter_Object *self) {
@@ -399,7 +399,7 @@ static PyObject *
 GMPy_Iter_Repr(GMPy_Iter_Object *self)
 {
     return PyUnicode_FromString("<gmpy2.Iterator>");
-};
+}
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_iter_bits,
 "x.iter_bits(start=0, stop=-1) -> collections.abc.Iterator\n\n"
