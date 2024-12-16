@@ -197,7 +197,7 @@ _get_ieee_context(long bitwidth)
     }
     result->ctx.subnormalize = 1;
     result->ctx.emin = 4 - result->ctx.emax - result->ctx.mpfr_prec;
-    return (PyObject*)result;
+    return result;
 }
 
 static PyObject *
