@@ -872,7 +872,8 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 
 #ifdef SHARED
     /* Create the Capsule for the C-API. */
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
     GMPy_C_API[MPZ_Type_NUM] = (void*)&MPZ_Type;
     GMPy_C_API[XMPZ_Type_NUM] = (void*)&XMPZ_Type;
     GMPy_C_API[MPQ_Type_NUM] = (void*)&MPQ_Type;
@@ -907,7 +908,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     GMPy_C_API[GMPy_MPC_NewInit_NUM] = (void*)GMPy_MPC_NewInit;
     GMPy_C_API[GMPy_MPC_Dealloc_NUM] = (void*)GMPy_MPC_Dealloc;
     GMPy_C_API[GMPy_MPC_ConvertArg_NUM] = (void*)GMPy_MPC_ConvertArg;
-
+#pragma GCC diagnostic pop
     c_api_object = PyCapsule_New((void *)GMPy_C_API, "gmpy2._C_API", NULL);
 
     if (c_api_object != NULL) {
