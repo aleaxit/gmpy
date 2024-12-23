@@ -1986,15 +1986,15 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
         return NULL;
     }
     buffer = PyBytes_AS_STRING(bytes);
-    memset(buffer, 0, length);
+    memset(buffer, is_negative ? 0xFF : 0, gap);
 
-    if (is_big) {
-        mpz_export(buffer + gap, NULL, 1, sizeof(char), 0, 0, *px);
+    if ((*px)->_mp_size) {
+        mpn_get_str((unsigned char *)(buffer + gap), 256,
+                    (*px)->_mp_d, (*px)->_mp_size);
     }
-    else {
-        mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, *px);
+    if (!is_big && length) {
+        revstr(buffer, 0, length - 1);
     }
-
     if (is_negative) {
         mpz_clear(tmp);
     }

@@ -260,7 +260,7 @@ GMPy_MPZ_To_Binary(MPZ_Object *self)
         goto done;
     }
 
-    size = ((mpz_sizeinbase(self->z, 2) + 7) / 8) + 2;
+    size = mpz_sizeinbase(self->z, 256) + 2;
 
     TEMP_ALLOC(buffer, size);
     buffer[0] = 0x01;
@@ -268,7 +268,9 @@ GMPy_MPZ_To_Binary(MPZ_Object *self)
         buffer[1] = 0x01;
     else
         buffer[1] = 0x02;
-    mpz_export(buffer+2, NULL, -1, sizeof(char), 0, 0, self->z);
+    mpn_get_str((unsigned char *)(buffer + 2), 256,
+                self->z->_mp_d, Py_ABS(self->z->_mp_size));
+    revstr(buffer, 2, size - 1);
 
   done:
     result = PyBytes_FromStringAndSize(buffer, size);
