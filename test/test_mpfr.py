@@ -915,3 +915,11 @@ def test_mpfr_round_roundtrip_bulk(x, n):
     q = mpq(*x.as_integer_ratio())
     assert float(round(q, n)) == round(x, n)
     assert mpfr(round(q, n)) == round(mpfr(x), n)
+
+
+def test_issue_540():
+    a = mpfr('1')
+    b = mpfr('10')
+    ctxD = gmpy2.context(round=gmpy2.RoundDown)
+
+    assert ctxD.div(a, b) == mpfr('0.099999999999999992')

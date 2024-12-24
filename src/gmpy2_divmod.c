@@ -371,16 +371,16 @@ GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     int ytype = GMPy_ObjectType(y);
 
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
-        return GMPy_Integer_DivModWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Integer_DivModWithType(x, xtype, y, ytype, context);
 
     if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
-        return GMPy_Rational_DivModWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Rational_DivModWithType(x, xtype, y, ytype, context);
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
-        return GMPy_Real_DivModWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Real_DivModWithType(x, xtype, y, ytype, context);
 
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
-        return GMPy_Complex_DivModWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Complex_DivModWithType(x, xtype, y, ytype, context);
 
     TYPE_ERROR("divmod() argument type not supported");
     return NULL;
