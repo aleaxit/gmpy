@@ -726,3 +726,20 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     } \
     return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
 }
+
+#define SWAP(T, a, b)  \
+    do {               \
+        T tmp = a;     \
+        a = b;         \
+        b = tmp;       \
+    } while (0);
+
+static inline void
+revstr(char *s, size_t l, size_t r)
+{
+    while (l < r) {
+        SWAP(char, s[l], s[r]);
+        l++;
+        r--;
+    }
+}
