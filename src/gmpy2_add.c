@@ -210,9 +210,24 @@ GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     }
 
     if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
+        mpfr_exp_t _oldemin, _oldemax;
+        
         mpfr_clear_flags();
+        _oldemin = mpfr_get_emin();
+        _oldemax = mpfr_get_emax();
+        mpfr_set_emin(context->ctx.emin);
+        mpfr_set_emax(context->ctx.emax);
+        
         result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-        _GMPy_MPFR_Cleanup(&result, context);
+        
+        if (context->ctx.subnormalize) {
+            result->rc = mpfr_subnormalize(result->f, result->rc, GET_MPFR_ROUND(context));
+        }
+        
+        mpfr_set_emin(_oldemin);
+        mpfr_set_emax(_oldemax);
+        /* GMPY_MPFR_EXCEPTIONS(result, context); */
+        _GMPy_MPFR_CleanupV2(&result, context);
         return (PyObject*)result;
     }
 
@@ -329,6 +344,8 @@ PyDoc_STRVAR(GMPy_doc_function_add,
 static PyObject *
 GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
+    CHECK_CONTEXT(context);
+
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
 

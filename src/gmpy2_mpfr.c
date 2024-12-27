@@ -95,6 +95,44 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
     }
 }
 
+static inline void
+_GMPy_MPFR_CleanupV2(MPFR_Object **v, CTXT_Object *ctext)
+{
+    /* GMPY_MPFR_EXCEPTIONS(V, CTX) */
+    ctext->ctx.underflow |= mpfr_underflow_p();
+    ctext->ctx.overflow |= mpfr_overflow_p();
+    ctext->ctx.invalid |= mpfr_nanflag_p();
+    ctext->ctx.inexact |= mpfr_inexflag_p();
+    ctext->ctx.divzero |= mpfr_divby0_p();
+    if (ctext->ctx.traps) {
+        if ((ctext->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) {
+            PyErr_SetString(GMPyExc_Underflow, "underflow");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) {
+            PyErr_SetString(GMPyExc_Overflow, "overflow");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) {
+            PyErr_SetString(GMPyExc_Inexact, "inexact result");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) {
+            PyErr_SetString(GMPyExc_Invalid, "invalid operation");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) {
+            PyErr_SetString(GMPyExc_DivZero, "division by zero");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+    }
+}
+
 PyDoc_STRVAR(GMPy_doc_mpfr,
 "mpfr(n=0, /, precision=0)\n"
 "mpfr(n, /, precision, context)\n"
