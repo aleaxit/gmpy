@@ -31,7 +31,6 @@ jobs:
           CIBW_BEFORE_ALL_WINDOWS: msys2 -c scripts/cibw_before_all.sh
           CIBW_BEFORE_BUILD_WINDOWS: pip install wheel delvewheel
           CIBW_TEST_EXTRAS: tests
-          CIBW_TEST_SKIP: cp38-macosx_arm64
           CIBW_TEST_COMMAND: >
             pytest {package}/test/ &&
             python {package}/test_cython/runtests.py
