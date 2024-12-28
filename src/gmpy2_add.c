@@ -202,61 +202,184 @@ GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                       CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
+    mpfr_exp_t _oldemin, _oldemax;
 
+    /* 'result' should only be decref-ed by the error: block. */
+    
     if (!(result = GMPy_MPFR_New(0, context))) {
         /* LCOV_EXCL_START */
         return NULL;
         /* LCOV_EXCL_STOP */
     }
-
-    if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
-        mpfr_exp_t _oldemin, _oldemax;
-        
-        mpfr_clear_flags();
+    
+    /* Use the low-level mixed type functions provided by the MPFR library. */
+    
+    /* Save the current MPFR exponent values and set new exponent ranges
+     * from the context.
+     */
+     
+     {     
         _oldemin = mpfr_get_emin();
         _oldemax = mpfr_get_emax();
         mpfr_set_emin(context->ctx.emin);
         mpfr_set_emax(context->ctx.emax);
-        
-        result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-        
-        if (context->ctx.subnormalize) {
-            result->rc = mpfr_subnormalize(result->f, result->rc, GET_MPFR_ROUND(context));
-        }
-        
-        mpfr_set_emin(_oldemin);
-        mpfr_set_emax(_oldemax);
-        /* GMPY_MPFR_EXCEPTIONS(result, context); */
-        _GMPy_MPFR_CleanupV2(&result, context);
-        return (PyObject*)result;
-    }
-
-    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
-        MPFR_Object *tempx = NULL, *tempy = NULL;
-
-        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
-            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
-            /* LCOV_EXCL_START */
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-            /* LCOV_EXCL_STOP */
-        }
 
         mpfr_clear_flags();
-        result->rc = mpfr_add(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        _GMPy_MPFR_Cleanup(&result, context);
+        
+        if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
+            result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
+            goto cleanup;
+        }
+        
+        /* Handle arguments that fit in C long argument here. The 
+         * remaining PyLong values are processed later.
+         */
+         
+        if (IS_TYPE_MPFR(xtype) && IS_TYPE_PyInteger(ytype)) {
+            int error;
+            long temp = PyLong_AsLongAndOverflow(y, &error);
+            if (!error) {
+                result->rc = mpfr_add_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context)); 
+                goto cleanup;
+            }
+        }
+        
+        if (IS_TYPE_PyInteger(xtype) && IS_TYPE_MPFR(ytype)) {
+            int error;
+            long temp = PyLong_AsLongAndOverflow(x, &error);
+            if (!error) {
+                result->rc = mpfr_add_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context)); 
+                goto cleanup;
+           }
+        }
+        
+        if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPZANY(ytype)) {
+            result->rc = mpfr_add_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
+            goto cleanup;
+        }
+        
+        if (IS_TYPE_MPZANY(xtype) && IS_TYPE_MPFR(ytype)) {
+            result->rc = mpfr_add_z(result->f, MPFR(y), MPZ(x), GET_MPFR_ROUND(context));
+            goto cleanup;
+        }
+        
+        if (IS_TYPE_MPFR(xtype) && IS_TYPE_PyFloat(ytype)) {
+            result->rc = mpfr_add_d(result->f, MPFR(x), PyFloat_AsDouble(y), GET_MPFR_ROUND(context));
+            goto cleanup;
+        }
+        
+        if (IS_TYPE_PyFloat(xtype) && IS_TYPE_MPFR(ytype)) {
+            result->rc = mpfr_add_d(result->f, MPFR(y), PyFloat_AsDouble(x), GET_MPFR_ROUND(context));
+            goto cleanup;
+        }
+        
+        /* Process all remaining IS_TYPE_INTEGER values. */
+        
+        if (IS_TYPE_MPFR(xtype) && IS_TYPE_INTEGER(ytype)) {
+            MPZ_Object *tempy = NULL;
+
+            if (!(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
+                /* LCOV_EXCL_START */
+                Py_XDECREF((PyObject*)tempy);
+                goto error;
+                /* LCOV_EXCL_STOP */
+            }
+            result->rc = mpfr_add_z(result->f, MPFR(x), MPZ(tempy), GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempy);
+            goto cleanup;
+        }
+        
+        if (IS_TYPE_INTEGER(xtype) && IS_TYPE_MPFR(ytype)) {
+            MPZ_Object *tempx = NULL;
+
+            if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context))) {
+                /* LCOV_EXCL_START */
+                Py_XDECREF((PyObject*)tempx);
+                goto error;
+                /* LCOV_EXCL_STOP */
+            }
+            result->rc = mpfr_add_z(result->f, MPFR(y), MPZ(tempx), GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempx);
+            goto cleanup;
+        }
+        
+        
+        /* Process all IS_TYPE_RATIONAL values. */
+        
+        if (IS_TYPE_MPFR(xtype) && IS_TYPE_RATIONAL(ytype)) {
+            MPQ_Object *tempy = NULL;
+
+            if (!(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
+                /* LCOV_EXCL_START */
+                Py_XDECREF((PyObject*)tempy);
+                goto error;
+                /* LCOV_EXCL_STOP */
+            }
+            result->rc = mpfr_add_q(result->f, MPFR(x), MPQ(tempy), GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempy);
+            goto cleanup;
+        }
+        
+        if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_MPFR(ytype)) {
+            MPQ_Object *tempx = NULL;
+
+            if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context))) {
+                /* LCOV_EXCL_START */
+                Py_XDECREF((PyObject*)tempx);
+                goto error;
+                /* LCOV_EXCL_STOP */
+            }
+            result->rc = mpfr_add_q(result->f, MPFR(y), MPQ(tempx), GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempx);
+            goto cleanup;
+        }
+
+        /* Process all IS_TYPE_REAL values. */
+        
+        if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
+            MPFR_Object *tempx = NULL, *tempy = NULL;
+
+            if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+                !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
+                /* LCOV_EXCL_START */
+                Py_XDECREF((PyObject*)tempx);
+                Py_XDECREF((PyObject*)tempy);
+                goto error;
+                /* LCOV_EXCL_STOP */
+            }
+
+            result->rc = mpfr_add(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            goto cleanup;
+        }
+        
+        /* LCOV_EXCL_START */
+        Py_DECREF((PyObject*)result);
+        TYPE_ERROR("add() argument type not supported");
+        return NULL;
+        /* LCOV_EXCL_STOP */
+
+    cleanup:
+        /* Perform subnormalization if needed.
+         * Restore the previous exponent values.
+         * Generate exceptions.
+         */
+        if (context->ctx.subnormalize) 
+            result->rc = mpfr_subnormalize(result->f, result->rc, GET_MPFR_ROUND(context));
+        mpfr_set_emin(_oldemin);
+        mpfr_set_emax(_oldemax);
+        GMPY_MPFR_EXCEPTIONS(result, context);
         return (PyObject*)result;
+        
+    error:
+        /* Just restore the old exponent values and return NULL. */
+        mpfr_set_emin(_oldemin);
+        mpfr_set_emax(_oldemax);
+        Py_DECREF((PyObject*)result);
+        return NULL;
     }
 
-    /* LCOV_EXCL_START */
-    Py_DECREF((PyObject*)result);
-    TYPE_ERROR("add() argument type not supported");
-    return NULL;
-    /* LCOV_EXCL_STOP */
 }
 
 /* GMPy_Complex_Add(x, y, context) returns x+y using the provided context. If

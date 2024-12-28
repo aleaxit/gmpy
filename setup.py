@@ -31,7 +31,7 @@ class Gmpy2Build(build_ext):
 
     def initialize_options(self):
         build_ext.initialize_options(self)
-        self.fast = True
+        self.fast = False
         self.gcov = False
         self.vector = False
         self.static = False

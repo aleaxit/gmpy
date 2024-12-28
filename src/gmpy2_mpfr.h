@@ -194,6 +194,7 @@ static PyTypeObject MPFR_Type;
     } \
 
 static void _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext);
+static void _GMPy_MPFR_CleanupV2(MPFR_Object **v, CTXT_Object *ctext);
 
 #ifdef __cplusplus
 }
