@@ -57,5 +57,5 @@ gmpy2 = ['*.pxd', '*.h', '*.dll', '*.lib']
 
 [tool.pytest.ini_options]
 addopts = "--durations=10"
-norecursedirs = ['build', '.eggs', '.git']
+norecursedirs = ['build', '.eggs', '.git', '.hypothesis']
 xfail_strict = true
