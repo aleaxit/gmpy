@@ -646,11 +646,39 @@ GMPy_MPC_To_Binary(MPC_Object *obj)
     Py_DECREF((PyObject*)real);
     Py_DECREF((PyObject*)imag);
 
-    PyBytes_AS_STRING(result)[0] = 0x05;
-    PyBytes_AS_STRING(temp)[0] = 0x05;
+    Py_ssize_t result_size, temp_size;
+    char *result_str, *temp_str;
 
-    PyBytes_ConcatAndDel(&result, temp);
-    return result;
+    if ((PyBytes_AsStringAndSize(result, &result_str, &result_size) < 0)
+        || (PyBytes_AsStringAndSize(temp, &temp_str, &temp_size) < 0))
+    {
+        /* LCOV_EXCL_START */
+        Py_DECREF(result);
+        Py_DECREF(temp);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+    result_str[0] = 0x05;
+    temp_str[0] = 0x05;
+
+    char *buf = PyMem_Malloc(result_size + temp_size);
+
+    if (!buf) {
+        /* LCOV_EXCL_START */
+        Py_DECREF(result);
+        Py_DECREF(temp);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+    memcpy(buf, result_str, result_size);
+    memcpy(buf + result_size, temp_str, temp_size);
+    Py_DECREF(result);
+    Py_DECREF(temp);
+
+    PyObject *ret = PyBytes_FromStringAndSize(buf, result_size + temp_size);
+
+    PyMem_Free(buf);
+    return ret;
 }
 
 PyDoc_STRVAR(doc_from_binary,
