@@ -28,6 +28,7 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Programming Language :: Python :: 3.12',
                'Programming Language :: Python :: 3.13',
                'Programming Language :: Python :: Implementation :: CPython',
+               "Programming Language :: Python :: Implementation :: PyPy",
                'Topic :: Scientific/Engineering :: Mathematics',
                'Topic :: Software Development :: Libraries :: Python Modules']
 requires-python = '>=3.8'
@@ -56,5 +57,5 @@ gmpy2 = ['*.pxd', '*.h', '*.dll', '*.lib']
 
 [tool.pytest.ini_options]
 addopts = "--durations=10"
-norecursedirs = ['build', '.eggs', '.git']
+norecursedirs = ['build', '.eggs', '.git', '.hypothesis']
 xfail_strict = true
