@@ -84,7 +84,7 @@ static PyGetSetDef GMPy_XMPZ_getseters[] =
         "the denominator of a rational number in lowest terms", NULL },
     { "real", (getter)GMPy_XMPZ_Attrib_GetReal, NULL,
         "the real part of a complex number", NULL },
-    { "denominator", (getter)GMPy_XMPZ_Attrib_GetImag, NULL,
+    { "imag", (getter)GMPy_XMPZ_Attrib_GetImag, NULL,
         "the imaginary part of a complex number", NULL },
     {NULL}
 };
