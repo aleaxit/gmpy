@@ -1,4 +1,7 @@
+import platform
 import sys
+
+import pytest
 
 import gmpy2
 
@@ -17,6 +20,8 @@ def test_misc():
                                'under LGPL 3 or later.')
 
 
+@pytest.mark.skipif(platform.python_implementation() == "PyPy",
+                    reason="sys.getsizeof raises TypeError")
 def test_sizeof():
     assert sys.getsizeof(gmpy2.mpz(10)) > 0
     assert sys.getsizeof(gmpy2.mpfr('1.0')) > 0
