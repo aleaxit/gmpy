@@ -74,7 +74,7 @@ extensions = [
     Extension('gmpy2.gmpy2',
               sources=sources,
               include_dirs=include_dirs,
-              libraries=['mpc','mpfr','gmp'],
+              libraries=['mpc','mpfr','gmp'] + ([] if ON_WINDOWS else ['m']),
               library_dirs=library_dirs,
               extra_compile_args=_comp_args,
               )
