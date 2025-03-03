@@ -98,17 +98,6 @@
 #include <ctype.h>
 #include <signal.h>
 
-/*
- * we do have a dependence on Python's internals, specifically:
- * how Python "long int"s are internally represented.
- */
-
-#if PY_VERSION_HEX < 0x030B0000
-# include <longintrepr.h>
-#else
-# include <cpython/longintrepr.h>
-#endif
-
 #define GMPY2_MODULE
 #include "gmpy2.h"
 
