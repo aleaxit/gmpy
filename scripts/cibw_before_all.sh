@@ -58,7 +58,7 @@ cd ../
 cp $PREFIX/include/{gmp,mpfr,mpc}.h gmpy2/
 
 # -- generate *.lib files from *.dll on M$ Windows --
-if [ "$OSTYPE" = "msys" ]
+if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
 then
   # Set path to dumpbin & lib
   PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "Hostx86")/x64/"
