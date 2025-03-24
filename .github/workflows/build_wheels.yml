@@ -11,8 +11,6 @@ jobs:
         os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
     steps:
       - uses: actions/checkout@v4
-      - if: runner.os == 'macOS'
-        run: brew install pipx
       - uses: msys2/setup-msys2@v2
         name: Setup msys2
         with:
@@ -23,10 +21,10 @@ jobs:
           path-type: inherit
         if: ${{ matrix.os == 'windows-2022' }}
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v2.23.0
         env:
-          CIBW_PRERELEASE_PYTHONS: True
-          CIBW_SKIP: pp* *-win32
+          CIBW_ENABLE: pypy cpython-prerelease
+          CIBW_SKIP: pp38* pp39* *-win32
           CIBW_BEFORE_ALL: bash scripts/cibw_before_all.sh
           CIBW_BEFORE_ALL_WINDOWS: msys2 -c scripts/cibw_before_all.sh
           CIBW_BEFORE_BUILD_WINDOWS: pip install wheel delvewheel
