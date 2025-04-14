@@ -129,19 +129,19 @@ LGPL 3 or later.";
 typedef struct {
     mpz_t tempz;             /* Temporary variable used for integer conversions */
 
-    MPZ_Object *gmpympzcache[CACHE_SIZE];
+    MPZ_Object *gmpympzcache[CACHE_SIZE+1];
     int in_gmpympzcache;
 
-    XMPZ_Object *gmpyxmpzcache[CACHE_SIZE];
+    XMPZ_Object *gmpyxmpzcache[CACHE_SIZE+1];
     int in_gmpyxmpzcache;
 
-    MPQ_Object *gmpympqcache[CACHE_SIZE];
+    MPQ_Object *gmpympqcache[CACHE_SIZE+1];
     int in_gmpympqcache;
 
-    MPFR_Object *gmpympfrcache[CACHE_SIZE];
+    MPFR_Object *gmpympfrcache[CACHE_SIZE+1];
     int in_gmpympfrcache;
 
-    MPC_Object *gmpympccache[CACHE_SIZE];
+    MPC_Object *gmpympccache[CACHE_SIZE+1];
     int in_gmpympccache;
 } gmpy_global;
 
