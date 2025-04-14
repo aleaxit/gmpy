@@ -267,7 +267,7 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *const *args,
     round_digits = -round_digits;
 
     if ((result = GMPy_MPZ_New(NULL))) {
-        if ((unsigned)round_digits >= mpz_sizeinbase(MPZ(self), 10)) {
+        if ((unsigned)round_digits > mpz_sizeinbase(MPZ(self), 10)) {
             mpz_set_ui(result->z, 0);
         }
         else {
