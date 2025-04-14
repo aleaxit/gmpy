@@ -508,6 +508,9 @@ def test_mpz_round():
     raises(TypeError, lambda: round(mpz(123456),'a'))
     raises(TypeError, lambda: round(mpz(123456),'a',4))
 
+    # issue 552
+    assert round(mpz(501), -3) == mpz(1000)
+
 
 @settings(max_examples=10000)
 @given(integers())
