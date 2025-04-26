@@ -899,8 +899,6 @@ gmpy_exec(PyObject *gmpy_module)
             "copyreg.pickle(gmpy2.mpc, gmpy2_reducer)\n";
 
         namespace = PyDict_New();
-        result = NULL;
-
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         result = PyRun_String(enable_pickle, Py_file_input, namespace, namespace);
@@ -930,8 +928,6 @@ gmpy_exec(PyObject *gmpy_module)
             "numbers.Complex.register(gmpy2.mpc)\n"
         ;
         namespace = PyDict_New();
-        result = NULL;
-
         PyDict_SetItemString(namespace, "numbers", numbers_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         result = PyRun_String(register_numbers, Py_file_input,
@@ -941,7 +937,6 @@ gmpy_exec(PyObject *gmpy_module)
             PyErr_Clear();
             /* LCOV_EXCL_STOP */
         }
-
         Py_DECREF(namespace);
         Py_DECREF(numbers_module);
         Py_XDECREF(result);
