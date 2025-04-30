@@ -199,7 +199,11 @@ PyDoc_STRVAR(GMPy_doc_context_ieee,
 "ieee(size, /, subnormalize=True) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating-point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
-"32 greater than 128.");
+"32 greater than 128.\n\n"
+"Note that emax/emin attributes of the IEEE contexts have\n"
+"different meaning wrt the IEEE 754 standard: emax = e + 1 and\n"
+"emin = 4 - emax - precision, where e - maximum exponent\n"
+"in IEEE terms.");
 
 static PyObject *
 GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
