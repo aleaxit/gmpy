@@ -41,7 +41,7 @@ jobs:
           sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk lcov
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          pip install --upgrade pip 'setuptools<80'
           pip --verbose install --editable .[docs,tests]
       - name: Tests
         run: |
