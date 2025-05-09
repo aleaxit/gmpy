@@ -619,7 +619,7 @@ GMPy_MPC_Repr_Slot(MPC_Object *self)
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
     long rprec, iprec;
-    char fmtstr[60];
+    char fmtstr[100];
 
     mpc_get_prec2(&rbits, &ibits, MPC(self));
     rprec = (long)(log10(2) * (double)rbits) + 2;
