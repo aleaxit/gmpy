@@ -416,3 +416,12 @@ GMPy_MPQ_Method_Sizeof(PyObject *self, PyObject *other)
         (mpq_denref(MPQ(self))->_mp_alloc * sizeof(mp_limb_t)));
 }
 
+PyDoc_STRVAR(GMPy_doc_mpq_method_is_integer,
+"x.is_integer() -> bool\n\n"
+"Return `True` if x is an integer.");
+
+static PyObject *
+GMPy_MPQ_Method_IsInteger(PyObject *self, PyObject *other)
+{
+    return PyBool_FromLong(!mpz_cmp_ui(mpq_denref(MPQ(self)), 1));
+}

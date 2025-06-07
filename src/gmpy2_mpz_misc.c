@@ -1094,6 +1094,16 @@ GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpz_method_is_integer,
+"x.is_integer() -> bool\n\n"
+"Returns `True`.");
+
+static PyObject *
+GMPy_MPZ_Method_IsInteger(PyObject *self, PyObject *other)
+{
+    Py_RETURN_TRUE;
+}
+
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_square,
 "x.is_square() -> bool\n\n"
 "Returns `True` if x is a perfect square, else return `False`.");
