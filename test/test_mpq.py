@@ -567,6 +567,12 @@ def test_mpq_attributes():
     assert gmpy2.denom(pyq) == mpz(5)
 
 
+def test_mpq_is_integer():
+    assert mpq(0).is_integer()
+    assert mpq(123).is_integer()
+    assert not mpq(1, 2).is_integer()
+
+
 def test_mpq_conjugate():
     a = mpq(3, 11)
 

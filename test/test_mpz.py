@@ -1492,6 +1492,11 @@ def test_mpz_is_square():
     assert not mpz(17).is_square()
 
 
+def test_mpz_is_integer():
+    assert mpz(0).is_integer()
+    assert mpz(123).is_integer()
+
+
 def test_mpz_is_divisible():
     raises(TypeError, lambda: gmpy2.is_divisible())
     raises(TypeError, lambda: gmpy2.is_divisible('a',2))
