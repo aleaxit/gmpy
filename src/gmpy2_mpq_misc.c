@@ -417,7 +417,7 @@ GMPy_MPQ_Method_Limit_Denominator(PyObject *self, PyObject *const *args,
     const char *kwname;
 
     if (nargs > 1) {
-        TYPE_ERROR("limit_denominato() takes at most 1 positional arguments");
+        TYPE_ERROR("limit_denominator() takes at most 1 positional arguments");
         return NULL;
     }
     if (nargs >= 1) {
@@ -438,7 +438,7 @@ GMPy_MPQ_Method_Limit_Denominator(PyObject *self, PyObject *const *args,
                 argidx[0] = (int)(nargs + i);
             }
             else {
-                TYPE_ERROR("argument for limit_denominator() given by name ('max_denominator) and position (1)");
+                TYPE_ERROR("argument for limit_denominator() given by name ('max_denominator') and position (1)");
                 return NULL;
             }
         }
