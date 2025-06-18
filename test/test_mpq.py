@@ -642,3 +642,29 @@ def test_issue_334():
     assert x == mpq(3,2)
     assert y == mpq(3,4)
     assert id(x) is not id(y)
+
+
+def test_mpq_limit_denominator():
+    x = mpq(1, 2)
+
+    pytest.raises(TypeError, lambda: x.limit_denominator(1, 2))
+    pytest.raises(TypeError, lambda: x.limit_denominator(x=1, y=2))
+    pytest.raises(TypeError, lambda: x.limit_denominator(x=1))
+    pytest.raises(TypeError, lambda: x.limit_denominator(1, max_denominator=2))
+    pytest.raises(TypeError, lambda: x.limit_denominator(1.1))
+    pytest.raises(ValueError, lambda: x.limit_denominator(-10))
+
+    x = mpq('3.141592653589793')
+
+    assert x.limit_denominator(10) == mpq(22, 7)
+    assert x.limit_denominator(100) == mpq(311, 99)
+    assert mpq(4321, 8765).limit_denominator(10000) == mpq(4321, 8765)
+
+    x = mpq('3.1415926535897932')
+    assert x.limit_denominator(10000) == mpq(355, 113)
+    assert -x.limit_denominator(10000) == mpq(-355, 113)
+    assert x.limit_denominator(113) == mpq(355, 113)
+    assert x.limit_denominator(112) == mpq(333, 106)
+    assert mpq(201, 200).limit_denominator(100) == mpq(1)
+    assert mpq(201, 200).limit_denominator(101) == mpq(102, 101)
+    assert mpq(0).limit_denominator(10000) == mpq(0)
