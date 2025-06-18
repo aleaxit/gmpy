@@ -1,5 +1,5 @@
 [build-system]
-requires = ['setuptools>=61,<80']
+requires = ['setuptools>=77,<80']
 build-backend = 'setuptools.build_meta'
 
 [project]
@@ -8,13 +8,12 @@ version = '2.2.1'
 description = 'gmpy2 interface to GMP, MPFR, and MPC for Python 3.8+'
 keywords = ['gmp', 'mpfr', 'mpc', 'multiple-precision',
             'arbitrary-precision', 'precision', 'bignum']
-license = {text = 'LGPL-3.0+'}
+license = 'LGPL-3.0-or-later'
 authors = [{name = 'Case Van Horsen'}]
 maintainers = [{name = 'Case Van Horsen', email = 'casevh@gmail.com'}]
 classifiers = ['Development Status :: 5 - Production/Stable',
                'Intended Audience :: Developers',
                'Intended Audience :: Science/Research',
-               'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
                'Natural Language :: English',
                'Operating System :: MacOS :: MacOS X',
                'Operating System :: Microsoft :: Windows',
