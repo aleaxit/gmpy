@@ -1,4 +1,5 @@
 from fractions import Fraction
+import cmath
 
 import pytest
 from hypothesis import example, given, settings
@@ -293,6 +294,12 @@ def test_mpc_add():
 
     assert is_nan(x.real) and x.imag == 2.0
 
+    a = mpc('1-0j')
+    b = mpfr('1')
+    c = mpc('2-0j')
+
+    assert repr(a+b) == repr(b + a) == repr(c)
+
 
 def test_mpc_sub():
     pytest.raises(TypeError, lambda: mpc(1,2) - 'a')
@@ -330,6 +337,12 @@ def test_mpc_sub():
 
     assert is_nan(x.real) and x.imag == 2.0
 
+    a = mpc('1+0j')
+    b = mpfr('1')
+    c = mpc('0-0j')
+
+    assert repr(b - a) == repr(c)
+
 
 def test_mpc_mul():
     pytest.raises(TypeError, lambda: mpc(1,2) * 'a')
@@ -361,6 +374,12 @@ def test_mpc_mul():
     for x in [aj * float('nan'), mpc(0,0) * float('inf'),
               mpc(0,0) * float('-inf'), mpc(0,0) * float('nan')]:
         assert all(is_nan(_) for _ in [x.real, x.imag])
+
+    a = mpc('inf-1j')
+    b = mpfr('inf')
+    c = mpc('inf-infj')
+
+    assert a*b == b*a == c
 
 
 def test_mpc_divmod():
@@ -406,6 +425,12 @@ def test_mpc_div():
     assert aj / float('-inf') == mpc('-0.0-0.0j')
     assert float('inf') / aj == mpc('inf-infj')
     assert float('-inf') / aj == mpc('-inf+infj')
+
+    a = mpc('1-infj')
+    b = 1
+
+    assert a/b == a
+    assert repr(b/a) == repr(mpc(0))
 
 
 def test_mpc_mod():
@@ -465,3 +490,9 @@ def test_mpc_exc():
     ctx.trap_invalid = True
 
     pytest.raises(gmpy2.InvalidOperationError, lambda: mpc(mpfr('nan')))
+
+
+def test_issue_520():
+    z = gmpy2.mpc(-0.0, 2)
+    res = gmpy2.asinh(z)
+    assert cmath.isclose(gmpy2.log(z + gmpy2.sqrt(1 + z*z)), res)
