@@ -14,7 +14,9 @@ values.   The cutover point for performance varies, but can be as low as 20 to
     gmpy2 can crash the Python interpreter in case of memory allocation
     failure.  To mitigate this feature of memory management in the GMP library,
     you should estimate the size of all results and prevent calculations that
-    can exaust available memory.
+    can exaust available memory.  In case you are interested only in
+    the GMP bindings, you can use the
+    `python-gmp <https://pypi.org/project/python-gmp/>`_ package.
 
 The `mpfr` and `mpc` types provide support for correctly rounded multiple
 precision real and complex arithmetic via the MPFR and MPC libraries.  The
