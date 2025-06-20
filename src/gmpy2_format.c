@@ -208,6 +208,11 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
     int buflen;
     int seensign = 0, seenalign = 0, seendecimal = 0, seendigits = 0;
     int seenround = 0, seenconv = 0;
+    CTXT_Object *context = NULL;
+    mpfr_rnd_t ctx_round;
+
+    CHECK_CONTEXT(context);
+    ctx_round = GET_MPFR_ROUND(context);
 
     if (!MPFR_Check(self)) {
         TYPE_ERROR("requires mpfr type");
@@ -302,6 +307,26 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
         if (*p1 == 'a' || *p1 == 'A' || *p1 == 'b' || *p1 == 'e' ||
             *p1 == 'E' || *p1 == 'f' || *p1 == 'F' || *p1 == 'g' ||
             *p1 == 'G' ) {
+            if (!seenround) {
+                switch (ctx_round) {
+                    case MPFR_RNDD:
+                        *(p2++) = 'D';
+                        break;
+                    case MPFR_RNDU:
+                        *(p2++) = 'U';
+                        break;
+                    case MPFR_RNDZ:
+                        *(p2++) = 'Z';
+                        break;
+                    case MPFR_RNDA:
+                        *(p2++) = 'Y';
+                        break;
+                    case MPFR_RNDN:
+                    default:
+                        *(p2++) = 'N';
+                        break;
+                }
+            }
             *(p2++) = *p1;
             seenconv = 1;
             break;
@@ -393,6 +418,11 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
     int rbuflen, ibuflen;
     int seensign = 0, seenalign = 0, seendecimal = 0, seendigits = 0;
     int seenround = 0, seenconv = 0, seenstyle = 0, mpcstyle = 0;
+    CTXT_Object *context = NULL;
+    mpfr_rnd_t ctx_round;
+
+    CHECK_CONTEXT(context);
+    ctx_round = GET_MPFR_ROUND(context);
 
     if (!MPC_Check(self)) {
         TYPE_ERROR("requires 'mpc' object");
@@ -514,6 +544,32 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
         if (*p == 'a' || *p == 'A' || *p == 'b' || *p == 'e' ||
             *p == 'E' || *p == 'f' || *p == 'F' || *p == 'g' ||
             *p == 'G' ) {
+            if (!seenround) {
+                switch (ctx_round) {
+                    case MPFR_RNDD:
+                        *(rfmtptr++) = 'D';
+                        *(ifmtptr++) = 'D';
+                        break;
+                    case MPFR_RNDU:
+                        *(rfmtptr++) = 'U';
+                        *(ifmtptr++) = 'U';
+                        break;
+                    case MPFR_RNDZ:
+                        *(rfmtptr++) = 'Z';
+                        *(ifmtptr++) = 'Z';
+                        break;
+                    case MPFR_RNDA:
+                        *(rfmtptr++) = 'Y';
+                        *(ifmtptr++) = 'Y';
+                        break;
+                    case MPFR_RNDN:
+                    default:
+                        *(rfmtptr++) = 'N';
+                        *(ifmtptr++) = 'N';
+                        break;
+                }
+            }
+
             *(rfmtptr++) = *p;
             *(ifmtptr++) = *p;
             seenconv = 1;
