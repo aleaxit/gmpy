@@ -342,6 +342,12 @@ def test_mpfr_format():
     pytest.raises(ValueError, lambda: '{:->}'.format(r))
     pytest.raises(ValueError, lambda: '{:YZ}'.format(r))
 
+    # issue 503
+    r = mpfr(2.675)
+    assert f'{r:.2f}' == '2.67'
+    gmpy2.set_context(gmpy2.context(round=gmpy2.RoundUp))
+    assert f'{r:.2f}' == '2.68'
+
 
 def test_mpfr_digits():
     r, r2 = mpfr(5.6), mpfr(5)

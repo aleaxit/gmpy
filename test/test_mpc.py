@@ -214,6 +214,12 @@ def test_mpc_format():
     assert '{:e}'.format(c) in ('3.3333333333333331e-01+5e+00j', '3.3333333333333331e-01+5.0000000000000000e+00j')
     assert '{:M}'.format(c1) == '(-1.000000 -2.000000)'
 
+    # issue 503
+    c = mpc(2.675)
+    assert f'{c:.2f}' == '2.67+0.00j'
+    gmpy2.set_context(gmpy2.context(round=gmpy2.RoundUp))
+    assert f'{c:.2f}' == '2.68+0.00j'
+
 
 def test_mpc_repr():
     c = mpc('1.2999999999999999999999999999994-4.7000000000000000000000000000000025j',(100,110))
