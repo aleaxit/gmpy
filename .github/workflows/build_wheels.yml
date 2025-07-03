@@ -20,6 +20,7 @@ jobs:
             autotools
           msystem: ucrt64
           path-type: inherit
+          release: true
         if: ${{ matrix.os == 'windows-2022' }}
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.0
