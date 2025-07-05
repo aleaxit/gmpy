@@ -90,7 +90,12 @@ then
     cat ${exports_file} | awk 'NR>19 && $4 != "" {print $4 " @"$1}' >> ${def_file}
     sed -i 's/$/\r/' ${def_file}
 
-    lib //def:${def_file} //out:${lib_file} //machine:x64
+    if [ "${RUNNER_ARCH}" = "ARM64" ]
+    then
+      lib //def:${def_file} //out:${lib_file} //machine:arm64
+    else
+      lib //def:${def_file} //out:${lib_file} //machine:x64
+    fi
 
     rm ${exports_file} ${def_file} ${lib_name}.exp
     mv ${lib_file} ${name}.lib
