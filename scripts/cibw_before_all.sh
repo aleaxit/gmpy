@@ -68,6 +68,7 @@ then
   if [ "${RUNNER_ARCH}" = "ARM64" ]
   then
     PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "HostARM64")/ARM64/"
+    PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/HostARM64/ARM64/"
   else
     PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "Hostx86")/x64/"
   fi
