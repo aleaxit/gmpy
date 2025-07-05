@@ -64,10 +64,8 @@ cp $PREFIX/include/{gmp,mpfr,mpc}.h gmpy2/
 # -- generate *.lib files from *.dll on M$ Windows --
 if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
 then
-  echo "Archs: ${CIBW_ARCHS}"
-  set
   # Set path to dumpbin & lib
-  if [ "${CIBW_ARCHS}" = "ARM64" ]
+  if [ "${RUNNER_ARCH}" = "ARM64" ]
   then
     PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "HostARM64")/ARM64/"
   else
