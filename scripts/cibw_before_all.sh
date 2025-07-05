@@ -61,6 +61,7 @@ cp $PREFIX/include/{gmp,mpfr,mpc}.h gmpy2/
 if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
 then
   echo "Archs: ${CIBW_ARCHS}"
+  set
   # Set path to dumpbin & lib
   if [ "${CIBW_ARCHS}" = "ARM64" ]
   then
