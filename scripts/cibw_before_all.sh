@@ -15,15 +15,26 @@ cd gmp-${GMP_VERSION}
 # Patch the mp_bitcnt_t to "unsigned long long int" on WINDOWS AMD64:
 patch -N -Z -p0 < ../scripts/mp_bitcnt_t.diff
 patch -N -Z -p0 < ../scripts/fat_build_fix.diff
+CONFIG_ARGS="--enable-shared --with-pic --prefix=$PREFIX"
 if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
 then
   patch -N -Z -p0 < ../scripts/dll-importexport.diff
+  if [ "${RUNNER_ARCH}" = "ARM64" ]
+  then
+    ${CONFIG_ARGS}="${CONFIG_ARGS} --disable-assembly"
+  else
+    ${CONFIG_ARGS}="${CONFIG_ARGS} --enable-fat"
+  fi
+else
+  ${CONFIG_ARGS}="${CONFIG_ARGS} --enable-fat"
 fi
 # config.guess uses microarchitecture and configfsf.guess doesn't
 # We replace config.guess with configfsf.guess to avoid microarchitecture
 # specific code in common code.
 rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
-./configure --enable-fat \
+./configure ${CONFIG_ARGS}
+
+--enable-fat \
             --enable-shared \
             --disable-static \
             --with-pic \
@@ -65,8 +76,13 @@ cp $PREFIX/include/{gmp,mpfr,mpc}.h gmpy2/
 if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
 then
   # Set path to dumpbin & lib
-  PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "Hostx86")/x64/"
-
+  if [ "${RUNNER_ARCH}" = "ARM64" ]
+  then
+    PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "HostARM64")/ARM64/"
+    PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/HostARM64/ARM64/"
+  else
+    PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "Hostx86")/x64/"
+  fi
   # See http://stackoverflow.com/questions/9946322/
   cd .local/bin
   for dll_file in libgmp-10.dll libmpfr-6.dll libmpc-3.dll
@@ -84,8 +100,12 @@ then
     cat ${exports_file} | awk 'NR>19 && $4 != "" {print $4 " @"$1}' >> ${def_file}
     sed -i 's/$/\r/' ${def_file}
 
-    lib //def:${def_file} //out:${lib_file} //machine:x64
-
+    if [ "${RUNNER_ARCH}" = "ARM64" ]
+    then
+      lib //def:${def_file} //out:${lib_file} //machine:arm64
+    else
+      lib //def:${def_file} //out:${lib_file} //machine:x64
+    fi
     rm ${exports_file} ${def_file} ${lib_name}.exp
     mv ${lib_file} ${name}.lib
   done
