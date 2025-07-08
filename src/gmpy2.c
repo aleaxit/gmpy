@@ -127,8 +127,6 @@ LGPL 3 or later.";
 #define MAX_CACHE_MPFR_BITS (1024)
 
 typedef struct {
-    mpz_t tempz;             /* Temporary variable used for integer conversions */
-
     MPZ_Object *gmpympzcache[CACHE_SIZE+1];
     int in_gmpympzcache;
 
