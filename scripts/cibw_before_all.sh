@@ -21,24 +21,18 @@ then
   patch -N -Z -p0 < ../scripts/dll-importexport.diff
   if [ "${RUNNER_ARCH}" = "ARM64" ]
   then
-    ${CONFIG_ARGS}="${CONFIG_ARGS} --disable-assembly"
+    CONFIG_ARGS="${CONFIG_ARGS} --disable-assembly"
   else
-    ${CONFIG_ARGS}="${CONFIG_ARGS} --enable-fat"
+    CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
   fi
 else
-  ${CONFIG_ARGS}="${CONFIG_ARGS} --enable-fat"
+  CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
 fi
 # config.guess uses microarchitecture and configfsf.guess doesn't
 # We replace config.guess with configfsf.guess to avoid microarchitecture
 # specific code in common code.
 rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
 ./configure ${CONFIG_ARGS}
-
---enable-fat \
-            --enable-shared \
-            --disable-static \
-            --with-pic \
-            --prefix=$PREFIX
 make -j6
 make install
 cd ../
