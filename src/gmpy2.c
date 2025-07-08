@@ -118,7 +118,7 @@ LGPL 3 or later.";
 /* The following global structures are used by gmpy_cache.c.
  */
 
-#ifndef PYPY_VERSION
+#if !defined(PYPY_VERSION) && !Py_GIL_DISABLED
 #define CACHE_SIZE (100)
 #else
 #define CACHE_SIZE (0)
@@ -961,7 +961,7 @@ static PyModuleDef_Slot Pygmpy_slots[] = {
      Py_MOD_MULTIPLE_INTERPRETERS_NOT_SUPPORTED},
 #  endif
 #  if PY_VERSION_HEX >= 0x030D0000
-    {Py_mod_gil, Py_MOD_GIL_USED},
+    {Py_mod_gil, Py_MOD_GIL_NOT_USED},
 #  endif
     {0, NULL}
 };
