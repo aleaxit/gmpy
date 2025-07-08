@@ -15,7 +15,7 @@ cd gmp-${GMP_VERSION}
 # Patch the mp_bitcnt_t to "unsigned long long int" on WINDOWS AMD64:
 patch -N -Z -p0 < ../scripts/mp_bitcnt_t.diff
 patch -N -Z -p0 < ../scripts/fat_build_fix.diff
-CONFIG_ARGS="--enable-shared --with-pic --prefix=$PREFIX"
+CONFIG_ARGS="--enable-shared --disable-static --with-pic --prefix=$PREFIX"
 if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
 then
   patch -N -Z -p0 < ../scripts/dll-importexport.diff
