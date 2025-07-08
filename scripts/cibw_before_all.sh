@@ -65,13 +65,7 @@ cp $PREFIX/include/{gmp,mpfr,mpc}.h gmpy2/
 if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
 then
   # Set path to dumpbin & lib
-  if [ "${RUNNER_ARCH}" = "ARM64" ]
-  then
-    PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "HostARM64")/ARM64/"
-    PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/HostARM64/ARM64/"
-  else
-    PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "Hostx86")/x64/"
-  fi
+  PATH="$PATH:$(find "/c/Program Files/Microsoft Visual Studio/2022/" -name "Hostx86")/x64/"
 
   # See http://stackoverflow.com/questions/9946322/
   cd .local/bin
@@ -90,12 +84,7 @@ then
     cat ${exports_file} | awk 'NR>19 && $4 != "" {print $4 " @"$1}' >> ${def_file}
     sed -i 's/$/\r/' ${def_file}
 
-    if [ "${RUNNER_ARCH}" = "ARM64" ]
-    then
-      lib //def:${def_file} //out:${lib_file} //machine:arm64
-    else
-      lib //def:${def_file} //out:${lib_file} //machine:x64
-    fi
+    lib //def:${def_file} //out:${lib_file} //machine:x64
 
     rm ${exports_file} ${def_file} ${lib_name}.exp
     mv ${lib_file} ${name}.lib

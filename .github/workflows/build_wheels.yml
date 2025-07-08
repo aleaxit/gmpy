@@ -9,17 +9,24 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04-arm, macos-13, macos-14, macos-15,
-             windows-2022, windows-11-arm]
+             windows-2022]
+        msystem: [ucrt64]
+        menv: [ucrt-x86_64]
+        include:
+          - os: windows-11-arm
+            msystem: clangarm64
+            menv: clang-aarch64
     steps:
       - uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2.27.0
         name: Setup msys2
         with:
           install: >-
-            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-${{ matrix.menv }}-gcc
             autotools
-          msystem: ucrt64
+          msystem: ${{ matrix.msystem }}
           path-type: inherit
+          release: true
         if: contains(matrix.os, 'windows')
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.0
