@@ -118,7 +118,7 @@ LGPL 3 or later.";
 /* The following global structures are used by gmpy_cache.c.
  */
 
-#ifndef PYPY_VERSION
+#if !defined(PYPY_VERSION) && !defined(Py_GIL_DISABLED)
 #define CACHE_SIZE (100)
 #else
 #define CACHE_SIZE (0)
@@ -127,8 +127,6 @@ LGPL 3 or later.";
 #define MAX_CACHE_MPFR_BITS (1024)
 
 typedef struct {
-    mpz_t tempz;             /* Temporary variable used for integer conversions */
-
     MPZ_Object *gmpympzcache[CACHE_SIZE+1];
     int in_gmpympzcache;
 
@@ -169,17 +167,6 @@ static PyObject *GMPyExc_Invalid = NULL;
 static PyObject *GMPyExc_Overflow = NULL;
 static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
-
-#ifndef PYPY_VERSION
-/*
- * Parameters of Python’s internal representation of integers.
- */
-
-
-size_t int_digit_size, int_nails, int_bits_per_digit;
-int int_digits_order, int_endianness;
-#endif
-
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * End of global data declarations.                                        *
@@ -582,17 +569,6 @@ gmpy_exec(PyObject *gmpy_module)
     PyObject* xmpz = NULL;
     PyObject* limb_size = NULL;
 
-#ifndef PYPY_VERSION
-    /* Query parameters of Python’s internal representation of integers. */
-    const PyLongLayout *layout = PyLong_GetNativeLayout();
-
-    int_digit_size = layout->digit_size;
-    int_digits_order = layout->digits_order;
-    int_bits_per_digit = layout->bits_per_digit;
-    int_nails = int_digit_size*8 - int_bits_per_digit;
-    int_endianness = layout->digit_endianness;
-#endif
-
 #ifndef STATIC
     static void *GMPy_C_API[GMPy_API_pointers];
     PyObject *c_api_object;
@@ -961,7 +937,7 @@ static PyModuleDef_Slot Pygmpy_slots[] = {
      Py_MOD_MULTIPLE_INTERPRETERS_NOT_SUPPORTED},
 #  endif
 #  if PY_VERSION_HEX >= 0x030D0000
-    {Py_mod_gil, Py_MOD_GIL_USED},
+    {Py_mod_gil, Py_MOD_GIL_NOT_USED},
 #  endif
     {0, NULL}
 };

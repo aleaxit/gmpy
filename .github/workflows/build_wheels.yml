@@ -23,7 +23,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.0
         env:
-          CIBW_ENABLE: pypy cpython-prerelease
+          CIBW_ENABLE: pypy cpython-prerelease cpython-freethreading
           CIBW_SKIP: pp38* pp39* *-win32 *-manylinux_armv7l
           CIBW_BEFORE_ALL: bash scripts/cibw_before_all.sh
           CIBW_BEFORE_ALL_WINDOWS: msys2 -c scripts/cibw_before_all.sh
