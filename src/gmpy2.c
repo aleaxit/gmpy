@@ -103,7 +103,6 @@
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Global data declarations begin here.                                    *
- * NOTE: Because of these global declarations, GMPY2 is not thread-safe!   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* The following global strings are used by gmpy_misc.c. */

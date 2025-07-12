@@ -26,5 +26,12 @@ raise an exception.  It is possible to specify different precision and rounding
 modes for both the real and imaginary components of an `mpc`.  The default
 precision is 53 bits --- just same as for Python's `float` and `complex` types.
 
+.. warning::
+
+   The gmpy2 has support for :term:`free threading` builds of the CPython.  But
+   this requires using thread-local storage for the MPFR data, such as as
+   flags, the exponent range, the default precision, etc.  That is, the MPFR
+   should be build with the ``--enable-thread-safe`` configure option.
+
 Operator overloading is fully supported.  Coversion from native Python types is
 optimized for performance.
