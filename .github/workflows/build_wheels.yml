@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04-arm, macos-13, macos-14, macos-15, windows-2022]
+        os: [ubuntu-22.04, ubuntu-24.04-arm, macos-13, macos-14, windows-2022]
     steps:
       - uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2.27.0
