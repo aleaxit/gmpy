@@ -18,9 +18,13 @@ jobs:
             mingw-w64-ucrt-x86_64-gcc
             autotools
             patch
-            base-devel
+            autoconf-wrapper
           msystem: ucrt64
         if: ${{ matrix.os == 'windows-2022' }}
+      - run: brew install autoconf
+        if: ${{ startsWith( matrix.os , 'macos' ) }}
+      - run: sudo apt install autoconf
+        if: ${{ startsWith( matrix.os , 'ubuntu' ) }}
       # Install pkgconfig on Windows from choco rather than from msys and
       # avoid using the Strawberry one.
       - run: choco install -y --stoponfirstfailure --checksum 6004DF17818F5A6DBF19CB335CC92702 pkgconfiglite
