@@ -22,7 +22,7 @@ import os
 try:
     import Cython
 except ImportError:
-    sys.stderr.write('Cython is not installed... skipping cython tests')
+    sys.stderr.write('Cython is not installed... skipping cython tests\n')
     sys.exit(0)
 
 print()
