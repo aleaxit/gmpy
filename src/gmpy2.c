@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2024 Case Van Horsen                                   *
+ * Copyright 2008 - 2025 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -107,7 +107,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.2.1";
+char gmpy_version[] = "2.2.2a1";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
@@ -521,7 +521,7 @@ static PyMethodDef Pygmpy_methods [] =
 };
 
 static char _gmpy_docs[] =
-"gmpy2 2.2.1 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.2.2 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by the GMP library. Real floating-\n"

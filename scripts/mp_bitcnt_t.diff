@@ -1,5 +1,5 @@
---- gmp-h.in.orig	2024-03-24 10:55:03.711573465 +0300
-+++ gmp-h.in	2024-03-24 10:58:02.762349548 +0300
+--- gmp-h.in.orig	2025-03-24 10:55:03.711573465 +0300
++++ gmp-h.in	2025-03-24 10:58:02.762349548 +0300
 @@ -143,7 +143,11 @@
  typedef long int		mp_limb_signed_t;
  #endif
@@ -12,8 +12,8 @@
  
  /* For reference, note that the name __mpz_struct gets into C++ mangled
     function names, which means although the "__" suggests an internal, we
---- mpz/millerrabin.c.orig	2024-03-24 10:59:05.420511561 +0300
-+++ mpz/millerrabin.c	2024-03-24 10:59:11.428335102 +0300
+--- mpz/millerrabin.c.orig	2025-03-24 10:59:05.420511561 +0300
++++ mpz/millerrabin.c	2025-03-24 10:59:11.428335102 +0300
 @@ -59,7 +59,7 @@
  
  static int millerrabin (mpz_srcptr,
