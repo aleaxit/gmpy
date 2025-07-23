@@ -6,6 +6,8 @@ GMP_VERSION=6.3.0
 MPFR_VERSION=4.2.1
 MPC_VERSION=1.3.1
 
+unset CFLAGS
+
 PREFIX="$(pwd)/.local/"
 
 # -- build GMP --
