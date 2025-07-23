@@ -10,12 +10,12 @@ gmpy2 2.2.2
 -----------
 
 * Many bug fixes.
-* Initial support for free threaded buidsl
+* Initial support for free-threaded builds.
 
 gmpy2 2.2.1
 -----------
 
-* Bug fix: use C int instead of C char for some internal code. Issue
+* Bug fix: use C int instead of C char for some internal code.
 * Bug fix: add xmpz.bit_count method.
 
 gmpy2 2.2.0
