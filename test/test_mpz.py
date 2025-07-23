@@ -1,6 +1,7 @@
 import math
 import numbers
 import pickle
+from concurrent.futures import ThreadPoolExecutor
 from fractions import Fraction
 
 import pytest
@@ -1804,3 +1805,20 @@ def test_mpz_array():
     raises(TypeError, lambda: m.__array__(int, dtype=None))
     raises(TypeError, lambda: m.__array__(int, None, copy=None))
     raises(TypeError, lambda: m.__array__(spam=123))
+
+
+def test_mpz_thread_safe():
+    def worker():
+        ctx = gmpy2.get_context()
+        a = mpz(-1)
+        b = abs(a) + 2
+        a = b - 2
+        assert str(a/b) == '0.33333333333333331'
+        del a
+        ctx.rational_division = True
+        a = b - 2
+        assert str(a/b) == '1/3'
+        del b
+    tpe = ThreadPoolExecutor(max_workers=20)
+    for _ in range(1000):
+        tpe.submit(worker)

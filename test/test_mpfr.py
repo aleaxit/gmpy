@@ -1,6 +1,7 @@
 import math
 import pickle
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from fractions import Fraction
 
@@ -929,3 +930,25 @@ def test_issue_540():
     ctxD = gmpy2.context(round=gmpy2.RoundDown)
 
     assert ctxD.div(a, b) == mpfr('0.099999999999999992')
+
+
+def test_mpfr_thread_safe():
+    def worker():
+        ctx = gmpy2.get_context()
+        ctx.clear_flags()
+        a = mpfr("1.2")
+        assert a.rc == -1
+        assert ctx.inexact
+        ctx.clear_flags()
+        a = mpfr("1")
+        assert a == 1
+        assert a.rc == 0
+        assert ctx.inexact is False
+        ctx.clear_flags()
+        a = mpfr("2.1")
+        assert a == 2.1
+        assert a.rc == 1
+        assert ctx.inexact
+    tpe = ThreadPoolExecutor(max_workers=20)
+    for _ in range(1000):
+        tpe.submit(worker)

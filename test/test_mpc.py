@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from fractions import Fraction
 import cmath
 
@@ -502,3 +503,11 @@ def test_issue_520():
     z = gmpy2.mpc(-0.0, 2)
     res = gmpy2.asinh(z)
     assert cmath.isclose(gmpy2.log(z + gmpy2.sqrt(1 + z*z)), res)
+
+
+def test_mpc_thread_safe():
+    def worker():
+        test_mpc_creation()
+    tpe = ThreadPoolExecutor(max_workers=20)
+    for _ in range(1000):
+        tpe.submit(worker)

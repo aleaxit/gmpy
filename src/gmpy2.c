@@ -103,7 +103,6 @@
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Global data declarations begin here.                                    *
- * NOTE: Because of these global declarations, GMPY2 is not thread-safe!   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* The following global strings are used by gmpy_misc.c. */
@@ -118,7 +117,7 @@ LGPL 3 or later.";
 /* The following global structures are used by gmpy_cache.c.
  */
 
-#if !defined(PYPY_VERSION) && !defined(Py_GIL_DISABLED)
+#if !defined(PYPY_VERSION)
 #define CACHE_SIZE (100)
 #else
 #define CACHE_SIZE (0)
@@ -143,7 +142,13 @@ typedef struct {
     int in_gmpympccache;
 } gmpy_global;
 
-static gmpy_global global = {
+#if !defined(_MSC_VER)
+#  define _Py_thread_local _Thread_local
+#else
+#  define _Py_thread_local __declspec(thread)
+#endif
+
+_Py_thread_local gmpy_global global = {
     .in_gmpympzcache = 0,
     .in_gmpyxmpzcache = 0,
     .in_gmpympqcache = 0,

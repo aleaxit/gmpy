@@ -26,7 +26,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3.11, pypy3.10, pypy3.11, 3.13, 3.13t, 3.14]
+        python-version: [3.9, 3.11, pypy3.10, pypy3.11, 3.13, 3.13t,
+                         3.14, 3.14t]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
