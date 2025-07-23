@@ -52,7 +52,7 @@ xfail_strict = true
 
 [tool.cibuildwheel]
 build-frontend = {name="build", args=["--verbose"]}
-enable = "pypy cpython-prerelease cpython-freethreading graalpy"
+enable = "pypy cpython-prerelease cpython-freethreading"
 skip = """*-win32 *-manylinux_i686 *-musllinux_* \
           *-manylinux_armv7l pp310* pp*aarch64* gp3*win*"""
 before-all = "bash scripts/cibw_before_all.sh"
