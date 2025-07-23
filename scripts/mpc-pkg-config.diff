@@ -10,3 +10,12 @@
  EXTRA_HEADERS = src/mpc-log.h
  include_HEADERS = src/mpc.h @MPC_LOG_H@
  EXTRA_DIST = doc/fdl-1.3.texi src/mpc-log.h
+--- configure.ac.orig	2025-07-23 13:08:02.530282559 +0300
++++ configure.ac	2025-07-23 13:09:29.387694042 +0300
+@@ -232,5 +232,5 @@
+    CFLAGS="$CFLAGS -Werror"
+ fi
+ 
+-AC_CONFIG_FILES([src/mpc.h src/mpc-impl.h Makefile src/Makefile tests/Makefile doc/Makefile tools/Makefile tools/bench/Makefile tools/mpcheck/Makefile])
++AC_CONFIG_FILES([src/mpc.h src/mpc-impl.h mpc.pc Makefile src/Makefile tests/Makefile doc/Makefile tools/Makefile tools/bench/Makefile tools/mpcheck/Makefile])
+ AC_OUTPUT
