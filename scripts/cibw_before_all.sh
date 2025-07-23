@@ -64,7 +64,9 @@ Version: @PACKAGE_VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -lgmp
 EOF
+patch -N -Z -p0 < ../scripts/mpc-pkg-config.diff
 autoreconf -vfi
+ls -la
 ./configure --enable-shared \
             --disable-static \
             --with-pic \
