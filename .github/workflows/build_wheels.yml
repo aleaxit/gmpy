@@ -18,6 +18,7 @@ jobs:
             mingw-w64-ucrt-x86_64-gcc
             autotools
             patch
+            base-devel
           msystem: ucrt64
         if: ${{ matrix.os == 'windows-2022' }}
       # Install pkgconfig on Windows from choco rather than from msys and
