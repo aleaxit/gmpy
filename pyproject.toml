@@ -61,11 +61,11 @@ test-extras = "tests"
 #                  python {package}/test_cython/runtests.py"""
 test-command = "pytest {package}/test"
 
-[tool.cibuildwheel.linux]
-before-test = "sudo apt install libmpc-dev"
+#[tool.cibuildwheel.linux]
+#before-test = "sudo apt install libmpc-dev"
 
-[tool.cibuildwheel.macos]
-before-test = "brew install libmpc"
+#[tool.cibuildwheel.macos]
+#before-test = "brew install libmpc"
 
 [tool.cibuildwheel.environment]
 LD_LIBRARY_PATH = "$(pwd)/.local/lib:$LD_LIBRARY_PATH"
@@ -79,7 +79,7 @@ before-build = "pip install wheel delvewheel"
 repair-wheel-command = """delvewheel repair -w {dest_dir} {wheel} \
                           --add-path .local/bin --no-mangle-all \
                           --include-imports"""
-before-test = "pacman -S --noconfirm mpc-devel"
+#before-test = "pacman -S --noconfirm mpc-devel"
 
 [tool.cibuildwheel.windows.environment]
 PYTEST_ADDOPTS = "--verbose"
