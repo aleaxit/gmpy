@@ -17,9 +17,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
       - run: pip install --upgrade pip
-      - run: pip --verbose install --editable .[tests]
+      - run: pip --verbose install .[tests]
       - run: pytest test/
-      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+      - run: python test_cython/runtests.py
         if: ${{ matrix.python-version != '3.13' }}
 
   linux:
@@ -42,12 +42,12 @@ jobs:
           sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk lcov
       - name: Install dependencies
         run: |
-          pip install --upgrade pip 'setuptools<80'
-          pip --verbose install --editable .[docs,tests]
+          pip install --upgrade pip
+          pip --verbose install .[docs,tests]
       - name: Tests
         run: |
           pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+          python test_cython/runtests.py
       - name: Building docs
         if: matrix.python-version == 3.11
         run: |
@@ -56,15 +56,15 @@ jobs:
           sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
           make -C build/sphinx/latex all-pdf
       # XXX: why this doesn't work with pip install --editable above?
-      - name: Run coverage tests
-        run: |
-          pip uninstall -y gmpy2
-          python setup.py clean
-          CFLAGS="-coverage" python setup.py develop
-          pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
-          lcov --capture --directory . --no-external --output-file build/coverage.info
-          genhtml build/coverage.info --output-directory build/coverage
+#     - name: Run coverage tests
+#       run: |
+#         pip uninstall -y gmpy2
+#         python setup.py clean
+#         CFLAGS="-coverage" python setup.py develop
+#         pytest test/
+#         PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+#         lcov --capture --directory . --no-external --output-file build/coverage.info
+#         genhtml build/coverage.info --output-directory build/coverage
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         if: matrix.python-version == 3.11
@@ -73,7 +73,7 @@ jobs:
             build/sphinx/doctest/
             build/sphinx/html/
             build/sphinx/latex/gmpy2.pdf
-            build/coverage/
+#           build/coverage/
 
   windows:
     strategy:
@@ -102,6 +102,6 @@ jobs:
           python -m venv .test-venv
           source .test-venv/bin/activate
           pip install --upgrade pip
-          pip --verbose install -e .[tests]
+          pip --verbose install .[tests]
           pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+          python test_cython/runtests.py
