@@ -21,9 +21,9 @@ jobs:
             autoconf-wrapper
           msystem: ucrt64
         if: ${{ matrix.os == 'windows-2022' }}
-      - run: brew install autoconf
+      - run: brew install autoconf automake libtool
         if: ${{ startsWith( matrix.os , 'macos' ) }}
-      - run: sudo apt install autoconf
+      - run: sudo apt install autoconf automake libtool
         if: ${{ startsWith( matrix.os , 'ubuntu' ) }}
       # Install pkgconfig on Windows from choco rather than from msys and
       # avoid using the Strawberry one.
