@@ -50,6 +50,21 @@ cd ../
 curl -s -O https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
 tar -xf mpc-${MPC_VERSION}.tar.gz
 cd mpc-${MPC_VERSION}
+# add pkg-config data
+cat > mpc.pc.in <<'EOF'
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+Name: @PACKAGE_NAME@
+Description: GNU MPC is a complex floating-point library with exact rounding.
+URL: https://www.multiprecision.org/
+Version: @PACKAGE_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir} -lgmp
+EOF
+autoreconf -vfi
 ./configure --enable-shared \
             --disable-static \
             --with-pic \
