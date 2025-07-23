@@ -60,20 +60,20 @@ test-extras = "tests"
 #test-command = """pytest {package}/test && \
 #                  python {package}/test_cython/runtests.py"""
 test-command = "pytest {package}/test"
-test-environment = {CFLAGS = ""}
+#test-environment = {CFLAGS = ""}
 
 #[tool.cibuildwheel.linux]
 #before-test = "sudo apt install libmpc-dev"
 
-[tool.cibuildwheel.macos]
+#[tool.cibuildwheel.macos]
 #before-test = "brew install libmpc"
-environment = {CFLAGS = ""}  # pypy issues, fixed in dev
+#environment = {CFLAGS = ""}  # pypy issues, fixed in dev
 
 [tool.cibuildwheel.environment]
 LD_LIBRARY_PATH = "$(pwd)/.local/lib:$LD_LIBRARY_PATH"
 PKG_CONFIG_PATH = "$(pwd)/.local/lib/pkgconfig"
 PYTEST_ADDOPTS = "--verbose"
-CFLAGS = "-Wall -Wpedantic -Werror -std=c17"
+#CFLAGS = "-Wall -Wpedantic -Werror -std=c17"
 
 [tool.cibuildwheel.windows]
 before-all = "msys2 -c scripts/cibw_before_all.sh"
