@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3.11, pypy3.10, pypy3.11, 3.13, 3.13t,
+        python-version: [3.9, '3.10', 3.11, pypy3.11, 3.12, 3.13, 3.13t,
                          3.14, 3.14t]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
+          pip --verbose install .[docs,tests] -Csetup-args=-Dbuildtype=debug
         env:
           PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
       - name: Tests
@@ -99,7 +99,7 @@ jobs:
         shell: msys2 {0}
     steps:
       - uses: actions/checkout@v4
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@v2.27.0
         name: Setup msys2
         with:
           install: >-
