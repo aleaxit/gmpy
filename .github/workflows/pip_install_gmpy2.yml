@@ -49,18 +49,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install texlive texlive-latex-extra latexmk lcov
       - run: bash scripts/cibw_before_all.sh
+      - run: pip install --upgrade pip
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip --verbose install .[docs,tests] -Csetup-args=-Dbuildtype=debug
+          pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
         env:
           PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
+        if: matrix.python-version != 3.11
+      - name: Install dependencies
+        run: |
+          pip --verbose install .[tests,docs] -Cbuild-dir=build -Csetup-args=-Dbuildtype=debug -Csetup-args=-Db_coverage=true
+        env:
+          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
+        if: matrix.python-version == 3.11
       - name: Tests
         run: |
           pytest test/
 #         python test_cython/runtests.py
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+        if: matrix.python-version != 3.11
       - name: Building docs
         if: matrix.python-version == 3.11
         run: |
@@ -70,16 +78,13 @@ jobs:
           make -C build/sphinx/latex all-pdf
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
-      # XXX: why this doesn't work with pip install --editable above?
-#     - name: Run coverage tests
-#       run: |
-#         pip uninstall -y gmpy2
-#         python setup.py clean
-#         CFLAGS="-coverage" python setup.py develop
-#         pytest test/
-#         PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
-#         lcov --capture --directory . --no-external --output-file build/coverage.info
-#         genhtml build/coverage.info --output-directory build/coverage
+      - name: Capture coverage data
+        if: matrix.python-version == 3.11
+        run: |
+          lcov --capture --directory build/ --output-file coverage.info
+          lcov --remove coverage.info "*.h" --ignore-errors unused \
+               --output-file coverage.info
+          genhtml coverage.info --output-directory build/coverage
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         if: matrix.python-version == 3.11
@@ -88,4 +93,4 @@ jobs:
             build/sphinx/doctest/
             build/sphinx/html/
             build/sphinx/latex/gmpy2.pdf
-#           build/coverage/
+            build/coverage/
