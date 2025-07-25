@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.11, 3.12, 3.13]
-        os: [macos-13]
+        os: [macos-14]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -20,10 +20,10 @@ jobs:
       - run: pip install --upgrade pip
       - run: pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
         env:
-          PKG_CONFIG_PATH: .local/lib/pkgconfig
+          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
       - run: pytest test/
         env:
-          LD_LIBRARY_PATH: .local/lib
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
 #     - run: python test_cython/runtests.py
 #       if: ${{ matrix.python-version != '3.13' }}
 
@@ -54,13 +54,13 @@ jobs:
           pip install --upgrade pip
           pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
         env:
-          PKG_CONFIG_PATH: .local/lib/pkgconfig
+          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
       - name: Tests
         run: |
           pytest test/
 #         python test_cython/runtests.py
         env:
-          LD_LIBRARY_PATH: .local/lib
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
       - name: Building docs
         if: matrix.python-version == 3.11
         run: |
@@ -102,19 +102,21 @@ jobs:
       - uses: msys2/setup-msys2@v2
         name: Setup msys2
         with:
-          update: true
           install: >-
             git
             python-pip
-            mingw-w64-x86_64-meson
-            mingw-w64-x86_64-gcc
+            mingw-w64-ucrt-x86_64-gcc
+            autotools
             patch
+          msystem: ucrt64
       - name: Build and run tests in venv
         run: |
           bash scripts/cibw_before_all.sh
           python -m venv .test-venv
           source .test-venv/bin/activate
           pip install --upgrade pip
+          export PKG_CONFIG_PATH="$(pwd)/.local/lib/pkgconfig"
           pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
+          export PATH="$PATH:$(pwd)/.local/bin"
           pytest test/
 #         python test_cython/runtests.py
