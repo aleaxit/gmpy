@@ -16,7 +16,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+      - name: Cache .local builds
+        id: cache-gmpy2
+        uses: actions/cache@v4
+        with:
+          path: .local
+          key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
       - run: bash scripts/cibw_before_all.sh
+        if: steps.cache-gmpy2.outputs.cache-hit != 'true'
       - run: pip install --upgrade pip
       - run: pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
         env:
@@ -48,7 +55,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install texlive texlive-latex-extra latexmk lcov
+      - name: Cache .local builds
+        id: cache-gmpy2
+        uses: actions/cache@v4
+        with:
+          path: .local
+          key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
       - run: bash scripts/cibw_before_all.sh
+        if: steps.cache-gmpy2.outputs.cache-hit != 'true'
       - run: pip install --upgrade pip
       - name: Install dependencies
         run: |
