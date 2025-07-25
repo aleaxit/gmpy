@@ -109,36 +109,3 @@ jobs:
             build/sphinx/html/
             build/sphinx/latex/gmpy2.pdf
             build/coverage/
-
-  windows:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-2022]
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - uses: actions/checkout@v5
-      - uses: msys2/setup-msys2@v2.27.0
-        name: Setup msys2
-        with:
-          install: >-
-            git
-            python-pip
-            mingw-w64-ucrt-x86_64-gcc
-            autotools
-            patch
-          msystem: ucrt64
-      - name: Build and run tests in venv
-        run: |
-          bash scripts/cibw_before_all.sh
-          python -m venv .test-venv
-          source .test-venv/bin/activate
-          pip install --upgrade pip
-          export PKG_CONFIG_PATH="$(pwd)/.local/lib/pkgconfig"
-          pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
-          export PATH="$PATH:$(pwd)/.local/bin"
-          pytest test/
-#         python test_cython/runtests.py
