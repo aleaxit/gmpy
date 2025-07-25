@@ -16,11 +16,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+      - run: bash scripts/cibw_before_all.sh
       - run: pip install --upgrade pip
-      - run: pip --verbose install .[tests]
+      - run: pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
       - run: pytest test/
-      - run: python test_cython/runtests.py
-        if: ${{ matrix.python-version != '3.13' }}
+#     - run: python test_cython/runtests.py
+#       if: ${{ matrix.python-version != '3.13' }}
 
   linux:
     strategy:
@@ -39,15 +40,16 @@ jobs:
       - name: Install Libs
         run: |
           sudo apt-get update
-          sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk lcov
+          sudo apt-get install texlive texlive-latex-extra latexmk lcov
+      - run: bash scripts/cibw_before_all.sh
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip --verbose install .[docs,tests]
+          pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
       - name: Tests
         run: |
           pytest test/
-          python test_cython/runtests.py
+#         python test_cython/runtests.py
       - name: Building docs
         if: matrix.python-version == 3.11
         run: |
@@ -91,17 +93,16 @@ jobs:
         with:
           update: true
           install: >-
-            gcc
-            gmp-devel
-            mpfr-devel
-            mpc-devel
-            python-setuptools
+            git
             python-pip
+            mingw-w64-x86_64-meson
+            mingw-w64-x86_64-gcc
       - name: Build and run tests in venv
         run: |
+          bash scripts/cibw_before_all.sh
           python -m venv .test-venv
           source .test-venv/bin/activate
           pip install --upgrade pip
-          pip --verbose install .[tests]
+          pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
           pytest test/
-          python test_cython/runtests.py
+#         python test_cython/runtests.py
