@@ -68,6 +68,8 @@ jobs:
           sphinx-build --color -W --keep-going -b html docs build/sphinx/html
           sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
           make -C build/sphinx/latex all-pdf
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
       # XXX: why this doesn't work with pip install --editable above?
 #     - name: Run coverage tests
 #       run: |
