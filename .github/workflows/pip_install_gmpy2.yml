@@ -19,7 +19,11 @@ jobs:
       - run: bash scripts/cibw_before_all.sh
       - run: pip install --upgrade pip
       - run: pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
+        env:
+          PKG_CONFIG_PATH: .local/lib/pkgconfig
       - run: pytest test/
+        env:
+          LD_LIBRARY_PATH: .local/lib
 #     - run: python test_cython/runtests.py
 #       if: ${{ matrix.python-version != '3.13' }}
 
@@ -31,6 +35,9 @@ jobs:
                          3.14, 3.14t]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
+    env:
+      PYTEST_ADDOPTS: --verbose
+      CFLAGS: -Wall -Wpedantic -Werror -std=c17
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -46,10 +53,14 @@ jobs:
         run: |
           pip install --upgrade pip
           pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
+        env:
+          PKG_CONFIG_PATH: .local/lib/pkgconfig
       - name: Tests
         run: |
           pytest test/
 #         python test_cython/runtests.py
+        env:
+          LD_LIBRARY_PATH: .local/lib
       - name: Building docs
         if: matrix.python-version == 3.11
         run: |
@@ -97,6 +108,7 @@ jobs:
             python-pip
             mingw-w64-x86_64-meson
             mingw-w64-x86_64-gcc
+            patch
       - name: Build and run tests in venv
         run: |
           bash scripts/cibw_before_all.sh
