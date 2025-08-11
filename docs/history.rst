@@ -3,6 +3,16 @@ Release Notes
 
 .. currentmodule:: gmpy2
 
+Changes in gmpy2 2.2.2
+----------------------
+
+* Preliminary support for free-threaded builds.
+* Fix behavior and memory leaks for contexts.
+* Fix memory leaks for `mpfr` caching.
+* Fix rounding error in `float(mpz)`.
+* Add missing methods to `mpz` and `mpq`.
+* Fix `round(mpz, ndigits)` if ndigits is negative.
+
 Changes in gmpy2 2.2.1
 ----------------------
 
