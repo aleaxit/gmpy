@@ -3,15 +3,27 @@ Release Notes
 
 .. currentmodule:: gmpy2
 
-Changes in gmpy2 2.2.2
+Changes in gmpy2 2.3.0
 ----------------------
 
-* Preliminary support for free-threaded builds.
-* Fix behavior and memory leaks for contexts.
-* Fix memory leaks for `mpfr` caching.
-* Fix rounding error in float(mpz).
-* Add missing methods to `mpz` and `mpq`.
-* Fix round(mpz, ndigits) if ndigits is negative.
+* Improved support for mixed `mpfr` and `mpc` arithmetic.  (skirpichev)
+* Preliminary support for free-threaded builds.  (skirpichev)
+* Fix behavior and memory leaks for contexts.  (skirpichev)
+* Fix memory leaks for `mpfr` caching.  (skirpichev)
+* Fix rounding error in float(mpz).  (skirpichev)
+* Add missing methods to `mpz` and `mpq`.  (skirpichev)
+* Fix round(mpz, ndigits) if ndigits is negative.  (skirpichev)
+
+Changes in gmpy2 2.2.2 (released as 2.3.0)
+------------------------------------------
+
+* Preliminary support for free-threaded builds.  (skirpichev)
+* Fix behavior and memory leaks for contexts.  (skirpichev)
+* Fix memory leaks for `mpfr` caching.  (skirpichev)
+* Fix rounding error in float(mpz).  (skirpichev)
+* Add missing methods to `mpz` and `mpq`.  (skirpichev)
+* Fix round(mpz, ndigits) if ndigits is negative.  (skirpichev)
+* Improved support for mixed `mpfr` and `mpc` arithmetic.  (skirpichev)
 
 Changes in gmpy2 2.2.1
 ----------------------
