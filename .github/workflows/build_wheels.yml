@@ -8,10 +8,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04-arm, macos-13, macos-14, windows-2022]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-14, windows-2022]
     steps:
-      - uses: actions/checkout@v4
-      - uses: msys2/setup-msys2@v2.27.0
+      - uses: actions/checkout@v5
+      - uses: msys2/setup-msys2@v2
         name: Setup msys2
         with:
           install: >-
@@ -20,8 +20,10 @@ jobs:
           msystem: ucrt64
           path-type: inherit
         if: ${{ matrix.os == 'windows-2022' }}
+      - run: brew install autoconf automake libtool
+        if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.0
+        uses: pypa/cibuildwheel@v3.1.2
         env:
           CIBW_ENABLE: pypy cpython-prerelease cpython-freethreading
           CIBW_SKIP: pp38* pp39* *-win32 *-manylinux_armv7l
@@ -41,7 +43,7 @@ jobs:
           name: wheels-${{ matrix.os }}
           path: ./wheelhouse/
   merge:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: build_wheels
     steps:
       - name: Merge Wheels
