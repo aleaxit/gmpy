@@ -1985,7 +1985,12 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *const *args,
     gap = length - size;
 
     if (gap < 0 || sign < 0 ||
-        (is_signed && length && mpz_tstbit(*px, 8*length - 1) == !is_negative))
+        (is_signed &&
+#if (PY_VERSION_HEX < 0x030D08F0 || (PY_VERSION_HEX >= 0x030E0000 \
+                                     && PY_VERSION_HEX < 0x030E00C3))
+         length &&
+#endif
+         mpz_tstbit(*px, 8*length - 1) == !is_negative))
     {
         OVERFLOW_ERROR("mpz too big to convert");
         return NULL;
