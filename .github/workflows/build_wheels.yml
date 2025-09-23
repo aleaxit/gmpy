@@ -23,7 +23,7 @@ jobs:
       - run: brew install autoconf automake libtool
         if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.1.2
+        uses: pypa/cibuildwheel@v3.1.4
         env:
           CIBW_ENABLE: pypy cpython-prerelease cpython-freethreading
           CIBW_SKIP: pp38* pp39* *-win32 *-manylinux_armv7l
