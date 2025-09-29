@@ -54,7 +54,7 @@ xfail_strict = true
 build-frontend = {name="build", args=["--verbose"]}
 enable = "pypy cpython-prerelease cpython-freethreading"
 skip = """*-win32 *-manylinux_i686 *-musllinux_* \
-          *-manylinux_armv7l pp310* pp*aarch64* gp3*win*"""
+          *-manylinux_armv7l pp310* pp*aarch64*"""
 before-all = "bash scripts/cibw_before_all.sh"
 test-extras = "tests"
 #test-command = """pytest {package}/test && \
@@ -62,11 +62,7 @@ test-extras = "tests"
 test-command = "pytest {package}/test"
 #test-environment = {CFLAGS = ""}
 
-#[tool.cibuildwheel.linux]
-#before-test = "sudo apt install libmpc-dev"
-
 #[tool.cibuildwheel.macos]
-#before-test = "brew install libmpc"
 #environment = {CFLAGS = ""}  # pypy issues, fixed in dev
 
 [tool.cibuildwheel.environment]
@@ -81,7 +77,6 @@ before-build = "pip install wheel delvewheel"
 repair-wheel-command = """delvewheel repair -w {dest_dir} {wheel} \
                           --add-path .local/bin --no-mangle-all \
                           --include-imports"""
-#before-test = "pacman -S --noconfirm mpc-devel"
 
 [tool.cibuildwheel.windows.environment]
 PYTEST_ADDOPTS = "--verbose"
