@@ -24,20 +24,6 @@ jobs:
         if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.0
-        env:
-          CIBW_ENABLE: pypy cpython-prerelease cpython-freethreading
-          CIBW_SKIP: pp38* pp39* *-win32 *-manylinux_armv7l
-          CIBW_BEFORE_ALL: bash scripts/cibw_before_all.sh
-          CIBW_BEFORE_ALL_WINDOWS: msys2 -c scripts/cibw_before_all.sh
-          CIBW_BEFORE_BUILD_WINDOWS: pip install wheel delvewheel
-          CIBW_TEST_EXTRAS: tests
-          CIBW_TEST_COMMAND: >
-            pytest {package}/test/ &&
-            python {package}/test_cython/runtests.py
-          CIBW_REPAIR_WHEEL_COMMAND: >
-            bash scripts/cibw_repair_wheel_command.sh {dest_dir} {wheel}
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
-           scripts\cibw_repair_wheel_command_windows.bat {dest_dir} {wheel}
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}

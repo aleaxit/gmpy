@@ -59,3 +59,29 @@ gmpy2 = ['*.pxd', '*.h', '*.dll', '*.lib']
 addopts = "--durations=10"
 norecursedirs = ['build', '.eggs', '.git', '.hypothesis']
 xfail_strict = true
+
+[tool.cibuildwheel]
+build-frontend = {name="build", args=["--verbose"]}
+enable = "pypy cpython-prerelease cpython-freethreading"
+skip = """*-win32 *-manylinux_i686 *-musllinux_* \
+          *-manylinux_armv7l pp*aarch64*"""
+before-all = "bash scripts/cibw_before_all.sh"
+test-extras = "tests"
+test-command = """pytest {package}/test && \
+                  python {package}/test_cython/runtests.py"""
+repair-wheel-command = """bash scripts/cibw_repair_wheel_command.sh \
+                          {dest_dir} {wheel}"""
+
+[tool.cibuildwheel.environment]
+LD_LIBRARY_PATH = "$(pwd)/.local/lib:$LD_LIBRARY_PATH"
+PKG_CONFIG_PATH = "$(pwd)/.local/lib/pkgconfig"
+PYTEST_ADDOPTS = "--verbose"
+
+[tool.cibuildwheel.windows]
+before-all = "msys2 -c scripts/cibw_before_all.sh"
+before-build = "pip install wheel delvewheel"
+repair-wheel-command = """scripts\\cibw_repair_wheel_command_windows.bat \
+                          {dest_dir} {wheel}"""
+
+[tool.cibuildwheel.windows.environment]
+PYTEST_ADDOPTS = "--verbose"
