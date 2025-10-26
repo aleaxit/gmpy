@@ -17,12 +17,13 @@ jobs:
         with:
           install: >-
             mingw-w64-ucrt-x86_64-gcc
-            autotools
+            diffutils
+            m4
+            make
+            patch
           msystem: ucrt64
           path-type: inherit
         if: ${{ matrix.os == 'windows-2022' }}
-      - run: brew install autoconf automake libtool
-        if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
       - uses: actions/upload-artifact@v4
