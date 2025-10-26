@@ -16,7 +16,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
-      - run: brew install autoconf automake libtool
       - name: Cache .local builds
         id: cache-gmpy2
         uses: actions/cache@v4

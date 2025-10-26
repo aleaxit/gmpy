@@ -21,8 +21,6 @@ patch -N -Z -p0 < ../scripts/fat_build_fix.diff
 patch -N -Z -p0 < ../scripts/dll-importexport.diff
 patch -N -Z -p1 < ../scripts/gcc15.diff
 
-autoreconf -fi
-
 # config.guess uses microarchitecture and configfsf.guess doesn't
 # We replace config.guess with configfsf.guess to avoid microarchitecture
 # specific code in common code.
@@ -53,22 +51,7 @@ curl -s -O https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
 tar -xf mpc-${MPC_VERSION}.tar.gz
 cd mpc-${MPC_VERSION}
 
-## add pkg-config data
-#cat > mpc.pc.in <<'EOF'
-#prefix=@prefix@
-#exec_prefix=@exec_prefix@
-#includedir=@includedir@
-#libdir=@libdir@
-#
-#Name: @PACKAGE_NAME@
-#Description: GNU MPC is a complex floating-point library with exact rounding.
-#URL: https://www.multiprecision.org/
-#Version: @PACKAGE_VERSION@
-#Cflags: -I${includedir}
-#Libs: -L${libdir} -lmpc
-#EOF
-#patch -N -Z -p0 < ../scripts/mpc-pkg-config.diff
-#autoreconf -vfi
+patch -N -Z -p1 < ../scripts/mpc-pkg-config.diff
 
 ./configure --enable-shared \
             --disable-static \
@@ -78,20 +61,5 @@ cd mpc-${MPC_VERSION}
             --prefix=$PREFIX
 make -j6
 make install
-
-mkdir -p ${PREFIX}/lib/pkgconfig
-cat > ${PREFIX}/lib/pkgconfig/mpc.pc <<EOF
-prefix=${PREFIX}
-exec_prefix=${PREFIX}/bin/
-includedir=${PREFIX}/include/
-libdir=${PREFIX}/lib/
-
-Name: mpc
-Description: GNU MPC is a complex floating-point library with exact rounding.
-URL: https://www.multiprecision.org/
-Version: 1.3.1
-Cflags: -I${PREFIX}/include/
-Libs: -L${PREFIX}/lib/ -lmpc
-EOF
 
 cd ../
