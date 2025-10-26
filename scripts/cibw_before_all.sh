@@ -14,9 +14,11 @@ tar -xf gmp-${GMP_VERSION}.tar.xz
 cd gmp-${GMP_VERSION}
 # Patch the mp_bitcnt_t to "unsigned long long int" on WINDOWS AMD64:
 patch -N -Z -p0 < ../scripts/mp_bitcnt_t.diff
+
 patch -N -Z -p0 < ../scripts/fat_build_fix.diff
 patch -N -Z -p0 < ../scripts/dll-importexport.diff
 patch -N -Z -p1 < ../scripts/gcc15.diff
+
 autoreconf -fi
 
 # config.guess uses microarchitecture and configfsf.guess doesn't
