@@ -66,7 +66,7 @@ jobs:
           lcov --capture --directory . --no-external --output-file build/coverage.info
           genhtml build/coverage.info --output-directory build/coverage
       - name: Archive build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: matrix.python-version == 3.11
         with:
           path: |
