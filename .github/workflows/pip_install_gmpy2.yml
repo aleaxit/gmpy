@@ -8,8 +8,11 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.11, 3.12, 3.13]
-        os: [macos-13]
+        os: [macos-15]
     runs-on: ${{ matrix.os }}
+    env:
+      CFLAGS: -I/opt/homebrew/include
+      LDFLAGS: -L/opt/homebrew/lib
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
