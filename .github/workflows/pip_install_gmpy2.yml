@@ -13,26 +13,42 @@ jobs:
     env:
       CFLAGS: -I/opt/homebrew/include
       LDFLAGS: -L/opt/homebrew/lib
+      MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+      - name: Cache .local builds
+        id: cache-gmpy2
+        uses: actions/cache@v4
+        with:
+          path: .local
+          key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
+      - run: bash scripts/cibw_before_all.sh
+        if: steps.cache-gmpy2.outputs.cache-hit != 'true'
       - run: pip install --upgrade pip
-      - run: pip --verbose install --editable .[tests]
+      - run: pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
+        env:
+          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
       - run: pytest test/
-      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
-        if: ${{ matrix.python-version != '3.13' }}
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+#     - run: python test_cython/runtests.py
+#       if: ${{ matrix.python-version != '3.13' }}
 
   linux:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3.11, pypy3.11, 3.12, 3.13, 3.13t,
+        python-version: [3.9, '3.10', 3.11, pypy3.11, 3.12, 3.13, 3.13t,
                          3.14, 3.14t]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
+    env:
+      PYTEST_ADDOPTS: --verbose
+      CFLAGS: -Wall -Wpedantic -Werror -std=c17
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -42,15 +58,35 @@ jobs:
       - name: Install Libs
         run: |
           sudo apt-get update
-          sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk lcov
+          sudo apt-get install texlive texlive-latex-extra latexmk lcov
+      - name: Cache .local builds
+        id: cache-gmpy2
+        uses: actions/cache@v4
+        with:
+          path: .local
+          key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
+      - run: bash scripts/cibw_before_all.sh
+        if: steps.cache-gmpy2.outputs.cache-hit != 'true'
+      - run: pip install --upgrade pip
       - name: Install dependencies
         run: |
-          pip install --upgrade pip 'setuptools<80'
-          pip --verbose install --editable .[docs,tests]
+          pip --verbose install .[tests] -Csetup-args=-Dbuildtype=debug
+        env:
+          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
+        if: matrix.python-version != 3.11
+      - name: Install dependencies
+        run: |
+          pip --verbose install .[tests,docs] -Cbuild-dir=build -Csetup-args=-Dbuildtype=debug -Csetup-args=-Db_coverage=true
+        env:
+          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
+        if: matrix.python-version == 3.11
       - name: Tests
         run: |
           pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+#         python test_cython/runtests.py
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+        if: matrix.python-version != 3.11
       - name: Building docs
         if: matrix.python-version == 3.11
         run: |
@@ -58,16 +94,15 @@ jobs:
           sphinx-build --color -W --keep-going -b html docs build/sphinx/html
           sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
           make -C build/sphinx/latex all-pdf
-      # XXX: why this doesn't work with pip install --editable above?
-      - name: Run coverage tests
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+      - name: Capture coverage data
+        if: matrix.python-version == 3.11
         run: |
-          pip uninstall -y gmpy2
-          python setup.py clean
-          CFLAGS="-coverage" python setup.py develop
-          pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
-          lcov --capture --directory . --no-external --output-file build/coverage.info
-          genhtml build/coverage.info --output-directory build/coverage
+          lcov --capture --directory build/ --output-file coverage.info
+          lcov --remove coverage.info "*.h" --ignore-errors unused \
+               --output-file coverage.info
+          genhtml coverage.info --output-directory build/coverage
       - name: Archive build artifacts
         uses: actions/upload-artifact@v5
         if: matrix.python-version == 3.11
@@ -77,34 +112,3 @@ jobs:
             build/sphinx/html/
             build/sphinx/latex/gmpy2.pdf
             build/coverage/
-
-  windows:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-2022]
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - uses: actions/checkout@v5
-      - uses: msys2/setup-msys2@v2
-        name: Setup msys2
-        with:
-          update: true
-          install: >-
-            gcc
-            gmp-devel
-            mpfr-devel
-            mpc-devel
-            python-setuptools
-            python-pip
-      - name: Build and run tests in venv
-        run: |
-          python -m venv .test-venv
-          source .test-venv/bin/activate
-          pip install --upgrade pip
-          pip --verbose install -e .[tests]
-          pytest test/
-          PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
