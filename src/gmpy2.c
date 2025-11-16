@@ -942,7 +942,11 @@ static PyModuleDef_Slot Pygmpy_slots[] = {
      Py_MOD_MULTIPLE_INTERPRETERS_NOT_SUPPORTED},
 #  endif
 #  if PY_VERSION_HEX >= 0x030D0000
+#    ifdef MPFR_USE_THREAD_SAFE
     {Py_mod_gil, Py_MOD_GIL_NOT_USED},
+#    else
+    {Py_mod_gil, Py_MOD_GIL_USED},
+#    endif
 #  endif
     {0, NULL}
 };
