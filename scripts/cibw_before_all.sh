@@ -27,7 +27,7 @@ then
   if [ "${RUNNER_ARCH}" = "ARM64" ]
   then
     autoreconf -fi
-    CONFIG_ARGS="${CONFIG_ARGS} --disable-assembly"
+    CONFIG_ARGS="${CONFIG_ARGS} --build=aarch64-w64-mingw32 --disable-assembly"
   else
     CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
   fi
