@@ -10,27 +10,35 @@ jobs:
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15-intel, macos-15,
              windows-2022]
+        msystem: [ucrt64]
+        menv: [ucrt-x86_64]
+        include:
+          - os: windows-11-arm
+            msystem: clangarm64
+            menv: clang-aarch64
     steps:
       - uses: actions/checkout@v5
       - uses: msys2/setup-msys2@v2
         name: Setup msys2
         with:
           install: >-
-            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-${{ matrix.menv }}-gcc
             diffutils
             m4
             make
             patch
-          msystem: ucrt64
-        if: ${{ matrix.os == 'windows-2022' }}
+            autotools
+          msystem: ${{ matrix.msystem }}
+          path-type: inherit
+        if: contains(matrix.os, 'windows')
       # Install pkgconfig on Windows from choco rather than from msys and
       # avoid using the Strawberry one.
       - run: choco install -y --stoponfirstfailure --checksum 6004DF17818F5A6DBF19CB335CC92702 pkgconfiglite
-        if: ${{ startsWith(matrix.os, 'windows') }}
+        if: contains(matrix.os, 'windows')
       # We have to set this here rather than in the cibuildwheel config
       # This is probably something to do with \ vs / in paths...
       - run: echo "PKG_CONFIG_PATH=${{ github.workspace }}/.local/lib/pkgconfig" >> $env:GITHUB_ENV
-        if: ${{ startsWith(matrix.os, 'windows') }}
+        if: contains(matrix.os, 'windows')
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
       - uses: actions/upload-artifact@v5

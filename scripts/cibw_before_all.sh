@@ -21,15 +21,24 @@ patch -N -Z -p0 < ../scripts/fat_build_fix.diff
 patch -N -Z -p0 < ../scripts/dll-importexport.diff
 patch -N -Z -p1 < ../scripts/gcc15.diff
 
+CONFIG_ARGS="--enable-shared --disable-static --with-pic --prefix=$PREFIX"
+if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
+then
+  if [ "${RUNNER_ARCH}" = "ARM64" ]
+  then
+    autoreconf -fi
+    CONFIG_ARGS="${CONFIG_ARGS} --disable-assembly"
+  else
+    CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
+  fi
+else
+  CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
+fi
 # config.guess uses microarchitecture and configfsf.guess doesn't
 # We replace config.guess with configfsf.guess to avoid microarchitecture
 # specific code in common code.
 rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
-./configure --enable-fat \
-            --enable-shared \
-            --disable-static \
-            --with-pic \
-            --prefix=$PREFIX
+./configure ${CONFIG_ARGS}
 make -j6
 make install
 cd ../
