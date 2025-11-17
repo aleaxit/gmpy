@@ -19,15 +19,24 @@ patch -N -Z -p0 < ../scripts/fat_build_fix.diff
 patch -N -Z -p0 < ../scripts/dll-importexport.diff
 patch -N -Z -p1 < ../scripts/gcc15.diff
 
+CONFIG_ARGS="--enable-shared --disable-static --with-pic --prefix=$PREFIX"
+if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "cygwin" ]
+then
+  if [ "${RUNNER_ARCH}" = "ARM64" ]
+  then
+    autoreconf -fi
+    CONFIG_ARGS="${CONFIG_ARGS} --disable-assembly"
+  else
+    CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
+  fi
+else
+  CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
+fi
 # config.guess uses microarchitecture and configfsf.guess doesn't
 # We replace config.guess with configfsf.guess to avoid microarchitecture
 # specific code in common code.
 rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
-./configure --enable-fat \
-            --enable-shared \
-            --disable-static \
-            --with-pic \
-            --prefix=$PREFIX
+./configure ${CONFIG_ARGS}
 make -j6
 make install
 cd ../
@@ -88,8 +97,12 @@ then
     cat ${exports_file} | awk 'NR>19 && $4 != "" {print $4 " @"$1}' >> ${def_file}
     sed -i 's/$/\r/' ${def_file}
 
-    lib //def:${def_file} //out:${lib_file} //machine:x64
-
+    if [ "${RUNNER_ARCH}" = "ARM64" ]
+    then
+      lib //def:${def_file} //out:${lib_file} //machine:arm64
+    else
+      lib //def:${def_file} //out:${lib_file} //machine:x64
+    fi
     rm ${exports_file} ${def_file} ${lib_name}.exp
     mv ${lib_file} ${name}.lib
   done
